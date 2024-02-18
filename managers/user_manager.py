@@ -20,8 +20,8 @@ class UserManager:
         self.__invalid_role_error = "invalid role"
         self.__invalid_password_error = "invalid password"
         self.__user_not_found_error = "user not found"
-        self.__user_is_not_admin_error = "you are not performed to to this action"
-        self.__user_is_not_judge_error = "you are not performed to to this action"
+        self.__user_is_not_admin_error = "you are not allowed to perform this action"
+        self.__user_is_not_judge_error = "you are not allowed to perform this action"
 
     def get_user_by_id(self, user_id: int) -> UserDB:
         db_user = get_user_by_id_db(self.__db, user_id)
