@@ -5,8 +5,8 @@ from sqlalchemy.orm import Session
 from starlette import status
 
 from config import settings
-from db.crud import create_user, get_user_by_username
-from db.schemas import UserCreate, UserRole
+from db.crud import create_user, get_user_by_username, pwd_context
+from db.schemas import UserCreate, UserRole, UserDB
 
 
 class UserManager:
@@ -18,12 +18,13 @@ class UserManager:
         self.__username_taken_error = "username taken"
         self.__secret_missing_error = "secret missing"
         self.__invalid_role_error = "invalid role"
+        self.__invalid_password_error = "invalid password"
+        self.__user_not_found_error = "user not found"
 
-    def login_user(self):
-        pass
-
-    def logout_user(self):
-        pass
+    def get_user_by_username(self, username):
+        db_user = get_user_by_username(self.__db, username)
+        self.raise_error_if_user_not_found(db_user)
+        
 
     def create_user(self, user: UserCreate, secret: str | None):
         self.raise_error_if_username_taken(user.username)
@@ -40,6 +41,10 @@ class UserManager:
                 detail={"error": self.__wrong_secret_error}
             )
 
+    def check_user_password(self, user: UserDB, password: str):
+        password_correct = pwd_context.verify(password, user.hashed_password)
+        self.raise_exception_id_password_incorrect(password_correct)
+
     def raise_error_if_username_taken(self, username):
         db_user = get_user_by_username(self.__db, username)
         if db_user:
@@ -53,4 +58,18 @@ class UserManager:
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail={"error": self.__secret_missing_error}
+            )
+
+    def raise_exception_id_password_incorrect(self, correct):
+        if not correct:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail={"error": self.__invalid_password_error}
+            )
+
+    def raise_error_if_user_not_found(self, user):
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_UNAUTHORIZED,
+                detail={"error": self.__user_not_found_error}
             )

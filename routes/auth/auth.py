@@ -12,10 +12,10 @@ auth = APIRouter(prefix="/auth")
 @auth.post("/login")
 async def login(user: UserLogin, db: Session = Depends(get_db)):
     service = AuthService(db)
-    return service.login()
+    return service.login(user)
 
 
-@auth.post("logout")
+@auth.post("/logout")
 async def logout(token: Annotated[str, Body()], db: Session = Depends(get_db)):
     service = AuthService(db)
     return service.logout()

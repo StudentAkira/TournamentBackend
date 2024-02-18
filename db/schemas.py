@@ -8,15 +8,15 @@ class UserRole(str, Enum):
 
 
 class BaseUser(BaseModel):
-    username: str
+    username: str = Field(min_length=5)
 
 
 class UserGet(BaseUser):
-    first_name: str
-    second_name: str
-    third_name: str
+    first_name: str = Field(min_length=1)
+    second_name: str = Field(min_length=1)
+    third_name: str = Field(min_length=1)
 
-    region: str
+    region: str = Field(min_length=1)
     role: UserRole
 
 
