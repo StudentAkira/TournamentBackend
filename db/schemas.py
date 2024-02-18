@@ -31,3 +31,13 @@ class UserLogin(BaseUser):
 class UserDB(UserGet):
     id: int
     hashed_password: str
+
+
+class TokenDB(BaseModel):
+    token: str
+    owner_id: int
+
+
+class DecodedToken(BaseUser):
+    user_id: int
+    exp: int
