@@ -13,7 +13,7 @@ class User(Base):
 
     first_name = Column(String, nullable=False)
     second_name = Column(String, nullable=False)
-    last_name = Column(String, nullable=False)
+    third_name = Column(String, nullable=False)
 
     role = Column(String, nullable=False)
     tokens = relationship("Token", back_populates="owner")
