@@ -91,4 +91,3 @@ class UserManager:
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail={"error": self.__user_is_not_judge_error}
             )
-
