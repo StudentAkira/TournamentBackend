@@ -1,5 +1,5 @@
-from fastapi import APIRouter
-
+from fastapi import APIRouter, Body
+from typing_extensions import Annotated
 
 tournament = APIRouter(prefix="/tournament", tags=["tournament"])
 
@@ -15,5 +15,5 @@ async def set_tournament_participants(tournament_id: int, participants_usernames
 
 
 @tournament.post("/set_match_results")
-async def set_match_results(results: list[tuple[str, int]]):
+async def set_match_results(results: Annotated[list[tuple[str, int]], Body()], tournament_name: Annotated[str, Body()]):
     pass
