@@ -19,7 +19,6 @@ class User(Base):
     educational_institution = Column(String, nullable=True)
 
     role = Column(String, nullable=False)
-    region = Column(String, nullable=False)
     tokens = relationship("Token", back_populates="owner")
 
 

@@ -20,7 +20,6 @@ class BaseUser(BaseModel):
     third_name: str
     phone: PhoneNumber
     role: UserRole
-    region: str
     educational_institution: str | None = None
 
 
@@ -49,3 +48,9 @@ class TokenDB(BaseModel):
 class DecodedToken(BaseUser):
     user_id: int
     exp: int
+
+
+class ParticipantCreate(BaseModel):
+    first_name: str
+    second_name: str
+    third_name: str
