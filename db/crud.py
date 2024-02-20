@@ -17,7 +17,6 @@ def create_user_db(db: Session, user: CreateUser) -> DatabaseUser:
         third_name=user.third_name,
         phone=user.phone,
         educational_institution=user.educational_institution,
-        region=user.region,
         role=user.role,
 
     )
@@ -30,35 +29,13 @@ def create_user_db(db: Session, user: CreateUser) -> DatabaseUser:
 def get_user_by_email_db(db: Session, email: str) -> DatabaseUser | None:
     user = db.query(models.User).filter(models.User.email == email).first()
     if user:
-        return DatabaseUser(
-            id=user.id,
-            email=user.email,
-            hashed_password=user.hashed_password,
-            first_name=user.first_name,
-            second_name=user.second_name,
-            third_name=user.third_name,
-            phone=user.phone,
-            role=user.role,
-            region=user.region,
-            educational_institution=user.educational_institution
-        )
+        return DatabaseUser.from_orm(user)
 
 
 def get_user_by_id_db(db: Session, user_id: int) -> DatabaseUser | None:
     user = db.query(models.User).filter(models.User.id == user_id).first()
     if user:
-        return DatabaseUser(
-            id=user.id,
-            email=user.email,
-            hashed_password=user.hashed_password,
-            first_name=user.first_name,
-            second_name=user.second_name,
-            third_name=user.third_name,
-            phone=user.phone,
-            role=user.role,
-            region=user.region,
-            educational_institution=user.educational_institution
-        )
+        return DatabaseUser.from_orm(user)
 
 
 def save_token_db(db: Session, token: str, user_id: int) -> TokenDB:

@@ -16,12 +16,6 @@ async def get_my_profile(token: Annotated[str, Path()], db: Session = Depends(ge
     return service.get_user_data(token)
 
 
-@users.post("/create_user")
-async def create_user(token: Annotated[str, Body()], user: CreateUser,  db: Session = Depends(get_db)):
-    service = UsersService(db)
-    return service.create_user(user, token)
-
-
 @users.get('/create_superadmin')
 async def create_super_admin(db: Session = Depends(get_db)):
     user = CreateUser(
@@ -37,3 +31,11 @@ async def create_super_admin(db: Session = Depends(get_db)):
     )
     create_user_db(db, user)
     return {"message": "admin created"}
+
+
+@users.post("/create_user")
+async def create_user(token: Annotated[str, Body()], user: CreateUser,  db: Session = Depends(get_db)):
+    service = UsersService(db)
+    return service.create_user(user, token)
+
+

@@ -37,7 +37,7 @@ class DatabaseUser(BaseUser):
     hashed_password: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class TokenDB(BaseModel):
@@ -50,7 +50,18 @@ class DecodedToken(BaseUser):
     exp: int
 
 
-class ParticipantCreate(BaseModel):
+class Participant(BaseModel):
+    participant_email: EmailStr
     first_name: str
     second_name: str
     third_name: str
+    region: str
+    team_name: int
+    competence_id: int
+    birth_date: str
+    software: str
+    imported_equipment: str
+    educational_institution: str
+    additional_educational_institution: str
+
+
