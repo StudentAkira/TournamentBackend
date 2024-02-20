@@ -22,18 +22,18 @@ async def create_user(token: Annotated[str, Body()], user: CreateUser,  db: Sess
     return service.create_user(user, token)
 
 
-# @users.get('/create_superadmin')
-# async def create_super_admin(db: Session = Depends(get_db)):
-#     user = CreateUser(
-#         email="test@mail.ru",
-#         password="7689462",
-#         first_name="Akira",
-#         second_name="Akira",
-#         third_name="Akira",
-#         phone="+375297777777",
-#         educational_institution=None,
-#         region="Akira",
-#         role=UserRole.admin,
-#     )
-#     create_user_db(db, user)
-#     return {"message": "admin created"}
+@users.get('/create_superadmin')
+async def create_super_admin(db: Session = Depends(get_db)):
+    user = CreateUser(
+        email="test@mail.ru",
+        password="7689462",
+        first_name="Akira",
+        second_name="Akira",
+        third_name="Akira",
+        phone="+375297777777",
+        educational_institution=None,
+        region="Akira",
+        role=UserRole.admin,
+    )
+    create_user_db(db, user)
+    return {"message": "admin created"}
