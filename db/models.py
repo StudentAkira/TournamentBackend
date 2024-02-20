@@ -8,12 +8,15 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True)
-    username = Column(String, unique=True, nullable=False)
+    email = Column(String, unique=True, nullable=False)
     hashed_password = Column(String, nullable=False)
 
     first_name = Column(String, nullable=False)
     second_name = Column(String, nullable=False)
     third_name = Column(String, nullable=False)
+
+    phone = Column(String, nullable=False)
+    educational_institution = Column(String, nullable=True)
 
     role = Column(String, nullable=False)
     region = Column(String, nullable=False)

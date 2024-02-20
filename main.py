@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from db import database, models
 from routes.auth.auth import auth
-from routes.tournament.tournament import tournament
+from routes.users.users import users
 
 app = FastAPI()
 
@@ -14,4 +14,4 @@ async def main():
 
 
 app.include_router(auth)
-app.include_router(tournament)
+app.include_router(users)
