@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
 from db import models
-from db.schemas import TokenDB, DatabaseUser, CreateUser
+from db.schemas import TokenDB, DatabaseUser, CreateUser, Event
 from passlib.context import CryptContext
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -18,7 +18,6 @@ def create_user_db(db: Session, user: CreateUser) -> DatabaseUser:
         phone=user.phone,
         educational_institution=user.educational_institution,
         role=user.role,
-
     )
     db.add(db_user)
     db.commit()
@@ -59,3 +58,9 @@ def delete_token_db(db: Session, token: str):
 def get_token_db(db: Session, token: str) -> TokenDB:
     db_token = db.query(models.Token).filter(models.Token.token == token).first()
     return db_token
+
+
+def get_events_db(db: Session, start: int, limit: int) -> list[Event]:
+    db_events = db.query(models.Event).filter(models.Event.id >= start and models.Event.id < limit).all()
+    events = [Event.from_orm(event) for event in db_events]
+    return events

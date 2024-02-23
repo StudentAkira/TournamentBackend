@@ -82,3 +82,10 @@ class UserManager:
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail={"error": self.__educational_institution_is_none_error}
             )
+
+    def raise_exception_if_user_specialist(self, role):
+        if role == UserRole.specialist:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail={"error": self.__access_denied_error}
+            )

@@ -1,13 +1,19 @@
+from db.crud import get_events_db
 from db.schemas import Participant, Event, Nomination, Team
+from managers.token_manager import TokenManager
+from managers.user_manager import UserManager
 
 
 class ParticipationsService:
 
     def __init__(self, db):
         self.__db = db
+        self.__token_manager = TokenManager(db)
+        self.__user_manager = UserManager(db)
 
-    def get_my_events(self, token: str):
-        pass
+    def get_my_events(self, start, limit) -> list[Event]:
+        events = get_events_db(self.__db, start, limit)
+        return events
 
     def get_nominations(self, start, limit):
         pass
