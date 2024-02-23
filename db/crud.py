@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
 from db import models
-from db.schemas import TokenDB, DatabaseUser, CreateUser, Event
+from db.schemas import TokenDB, DatabaseUser, CreateUser, Event, Nomination
 from passlib.context import CryptContext
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -60,7 +60,13 @@ def get_token_db(db: Session, token: str) -> TokenDB:
     return db_token
 
 
-def get_events_db(db: Session, start: int, limit: int) -> list[Event]:
-    db_events = db.query(models.Event).filter(models.Event.id >= start and models.Event.id < limit).all()
+def get_events_db(db: Session, offset: int, limit: int) -> list[Event]:
+    db_events = db.query(models.Event).offset(offset).limit(limit).all()
     events = [Event.from_orm(event) for event in db_events]
     return events
+
+
+def get_nominations_db(db: Session, offset: int, limit: int):
+    db_nominations = db.query(models.Nomination).offset(offset).limit(limit).all()
+    nominations = [Nomination.from_orm(nomination) for nomination in db_nominations]
+    return nominations

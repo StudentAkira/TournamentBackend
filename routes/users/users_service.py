@@ -22,6 +22,6 @@ class UsersService:
 
     def create_user(self, user: CreateUser, token: str) -> dict[str, str]:
         decoded = self.__token_manager.decode_token(token)
-        self.__user_manager.raise_exception_if_user_is_not_admin(decoded.role)
+        self.__user_manager.raise_exception_if_user_is_not_admin(decoded.get("role"))
         self.__user_manager.create_user(user)
         return {"message": self.__user_created_message}

@@ -57,7 +57,6 @@ class Team(Base):
     nomination_events: Mapped[list["TeamNominationEvent"]] = relationship(back_populates="team")
 
 
-
 class NominationEvent(Base):
     __tablename__ = "nomination_event"
 
@@ -76,6 +75,8 @@ class NominationEvent(Base):
 class Nomination(Base):
     __tablename__ = "nomination"
     id: Mapped[int] = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String, unique=True)
+
     events: Mapped[list["NominationEvent"]] = relationship(back_populates="nomination")
 
 
@@ -97,6 +98,12 @@ class TeamNominationEvent(Base):
 
     team: Mapped["Team"] = relationship(back_populates="nomination_events")
     nomination_event: Mapped["NominationEvent"] = relationship(back_populates="teams")
+
+
+
+
+
+
 
 
 
