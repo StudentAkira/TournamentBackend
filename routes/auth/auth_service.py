@@ -16,7 +16,7 @@ class AuthService:
     def login(self, user: LoginUser) -> dict[str, str]:
         db_user = self.__user_manager.get_user_by_email(user.email)
         self.__user_manager.check_user_password(db_user, user.password)
-        token = self.__token_manager.generate_token(db_user.id)
+        token = self.__token_manager.generate_token(db_user.id, user.role)
         return {"token": token}
 
     def logout(self, token) -> dict[str, str]:

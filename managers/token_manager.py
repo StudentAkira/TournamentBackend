@@ -35,9 +35,10 @@ class TokenManager:
         db_token = get_token_db(self.__db, token)
         self.raise_exception_if_token_not_found(db_token)
 
-    def generate_token(self, user_id: int) -> str:
+    def generate_token(self, user_id: int, role: str) -> str:
         to_encode = {
             "user_id": user_id,
+            "role": role,
             "exp":
                 datetime.datetime.now(tz=datetime.timezone.utc) +
                 datetime.timedelta(days=self.__jwt_token_expiration_time)

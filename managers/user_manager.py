@@ -62,8 +62,8 @@ class UserManager:
                 detail={"error": self.__user_not_found_error}
             )
 
-    def raise_exception_if_user_is_not_admin(self, user: DatabaseUser):
-        if user.role != UserRole.admin:
+    def raise_exception_if_user_is_not_admin(self, role: str):
+        if role != UserRole.admin:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail={"error": self.__access_denied_error}

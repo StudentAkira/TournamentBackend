@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from db import database, models
 from routes.auth.auth import auth
+from routes.participations.participations import participations
 from routes.users.users import users
 
 app = FastAPI()
@@ -29,3 +30,4 @@ async def main():
 
 app.include_router(auth)
 app.include_router(users)
+app.include_router(participations)

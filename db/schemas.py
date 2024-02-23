@@ -50,6 +50,18 @@ class DecodedToken(BaseUser):
     exp: int
 
 
+class Event(BaseModel):
+    name: str
+
+
+class Nomination(BaseModel):
+    name: str
+
+
+class Team(BaseModel):
+    pass
+
+
 class Participant(BaseModel):
     participant_email: EmailStr
     first_name: str
@@ -63,6 +75,3 @@ class Participant(BaseModel):
     imported_equipment: str
     educational_institution: str
     additional_educational_institution: str
-
-
-
