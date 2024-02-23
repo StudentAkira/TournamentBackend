@@ -1,7 +1,7 @@
 from db.schemas import Participant
 
 
-class ParticipantsService:
+class ParticipationsService:
 
     def __init__(self, db):
         self.__db = db

@@ -22,7 +22,7 @@ class UsersService:
 
     def create_user(self, user: CreateUser, token: str) -> dict[str, str]:
         decoded = self.__token_manager.decode_token(token)
-        creator = self.__user_manager.get_user_by_id(decoded.get('user_id'))
+        creator = self.__user_manager.get_user_by_id(decoded.get('user_id'))#todo store role in token
         self.__user_manager.raise_exception_if_user_is_not_admin(creator)
         self.__user_manager.create_user(user)
         return {"message": self.__user_created_message}
