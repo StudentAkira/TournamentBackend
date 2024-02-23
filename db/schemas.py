@@ -58,6 +58,10 @@ class Nomination(BaseModel):
     name: str
 
 
+class EventCreate(Event):
+    nominations: list[Nomination] | None
+
+
 class Team(BaseModel):
     pass
 

@@ -8,18 +8,18 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
+
     email = Column(String, unique=True, nullable=False)
     hashed_password = Column(String, nullable=False)
-
     first_name = Column(String, nullable=False)
     second_name = Column(String, nullable=False)
     third_name = Column(String, nullable=False)
-
     phone = Column(String, nullable=False)
     educational_institution = Column(String, nullable=True)
-
     role = Column(String, nullable=False)
+
     tokens = relationship("Token", back_populates="owner")
+    events = relationship("Event", back_populates="")
 
 
 class Token(Base):
@@ -75,7 +75,7 @@ class NominationEvent(Base):
 class Nomination(Base):
     __tablename__ = "nomination"
     id: Mapped[int] = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String, unique=True)
+    name = Column(String)
 
     events: Mapped[list["NominationEvent"]] = relationship(back_populates="nomination")
 
@@ -83,6 +83,11 @@ class Nomination(Base):
 class Event(Base):
     __tablename__ = "event"
     id: Mapped[int] = Column(Integer, primary_key=True, autoincrement=True)
+
+    name: Mapped[int] = Column(String, unique=True)
+    owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+
+    owner = relationship("User", back_populates="events")
     nominations: Mapped[list["NominationEvent"]] = relationship(back_populates="event")
 
 

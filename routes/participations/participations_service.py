@@ -1,5 +1,5 @@
-from db.crud import get_events_db, get_nominations_db
-from db.schemas import Participant, Event, Nomination, Team
+from db.crud import get_events_db, get_nominations_db, create_event_db
+from db.schemas import Participant, Event, Nomination, Team, EventCreate
 from managers.token_manager import TokenManager
 from managers.user_manager import UserManager
 
@@ -11,6 +11,8 @@ class ParticipationsService:
         self.__token_manager = TokenManager(db)
         self.__user_manager = UserManager(db)
 
+        self.__event_created_message = "event created"
+
     def get_my_events(self, offset, limit) -> list[Event]:
         events = get_events_db(self.__db, offset, limit)
         return events
@@ -19,8 +21,11 @@ class ParticipationsService:
         nominations = get_nominations_db(self.__db, offset, limit)
         return  nominations
 
-    def create_event(self, token: str, event: Event, nominations: list[Nomination] | None = None):
-        pass
+    def create_event(self, token: str, event: EventCreate):
+        decoded = self.__token_manager.decode_token(token)
+        self.__user_manager.raise_exception_if_user_specialist(decoded.get("role"))
+        create_event_db(self.__db, event, decoded.get("user_id"))
+        return {"message": self.__event_created_message}
 
     def create_nominations(self, token: str, nominations: list[Nomination]):
         pass

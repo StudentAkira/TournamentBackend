@@ -1,7 +1,8 @@
+from pydantic import EmailStr
 from sqlalchemy.orm import Session
 
 from db import models
-from db.schemas import TokenDB, DatabaseUser, CreateUser, Event, Nomination
+from db.schemas import TokenDB, DatabaseUser, CreateUser, Event, Nomination, EventCreate
 from passlib.context import CryptContext
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -70,3 +71,34 @@ def get_nominations_db(db: Session, offset: int, limit: int):
     db_nominations = db.query(models.Nomination).offset(offset).limit(limit).all()
     nominations = [Nomination.from_orm(nomination) for nomination in db_nominations]
     return nominations
+
+
+def create_nomination(db: Session, nomination: Nomination):
+    db_nomination = models.Nomination(
+        name=nomination.name
+    )
+    db.add(db_nomination)
+    db.commit()
+    db.refresh(db_nomination)
+    return db_nomination
+
+def get_or_create_nominations_db(db: Session, nominations: list[Nomination]):
+    nomination_names = {nomination.name for nomination in nominations}
+    nominations_ids = db.query(models.Nomination.id).all()
+    return nominations_ids
+
+
+def create_event_db(db: Session, event: EventCreate, owner_id: int):
+    print(event.nominations)
+    nominations_ids = get_or_create_nominations_db(db, event.nominations)
+    print("Nominations queried :: ", nominations_ids)
+    event = models.Event(
+        owner_id=owner_id,
+        name=event.name,
+        nominations=[]
+    )
+
+    db.add(event)
+    db.commit()
+    db.refresh(event)
+    return event
