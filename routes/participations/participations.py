@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Body, Depends, Query
 from sqlalchemy.orm import Session
 
-from db.schemas import Participant, Event, Nomination, Team, EventCreate
+from db.schemas import Participant, Event, BaseNomination, Team, EventCreate
 from dependencies import get_db
 from routes.participations.participations_service import ParticipationsService
 
@@ -43,7 +43,7 @@ async def create_event(
 @participations.post("/create_nomination")
 async def create_nominations(
         token: str,
-        nominations: list[Nomination],
+        nominations: list[BaseNomination],
         db: Session = Depends(get_db)
 ):
     service = ParticipationsService(db)
@@ -54,7 +54,7 @@ async def create_nominations(
 async def specify_nominations_for_event(
         token: str,
         event: Event,
-        nominations: list[Nomination],
+        nominations: list[BaseNomination],
         db: Session = Depends(get_db)
 ):
     service = ParticipationsService(db)

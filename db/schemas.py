@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, EmailStr
 from enum import Enum
 
 from pydantic_extra_types.phone_numbers import PhoneNumber
@@ -56,6 +56,9 @@ class Event(BaseModel):
 
 class BaseNomination(BaseModel):
     name: str
+
+    class Config:
+        from_attributes = True
 
 
 class EventCreate(Event):

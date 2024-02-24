@@ -19,7 +19,7 @@ class User(Base):
     role = Column(String, nullable=False)
 
     tokens = relationship("Token", back_populates="owner")
-    events = relationship("Event", back_populates="")
+    events = relationship("Event", back_populates="owner")
 
 
 class Token(Base):
@@ -49,12 +49,16 @@ class Participant(Base):
     additional_educational_institution = Column(String, nullable=False)
 
 
-class Team(Base):
-    __tablename__ = "team"
-
-    id: Mapped[int] = Column(Integer, primary_key=True, autoincrement=True)
-
-    nomination_events: Mapped[list["TeamNominationEvent"]] = relationship(back_populates="team")
+# class Team(Base):
+#     __tablename__ = "team"
+#
+#     id: Mapped[int] = Column(Integer, primary_key=True, autoincrement=True)
+#
+#     nomination_events: Mapped[list["NominationEvent"]] = relationship(
+#         back_populates="teams",
+#         secondary="TeamNominationEvent"
+#
+#     )
 
 
 class NominationEvent(Base):
@@ -62,14 +66,13 @@ class NominationEvent(Base):
 
     id: Mapped[int] = Column(Integer, primary_key=True, autoincrement=True)
 
-    event_id: Mapped[int] = mapped_column(ForeignKey("event.id"))
-    nomination_id: Mapped[int] = mapped_column(
-        ForeignKey("nomination.id")
-    )
-    nominations: Mapped["Nomination"] = relationship(back_populates="events")
-    events: Mapped["Event"] = relationship(back_populates="nominations")
+    event_id: Mapped[int] = mapped_column(ForeignKey("event.id"), primary_key=True)
+    nomination_id: Mapped[int] = mapped_column(ForeignKey("nomination.id"), primary_key=True)
 
-    teams: Mapped[list["TeamNominationEvent"]] = relationship(back_populates="nomination_event")
+    # teams: Mapped[list["Team"]] = relationship(
+    #     back_populates="nomination_events",
+    #     secondary="TeamNominationEvent"
+    # )
 
 
 class Nomination(Base):
@@ -78,39 +81,39 @@ class Nomination(Base):
     id: Mapped[int] = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, unique=True)
 
-    events: Mapped[list["NominationEvent"]] = relationship(back_populates="nominations")
+    events: Mapped[list["Event"]] = relationship(
+        back_populates="nominations",
+        secondary="nomination_event"
+    )
 
 
 class Event(Base):
     __tablename__ = "event"
 
     id: Mapped[int] = Column(Integer, primary_key=True, autoincrement=True)
-
     name: Mapped[int] = Column(String, unique=True)
+
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
-    owner = relationship("User", back_populates="events")
-
-    nominations: Mapped[list["NominationEvent"]] = relationship(back_populates="events")
-
-
-class TeamNominationEvent(Base):
-    __tablename__ = "team_nomination_event"
-
-    id: Mapped[int] = Column(Integer, primary_key=True, autoincrement=True)
-
-    team_id: Mapped[int] = mapped_column(ForeignKey("team.id"), primary_key=True)
-    nomination_event_id: Mapped[int] = mapped_column(
-        ForeignKey("nomination_event.id"), primary_key=True
+    owner: Mapped[list["User"]] = relationship( back_populates="events")
+    nominations: Mapped[list["Nomination"]] = relationship(
+        back_populates="events",
+        secondary="nomination_event"
     )
 
-    team: Mapped["Team"] = relationship(back_populates="nomination_events")
-    nomination_event: Mapped["NominationEvent"] = relationship(back_populates="teams")
 
-
-
-
-
+# class TeamNominationEvent(Base):
+#     __tablename__ = "team_nomination_event"
+#
+#     id: Mapped[int] = Column(Integer, primary_key=True, autoincrement=True)
+#
+#     team_id: Mapped[int] = mapped_column(ForeignKey("team.id"), primary_key=True)
+#     nomination_event_id: Mapped[int] = mapped_column(ForeignKey("nomination_event.id"), primary_key=True)
+#
+#
+#
+#
+#
 
 
 
