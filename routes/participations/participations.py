@@ -50,15 +50,15 @@ async def create_nominations(
     return service.create_nominations(token, nominations)
 
 
-@participations.post("/specify_nominations_for_event")
-async def specify_nominations_for_event(
+@participations.post("/append_nominations_for_event")
+async def append_nominations_for_event(
         token: str,
         event: Event,
         nominations: list[BaseNomination],
         db: Session = Depends(get_db)
 ):
     service = ParticipationsService(db)
-    return service.specify_nominations_for_event(token, event, nominations)
+    return service.append_nominations_for_event(token, event, nominations)
 
 
 @participations.post("/create_team")

@@ -78,12 +78,18 @@ def get_nominations_by_names_db(db: Session, names: set[str]):
     return db_nominations
 
 
-def get_event_by_name_db(db: Session, name: str):
+def get_event_by_name_db(db: Session, name: str) -> models.Event | None:
     db_event = db.query(models.Event).filter(models.Event.name == name).first()
     return db_event
 
 
-def create_nominations_db(db: Session, nominations: list[BaseNomination]):
+def save_nominations_db(db: Session, nominations: list[BaseNomination]):
+    db_nominations = create_non_existent_return_all_nominations_db(db, nominations)
+    db.commit()
+    return db_nominations
+
+
+def create_non_existent_return_all_nominations_db(db: Session, nominations: list[BaseNomination]):
     all_nominations = db.query(models.Nomination).all()
     existing_nominations_names = {db_nomination.name for db_nomination in all_nominations}
 
@@ -108,13 +114,22 @@ def create_nominations_db(db: Session, nominations: list[BaseNomination]):
 
 def create_event_db(db: Session, event: EventCreate, owner_id: int):
     nominations = event.nominations
-    db_nominations = create_nominations_db(db, nominations)
+    db_nominations = create_non_existent_return_all_nominations_db(db, nominations)
     db_event = models.Event(
         name=event.name,
         owner_id=owner_id
     )
-    event.nominations.extend(db_nominations)
+    db_event.nominations.extend(db_nominations)
     db.add(db_event)
     db.commit()
     db.refresh(db_event)
     return db_event
+
+
+def append_event_nominations_db(db: Session, event: models.Event, nominations: list[BaseNomination]):
+    db_nominations = create_non_existent_return_all_nominations_db(db, nominations)
+    event.nominations.extend(db_nominations)
+    db.add(event)
+    db.commit()
+    db.refresh(event)
+    return event

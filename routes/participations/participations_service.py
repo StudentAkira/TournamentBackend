@@ -1,4 +1,4 @@
-from db.crud import get_events_db, get_nominations_db, create_event_db, create_nominations_db
+from db.crud import get_events_db, get_nominations_db, create_event_db
 from db.schemas import Participant, Event, Team, EventCreate, BaseNomination
 from managers.event_manager import EventManager
 from managers.nomination_manager import NominationManager
@@ -35,10 +35,14 @@ class ParticipationsService:
     def create_nominations(self, token: str, nominations: list[BaseNomination]):
         decoded = self.__token_manager.decode_token(token)
         self.__user_manager.raise_exception_if_user_specialist(decoded.get("role"))
-        self.__nomination_manager.create_nominations(nominations)
+        return self.__nomination_manager.create_nominations(nominations)
 
-    def specify_nominations_for_event(self, token: str, event: Event, nominations: list[BaseNomination]):
-        pass
+    def append_nominations_for_event(self, token: str, event: Event, nominations: list[BaseNomination]):
+        decoded = self.__token_manager.decode_token(token)
+        self.__user_manager.raise_exception_if_user_specialist(decoded.get("role"))
+        event = self.__event_manager.get_event_by_name(event.name)
+        self.__event_manager.raise_exception_if_event_dont_exist(event)
+        return self.__event_manager.append_nominations(event, nominations)
 
     def create_team(self, token: str, team: Team):
         pass
