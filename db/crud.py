@@ -2,7 +2,7 @@ from pydantic import EmailStr
 from sqlalchemy.orm import Session
 
 from db import models
-from db.schemas import TokenDB, DatabaseUser, CreateUser, Event, Nomination, EventCreate
+from db.schemas import TokenDB, DatabaseUser, CreateUser, Event, BaseNomination, EventCreate
 from passlib.context import CryptContext
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -69,35 +69,43 @@ def get_events_db(db: Session, offset: int, limit: int) -> list[Event]:
 
 def get_nominations_db(db: Session, offset: int, limit: int):
     db_nominations = db.query(models.Nomination).offset(offset).limit(limit).all()
-    nominations = [Nomination.from_orm(nomination) for nomination in db_nominations]
+    nominations = [BaseNomination.from_orm(nomination) for nomination in db_nominations]
     return nominations
 
 
-def create_nomination(db: Session, nomination: Nomination):
-    db_nomination = models.Nomination(
-        name=nomination.name
-    )
-    db.add(db_nomination)
-    db.commit()
-    db.refresh(db_nomination)
-    return db_nomination
+def get_nominations_by_names_db(db: Session, names: set[str]):
+    db_nominations = db.query(models.Nomination).filter(models.Nomination.name.in_(names)).all()
+    return db_nominations
 
-def get_or_create_nominations_db(db: Session, nominations: list[Nomination]):
-    nomination_names = {nomination.name for nomination in nominations}
-    nominations_ids = db.query(models.Nomination.id).all()
-    return nominations_ids
+
+def get_event_by_name_db(db: Session, name: str):
+    db_event = db.query(models.Event).filter(models.Event.name == name).first()
+    return db_event
+
+
+def create_nominations_db(db: Session, nominations: list[BaseNomination]):
+    all_nominations = db.query(models.Nomination).all()
+    existing_nominations_names = {db_nomination.name for db_nomination in all_nominations}
+    new_nominations = [
+        models.Nomination(name=nomination.name)
+        for nomination in nominations
+        if nomination.name not in existing_nominations_names
+    ]
+    received_nominations_names = {nomination.name for nomination in nominations}
+    db.bulk_save_objects(new_nominations)
+    db.commit()
+    db_nominations = db.query(models.Nomination).filter(models.Nomination.name.in_(received_nominations_names)).all()
+    return db_nominations
 
 
 def create_event_db(db: Session, event: EventCreate, owner_id: int):
-    print(event.nominations)
-    nominations_ids = get_or_create_nominations_db(db, event.nominations)
-    print("Nominations queried :: ", nominations_ids)
+    nominations = event.nominations
+    db_nominations = create_nominations_db(db, nominations)
     event = models.Event(
         owner_id=owner_id,
         name=event.name,
-        nominations=[]
     )
-
+    event.nominations.extend(db_nominations)
     db.add(event)
     db.commit()
     db.refresh(event)

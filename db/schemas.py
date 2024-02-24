@@ -54,12 +54,12 @@ class Event(BaseModel):
     name: str
 
 
-class Nomination(BaseModel):
+class BaseNomination(BaseModel):
     name: str
 
 
 class EventCreate(Event):
-    nominations: list[Nomination] | None
+    nominations: list[BaseNomination] | None
 
 
 class Team(BaseModel):
