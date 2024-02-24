@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from enum import Enum
 
 from pydantic_extra_types.phone_numbers import PhoneNumber
@@ -51,14 +51,14 @@ class DecodedToken(BaseUser):
 
 
 class Event(BaseModel):
-    name: str
+    name: str = Field(min_length=5)
 
     class Config:
         from_attributes=True
 
 
 class BaseNomination(BaseModel):
-    name: str
+    name: str = Field(min_length=5)
 
     class Config:
         from_attributes = True

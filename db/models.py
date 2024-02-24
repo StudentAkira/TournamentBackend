@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Table
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Table, UniqueConstraint
 from sqlalchemy.orm import relationship, mapped_column, Mapped
 
 from .database import Base
@@ -68,6 +68,9 @@ class NominationEvent(Base):
 
     event_id: Mapped[int] = mapped_column(ForeignKey("event.id"), primary_key=True)
     nomination_id: Mapped[int] = mapped_column(ForeignKey("nomination.id"), primary_key=True)
+
+    __table_args__ = (UniqueConstraint('event_id', 'nomination_id', name='_event_id__nomination_id'),
+                      )
 
     # teams: Mapped[list["Team"]] = relationship(
     #     back_populates="nomination_events",

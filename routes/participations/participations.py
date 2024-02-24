@@ -40,9 +40,9 @@ async def create_event(
     return service.create_event(token, event)
 
 
-@participations.post("/create_nomination")
+@participations.post("/create_nominations")
 async def create_nominations(
-        token: str,
+        token: Annotated[str, Body()],
         nominations: list[BaseNomination],
         db: Session = Depends(get_db)
 ):
@@ -52,7 +52,7 @@ async def create_nominations(
 
 @participations.post("/append_nominations_for_event")
 async def append_nominations_for_event(
-        token: str,
+        token: Annotated[str, Body()],
         event: Event,
         nominations: list[BaseNomination],
         db: Session = Depends(get_db)

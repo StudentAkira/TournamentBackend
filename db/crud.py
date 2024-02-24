@@ -128,7 +128,7 @@ def create_event_db(db: Session, event: EventCreate, owner_id: int):
 
 def append_event_nominations_db(db: Session, event: models.Event, nominations: list[BaseNomination]):
     db_nominations = create_non_existent_return_all_nominations_db(db, nominations)
-    event.nominations.extend(db_nominations)
+    event.nominations.extend(set(db_nominations) - set(event.nominations))
     db.add(event)
     db.commit()
     db.refresh(event)
