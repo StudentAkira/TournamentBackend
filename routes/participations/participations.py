@@ -11,19 +11,19 @@ participations = APIRouter(prefix="/participations", tags=["participations"])
 
 
 @participations.get("/events")
-async def get_my_events(
-        offset: Annotated[int, Query(gt=0)],
-        limit: Annotated[int, Query(lt=50)],
+async def get_events(
+        offset: Annotated[int, Query(gt=0, lt=50)],
+        limit: Annotated[int, Query(lt=50, gt=0)],
         db: Session = Depends(get_db)
 ) -> list[Event]:
     service = ParticipationsService(db)
-    return service.get_my_events(offset, limit)
+    return service.get_events(offset, limit)
 
 
 @participations.get("/nominations")
 async def get_nominations(
-        offset: Annotated[int, Query(gt=0)],
-        limit: Annotated[int, Query(lt=50)],
+        offset: Annotated[int, Query(gt=0, lt=50)],
+        limit: Annotated[int, Query(lt=50, gt=0)],
         db: Session = Depends(get_db)
 ):
     service = ParticipationsService(db)

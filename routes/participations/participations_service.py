@@ -19,7 +19,7 @@ class ParticipationsService:
         self.__team_manager = TeamManager(db)
         self.__participant_manager = ParticipantManager(db)
 
-    def get_my_events(self, offset, limit) -> list[Event]:
+    def get_events(self, offset, limit) -> list[Event]:
         events = get_events_db(self.__db, offset, limit)
         return events
 
