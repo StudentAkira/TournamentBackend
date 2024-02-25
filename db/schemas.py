@@ -68,8 +68,12 @@ class EventCreate(Event):
     nominations: list[BaseNomination] | None
 
 
-class Team(BaseModel):
-    pass
+class Software(BaseModel):
+    name: str = Field(min_length=3)
+
+
+class Equipment(BaseModel):
+    name: str = Field(min_length=3)
 
 
 class Participant(BaseModel):
@@ -78,10 +82,12 @@ class Participant(BaseModel):
     second_name: str
     third_name: str
     region: str
-    team_name: int
-    competence_id: int
     birth_date: str
-    software: str
-    imported_equipment: str
+    software: list[Software]
+    equipment: list[Equipment]
     educational_institution: str
     additional_educational_institution: str
+
+
+class Team(BaseModel):
+    name: str = Field(min_length=3)

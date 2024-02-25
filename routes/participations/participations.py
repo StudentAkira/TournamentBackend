@@ -71,7 +71,7 @@ async def append_nominations_for_event(
 
 
 @participations.post("/teams")
-async def create_teams(
+async def create_team(
         response: Response,
         team: Team,
         token: str = Depends(authorized_only),
@@ -93,8 +93,8 @@ async def create_participant(
     return service.create_participant(response, token, participant, teams)
 
 
-@participations.post("/specify_teams_for_participant")
-async def specify_nominations_for_event(
+@participations.post("/append_teams_for_particiAApant")
+async def append_teams_for_participant(
         response: Response,
         teams: list[Team],
         participant: Participant,

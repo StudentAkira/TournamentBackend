@@ -47,7 +47,8 @@ class ParticipationsService:
         return self.__event_manager.append_nominations(event, nominations)
 
     def create_team(self, response, token: str, team: Team):
-        pass
+        self.__token_manager.decode_token(token, response)
+        return self.__team_manager.create_team(team)
 
     def create_participant(self, response: Response, token: str, participant: Participant, teams: list[Team] | None = None):
         pass

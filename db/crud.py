@@ -2,7 +2,8 @@ from pydantic import EmailStr
 from sqlalchemy.orm import Session
 
 from db import models
-from db.schemas import TokenDB, DatabaseUser, CreateUser, Event, BaseNomination, EventCreate
+from db.schemas import TokenDB, DatabaseUser, CreateUser, Event, BaseNomination, EventCreate, Team, Participant, \
+    Software, Equipment
 from passlib.context import CryptContext
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -133,3 +134,30 @@ def append_event_nominations_db(db: Session, event: models.Event, nominations: l
     db.commit()
     db.refresh(event)
     return event
+
+
+def get_team_by_name_db(db: Session, name: str) -> models.Team | None:
+    team = db.query(models.Team).filter(models.Team.name == name).first()
+    return team
+
+
+def create_team_db(db: Session, team: Team) -> models.Team:
+    db_team = models.Team(name=team.name)
+    db.add(db_team)
+    db.commit()
+    return db_team
+
+
+def create_software_db(db: Session, software: Software):
+    pass
+
+
+def create_equipment_db(db: Session, equipment: Equipment):
+    pass
+
+
+def create_participant_db(db: Session, participant: Participant):
+    pass
+
+
+

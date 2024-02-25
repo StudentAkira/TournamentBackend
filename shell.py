@@ -8,9 +8,17 @@ nominations = [
     schemas.BaseNomination(name="nomination2")
 ]
 
+event_create = schemas.EventCreate(name="event1", nominations=nominations)
+
+admin = db.query(models.User).filter(models.User.id == 1).first()
+
+team = models.Team(name="team1")
+# event = db.query(models.Event).filter(models.Event.name == "event6").first()
+
+
 # event = models.Event(owner_id=1, name="event1")
 
-# event_create = schemas.EventCreate(name="event6", nominations=nominations)
+# event_create = schemas.EventCreate(name="event1", nominations=nominations)
 #
 # db_nominations = crud.create_nominations_db(db, nominations)
 #
