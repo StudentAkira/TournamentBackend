@@ -1,18 +1,33 @@
+import datetime
+
 from db.database import *
 from db import models, crud, schemas
 
 db = SessionLocal()
 
-nominations = [
-    schemas.BaseNomination(name="nomination1"),
-    schemas.BaseNomination(name="nomination2")
-]
+# nominations = [
+#     schemas.BaseNomination(name="nomination1"),
+#     schemas.BaseNomination(name="nomination2")
+# ]
+#
+# event_create = schemas.EventCreate(name="event1", nominations=nominations)
+#
+# admin = db.query(models.User).filter(models.User.id == 1).first()
+#
+# team = models.Team(name="team1")
 
-event_create = schemas.EventCreate(name="event1", nominations=nominations)
+participant = models.Participant(
+    participant_email="participant1@mail.ru",
+    first_name="participant1",
+    second_name="participant1",
+    third_name="participant1",
+    region="participant1",
+    birth_date=datetime.datetime.now(),
+    educational_institution="participant1",
+    additional_educational_institution="participant1"
+)
 
-admin = db.query(models.User).filter(models.User.id == 1).first()
 
-team = models.Team(name="team1")
 # event = db.query(models.Event).filter(models.Event.name == "event6").first()
 
 

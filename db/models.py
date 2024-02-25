@@ -1,6 +1,6 @@
 from phonenumbers import PhoneNumber
 from pydantic import EmailStr
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, UniqueConstraint
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, UniqueConstraint, Date
 from sqlalchemy.orm import relationship, mapped_column, Mapped
 
 from .database import Base
@@ -44,7 +44,7 @@ class Participant(Base):
     second_name: str = Column(String, nullable=False)
     third_name: str = Column(String, nullable=False)
     region: str = Column(String, nullable=False)
-    birth_date = Column(DateTime, nullable=False)
+    birth_date = Column(Date, nullable=False)
     educational_institution: str = Column(String, nullable=False)
     additional_educational_institution: str = Column(String, nullable=False)
 
@@ -130,6 +130,23 @@ class TeamNominationEvent(Base):
         secondary="software_team_nomination_event"
     )
 
+    equipments: Mapped[list["Equipment"]] = relationship(
+        back_populates="team_nomination_events",
+        secondary="equipment_team_nomination_event"
+    )
+
+
+class Equipment(Base):
+    __tablename__ = "equipment"
+
+    id: int = Column(Integer, primary_key=True, autoincrement=True)
+    name: str = Column(String, unique=True)
+
+    team_nomination_events: Mapped[list["TeamNominationEvent"]] = relationship(
+        back_populates="equipments",
+        secondary="equipment_team_nomination_event"
+    )
+
 
 class Software(Base):
     __tablename__ = "software"
@@ -149,6 +166,15 @@ class SoftwareTeamNominationEvent(Base):
     id: int = Column(Integer, primary_key=True, autoincrement=True)
 
     software_id: Mapped[int] = Column(Integer, ForeignKey("software.id"))
+    team_nomination_event_id: Mapped[int] = Column(Integer, ForeignKey("team_nomination_event.id"))
+
+
+class EquipmentTeamNominationEvent(Base):
+    __tablename__ = "equipment_team_nomination_event"
+
+    id: int = Column(Integer, primary_key=True, autoincrement=True)
+
+    equipment_id: Mapped[int] = Column(Integer, ForeignKey("equipment.id"))
     team_nomination_event_id: Mapped[int] = Column(Integer, ForeignKey("team_nomination_event.id"))
 
 
