@@ -201,4 +201,4 @@ class TeamParticipant(Base):
     team_id: Mapped[int] = mapped_column(ForeignKey("team.id"))
     participant_id: Mapped[int] = mapped_column(ForeignKey("participant.id"))
 
-    __table_args__ = (UniqueConstraint('team_id', 'participant_id', name='_team_id__nomination_event_id'),)
+    __table_args__ = (UniqueConstraint('team_id', 'participant_id', name='_team_id__particiapant_id'),)
