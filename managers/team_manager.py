@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from starlette import status
 
 from db import models
-from db.crud import create_team_db, get_team_by_name_db
+from db.crud import create_team_db, get_team_by_name_db, get_my_teams_db
 from db.schemas import Team
 
 
@@ -16,12 +16,12 @@ class TeamManager:
 
         self.__team_name_taken_error = "team name taken"
 
-    def get_teams(self, offset: int, limit: int):
-        pass
+    def get_my_teams(self, offset: int, limit: int, owner_id: int):
+        return get_my_teams_db(self.__db, offset, limit, owner_id)
 
-    def create_team(self, team: Team):
+    def create_team(self, team: Team, creator_id: int):
         self.raise_exception_if_team_name_taken(team.name)
-        create_team_db(self.__db, team)
+        create_team_db(self.__db, team, creator_id)
         return {"message": self.__team_created_message}
 
     def get_team_by_name(self, name: str) -> models.Team | None:

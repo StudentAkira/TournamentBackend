@@ -27,16 +27,16 @@ def create_user_db(db: Session, user: CreateUser) -> DatabaseUser:
     return db_user
 
 
-def get_user_by_email_db(db: Session, email: str) -> DatabaseUser | None:
+def get_user_by_email_db(db: Session, email: str) -> models.User | None:
     user = db.query(models.User).filter(models.User.email == email).first()
     if user:
-        return DatabaseUser.from_orm(user)
+        return user
 
 
-def get_user_by_id_db(db: Session, user_id: int) -> DatabaseUser | None:
+def get_user_by_id_db(db: Session, user_id: int) -> models.User | None:
     user = db.query(models.User).filter(models.User.id == user_id).first()
     if user:
-        return DatabaseUser.from_orm(user)
+        return user
 
 
 def save_token_db(db: Session, token: str, user_id: int) -> TokenDB:
@@ -141,23 +141,110 @@ def get_team_by_name_db(db: Session, name: str) -> models.Team | None:
     return team
 
 
-def create_team_db(db: Session, team: Team) -> models.Team:
+def get_my_teams_db(db: Session, offset: int, limit: int, owner_id: int):
+    teams_db = db.query(models.Team).filter(models.Team.creator_id == owner_id).offset(offset).limit(limit).all()
+    teams = [Team.from_orm(team_db) for team_db in teams_db]
+    return teams
+
+
+def create_team_db(db: Session, team: Team, creator_id: int) -> models.Team:
+    creator = get_user_by_id_db(db, creator_id)
     db_team = models.Team(name=team.name)
+    db_team.creator = creator
     db.add(db_team)
     db.commit()
     return db_team
 
 
-def create_software_db(db: Session, software: Software):
-    pass
+def get_software_by_name_db(db: Session, name: str):
+    software = db.query(models.Software).filter(models.Software.name == name).first()
+    return software
 
 
-def create_equipment_db(db: Session, equipment: Equipment):
-    pass
+def create_software_db(db: Session, softwares: list[Software]):
+    all_softwares = db.query(models.Software).all()
+    existing_softwares_names = {db_software.name for db_software in all_softwares}
+
+    new_softwares = [
+        models.Software(name=software.name)
+        for software in softwares
+        if software.name not in existing_softwares_names
+    ]
+    received_softwares_names = {software.name for software in softwares}
+    created_softwares_names = {software.name for software in new_softwares}
+
+    existing_softwares = [software for software in db.query(models.Software). \
+        filter(
+        models.Software.name.in_(received_softwares_names - created_softwares_names)
+    ).all()]
+
+    for db_software in new_softwares:
+        db.add(db_software)
+
+    db.commit()
+    return existing_softwares + new_softwares
+
+
+def get_equipment_by_name_db(db: Session, name: str):
+    equipment = db.query(models.Equipment).filter(models.Equipment.name == name).first()
+    return equipment
+
+
+def create_equipment_db(db: Session, equipments: list[Equipment]):
+    all_equipments = db.query(models.Equipment).all()
+    existing_equipments_names = {db_equipment.name for db_equipment in all_equipments}
+
+    new_equipments = [
+        models.Equipment(name=equipment.name)
+        for equipment in equipments
+        if equipment.name not in existing_equipments_names
+    ]
+    received_equipments_names = {equipment.name for equipment in equipments}
+    created_equipments_names = {equipment.name for equipment in new_equipments}
+
+    existing_equipments = [equipment for equipment in db.query(models.Equipment). \
+        filter(
+        models.Equipment.name.in_(received_equipments_names - created_equipments_names)
+    ).all()]
+
+    for db_equipment in new_equipments:
+        db.add(db_equipment)
+
+    db.commit()
+    return existing_equipments + new_equipments
 
 
 def create_participant_db(db: Session, participant: Participant):
     pass
 
 
+def append_teams_for_participant(db: Session, teams: list[Team], participant: Participant):
+    pass
 
+
+def append_participants_for_team(db: Session, participants: list[Participant], team: Team):
+    pass
+
+
+def create_missmg_items(db: Session, model_name: models.Equipment | models.Software | models.Nomination, items: list[Equipment | Software | BaseNomination]):
+    all_items = db.query(model_name).all()
+    existing_items_names = {db_item.name for db_item in all_items}
+
+    new_items = [
+        model_name(name=item.name)
+        for item in items
+        if item.name not in existing_items_names
+    ]
+    received_items_names = {item.name for item in items}
+    created_items_names = {item.name for item in new_items}
+
+    existing_items = [item for item in db.query(model_name). \
+        filter(
+        model_name.name.in_(received_items_names - created_items_names)
+    ).all()]
+
+    for db_item in new_items:
+        db.add(db_item)
+
+    db.commit()
+    return existing_items + new_items

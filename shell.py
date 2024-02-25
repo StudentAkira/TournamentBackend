@@ -22,7 +22,7 @@ participant = models.Participant(
     second_name="participant1",
     third_name="participant1",
     region="participant1",
-    birth_date=datetime.datetime.now(),
+    birth_date=datetime.date.now(),
     educational_institution="participant1",
     additional_educational_institution="participant1"
 )

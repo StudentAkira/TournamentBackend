@@ -1,3 +1,5 @@
+import datetime
+
 from pydantic import BaseModel, EmailStr, Field
 from enum import Enum
 
@@ -82,12 +84,19 @@ class Participant(BaseModel):
     second_name: str
     third_name: str
     region: str
-    birth_date: str
-    software: list[Software]
-    equipment: list[Equipment]
+    birth_date: datetime.date
+    software: list[Software] | None
+    equipment: list[Equipment] | None
     educational_institution: str
     additional_educational_institution: str
-
+    supervisor_first_name: str
+    supervisor_second_name: str
+    supervisor_third_name: str
 
 class Team(BaseModel):
     name: str = Field(min_length=3)
+
+    class Config:
+        from_attributes = True
+
+
