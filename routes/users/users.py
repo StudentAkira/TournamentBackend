@@ -1,19 +1,20 @@
-from fastapi import APIRouter, Path, Depends, Body
+from fastapi import APIRouter, Path, Depends, Body, Cookie
 from sqlalchemy.orm import Session
+from starlette.responses import Response
 from typing_extensions import Annotated
 
 from db.crud import create_user_db
 from db.schemas import BaseUser, CreateUser, UserRole
-from dependencies import get_db
+from dependencies import get_db, authorized_only
 from routes.users.users_service import UsersService
 
 users = APIRouter(prefix="/users", tags=["users"])
 
 
-@users.get("/get_my_profile/{token}")
-async def get_my_profile(token: Annotated[str, Path()], db: Session = Depends(get_db)) -> BaseUser:
+@users.get("/get_my_profile/")
+async def get_my_profile(response: Response, token: str = Depends(authorized_only), db: Session = Depends(get_db)) -> BaseUser:
     service = UsersService(db)
-    return service.get_user_data(token)
+    return service.get_user_data(response, token)
 
 
 @users.get('/create_superadmin')
@@ -34,8 +35,8 @@ async def create_super_admin(db: Session = Depends(get_db)):
 
 
 @users.post("/create_user")
-async def create_user(token: Annotated[str, Body()], user: CreateUser,  db: Session = Depends(get_db)):
+async def create_user(response: Response, user: CreateUser, token: str = Depends(authorized_only), db: Session = Depends(get_db)):
     service = UsersService(db)
-    return service.create_user(user, token)
+    return service.create_user(response, user, token)
 
 

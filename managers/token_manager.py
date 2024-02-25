@@ -5,6 +5,7 @@ from fastapi import HTTPException
 from jwt import DecodeError
 from sqlalchemy.orm import Session
 from starlette import status
+from starlette.responses import Response
 
 from config import settings
 from db.crud import save_token_db, delete_token_db, get_token_db
@@ -47,7 +48,7 @@ class TokenManager:
         self.save_token_db(token, user_id)
         return token
 
-    def decode_token(self, token) -> DecodedToken:
+    def decode_token(self, token, response: Response) -> DecodedToken:
         try:
             decoded = jwt.decode(
                 token,
@@ -55,22 +56,24 @@ class TokenManager:
                 algorithms=[self.__jwt_algorithm]
             )
         except jwt.InvalidSignatureError:
+            response.delete_cookie(key="token")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail={"error": self.__token_signature_error}
             )
         except DecodeError:
+            response.delete_cookie(key="token")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail={"error": self.__invalid_token_error}
             )
         except jwt.ExpiredSignatureError:
+            response.delete_cookie(key="token")
             self.delete_token_db(token)
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail={"error": self.__token_expired_error}
             )
-
         return decoded
 
     def raise_exception_if_token_not_found(self, token):

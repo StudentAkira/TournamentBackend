@@ -1,3 +1,5 @@
+from starlette.responses import Response
+
 from db.crud import get_events_db, get_nominations_db, create_event_db
 from db.schemas import Participant, Event, Team, EventCreate, BaseNomination
 from managers.event_manager import EventManager
@@ -27,28 +29,28 @@ class ParticipationsService:
         nominations = self.__nomination_manager.get_nominations(offset, limit)
         return nominations
 
-    def create_event(self, token: str, event: EventCreate):
-        decoded = self.__token_manager.decode_token(token)
+    def create_event(self, response: Response, token: str, event: EventCreate):
+        decoded = self.__token_manager.decode_token(token, response)
         self.__user_manager.raise_exception_if_user_specialist(decoded.get("role"))
         return self.__event_manager.create_event(event, decoded.get("user_id"))
 
-    def create_nominations(self, token: str, nominations: list[BaseNomination]):
-        decoded = self.__token_manager.decode_token(token)
+    def create_nominations(self,  response: Response, token: str, nominations: list[BaseNomination]):
+        decoded = self.__token_manager.decode_token(token, response)
         self.__user_manager.raise_exception_if_user_specialist(decoded.get("role"))
         return self.__nomination_manager.create_nominations(nominations)
 
-    def append_nominations_for_event(self, token: str, event: Event, nominations: list[BaseNomination]):
-        decoded = self.__token_manager.decode_token(token)
+    def append_nominations_for_event(self, response: Response, token: str, event: Event, nominations: list[BaseNomination]):
+        decoded = self.__token_manager.decode_token(token, response)
         self.__user_manager.raise_exception_if_user_specialist(decoded.get("role"))
         event = self.__event_manager.get_event_by_name(event.name)
         self.__event_manager.raise_exception_if_event_dont_exist(event)
         return self.__event_manager.append_nominations(event, nominations)
 
-    def create_team(self, token: str, team: Team):
+    def create_team(self, response, token: str, team: Team):
         pass
 
-    def create_participant(self, token: str, participant: Participant, teams: list[Team] | None = None):
+    def create_participant(self, response: Response, token: str, participant: Participant, teams: list[Team] | None = None):
         pass
 
-    def specify_teams_for_participant(self, token: str, teams: list[Team], participant: Participant):
+    def specify_teams_for_participant(self, response: Response, token: str, teams: list[Team], participant: Participant):
         pass
