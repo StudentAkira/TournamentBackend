@@ -1,3 +1,5 @@
+from phonenumbers import phonenumber, PhoneNumber
+from pydantic import EmailStr
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Table, UniqueConstraint
 from sqlalchemy.orm import relationship, mapped_column, Mapped
 
@@ -7,46 +9,45 @@ from .database import Base
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id: int = Column(Integer, primary_key=True, autoincrement=True)
 
-    email = Column(String, unique=True, nullable=False)
-    hashed_password = Column(String, nullable=False)
-    first_name = Column(String, nullable=False)
-    second_name = Column(String, nullable=False)
-    third_name = Column(String, nullable=False)
-    phone = Column(String, nullable=False)
-    educational_institution = Column(String, nullable=True)
-    role = Column(String, nullable=False)
+    email: EmailStr = Column(String, unique=True, nullable=False)
+    hashed_password: str = Column(String, nullable=False)
+    first_name: str = Column(String, nullable=False)
+    second_name: str = Column(String, nullable=False)
+    third_name: str = Column(String, nullable=False)
+    phone: PhoneNumber = Column(String, nullable=False)
+    educational_institution: str | None = Column(String, nullable=True)
+    role: str = Column(String, nullable=False)
 
-    tokens = relationship("Token", back_populates="owner")
-    events = relationship("Event", back_populates="owner")
+    tokens: Mapped["Token"] = relationship("Token", back_populates="owner")
+    events: Mapped[list["Event"]] = relationship("Event", back_populates="owner")
 
 
 class Token(Base):
     __tablename__ = "tokens"
 
-    token = Column(String, unique=True, index=True, primary_key=True, nullable=False)
-    owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    owner = relationship("User", back_populates="tokens")
+    token: str = Column(String, unique=True, index=True, primary_key=True, nullable=False)
+    owner_id: int = Column(Integer, ForeignKey("users.id"), nullable=False)
+
+    owner: Mapped["User"] = relationship("User", back_populates="tokens")
 
 
 class Participant(Base):
     __tablename__ = "participant"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id: int = Column(Integer, primary_key=True, autoincrement=True)
 
-    participant_email = Column(String, unique=True, nullable=False)
-    first_name = Column(String, nullable=False)
-    second_name = Column(String, nullable=False)
-    third_name = Column(String, nullable=False)
-    region = Column(String, nullable=False)
-    team_name = Column(Integer, nullable=False)
-    competence_id = Column(Integer, nullable=False)
+    participant_email: EmailStr = Column(String, unique=True, nullable=False)
+    first_name: str = Column(String, nullable=False)
+    second_name: str = Column(String, nullable=False)
+    third_name: str = Column(String, nullable=False)
+    region: str = Column(String, nullable=False)
     birth_date = Column(DateTime, nullable=False)
-    software = Column(String, nullable=True)
-    imported_equipment = Column(String, nullable=True)
-    educational_institution = Column(String, nullable=False)
-    additional_educational_institution = Column(String, nullable=False)
+    software = Column(String, nullable=True)#TODO manytomany
+    imported_equipment = Column(String, nullable=True)#TODO manytomany
+    educational_institution: str = Column(String, nullable=False)
+    additional_educational_institution: str = Column(String, nullable=False)
 
 
 # class Team(Base):
@@ -64,7 +65,7 @@ class Participant(Base):
 class NominationEvent(Base):
     __tablename__ = "nomination_event"
 
-    id: Mapped[int] = Column(Integer, primary_key=True, autoincrement=True)
+    id: int = Column(Integer, primary_key=True, autoincrement=True)
 
     event_id: Mapped[int] = mapped_column(ForeignKey("event.id"), primary_key=True)
     nomination_id: Mapped[int] = mapped_column(ForeignKey("nomination.id"), primary_key=True)
@@ -81,7 +82,7 @@ class NominationEvent(Base):
 class Nomination(Base):
     __tablename__ = "nomination"
 
-    id: Mapped[int] = Column(Integer, primary_key=True, autoincrement=True)
+    id: int = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, unique=True)
 
     events: Mapped[list["Event"]] = relationship(
@@ -93,12 +94,12 @@ class Nomination(Base):
 class Event(Base):
     __tablename__ = "event"
 
-    id: Mapped[int] = Column(Integer, primary_key=True, autoincrement=True)
-    name: Mapped[int] = Column(String, unique=True)
+    id: int = Column(Integer, primary_key=True, autoincrement=True)
+    name: str = Column(String, unique=True)
 
-    owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    owner_id: int = Column(Integer, ForeignKey("users.id"), nullable=False)
 
-    owner: Mapped[list["User"]] = relationship( back_populates="events")
+    owner: Mapped[list["User"]] = relationship(back_populates="events")
     nominations: Mapped[list["Nomination"]] = relationship(
         back_populates="events",
         secondary="nomination_event"
