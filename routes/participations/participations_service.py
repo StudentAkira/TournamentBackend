@@ -70,8 +70,17 @@ class ParticipationsService:
         self.__token_manager.decode_token(token, response)
         return self.__equipment_manager.create_equipment(equipment)
 
+    def get_software(self, response: Response, offset: int, limit: int, token: str):
+        self.__token_manager.decode_token(token, response)
+        return self.__software_manager.get_softwares(offset, limit)
+
+    def get_equipment(self, response: Response, offset: int, limit: int, token: str):
+        self.__token_manager.decode_token(token, response)
+        return self.__equipment_manager.get_equipment(offset, limit)
+
     def append_teams_for_participant(self, response: Response, token: str, teams: list[Team], participant: Participant):
         pass
 
     def append_participants_for_team(self, response: Response, token: str, teams: Team, participant: list[Participant]):
         pass
+

@@ -73,9 +73,15 @@ class EventCreate(Event):
 class Software(BaseModel):
     name: str = Field(min_length=3)
 
+    class Config:
+        from_attributes = True
+
 
 class Equipment(BaseModel):
     name: str = Field(min_length=3)
+
+    class Config:
+        from_attributes = True
 
 
 class Participant(BaseModel):
@@ -92,6 +98,7 @@ class Participant(BaseModel):
     supervisor_first_name: str
     supervisor_second_name: str
     supervisor_third_name: str
+
 
 class Team(BaseModel):
     name: str = Field(min_length=3)

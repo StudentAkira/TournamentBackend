@@ -47,6 +47,9 @@ class Participant(Base):
     birth_date = Column(Date, nullable=False)
     educational_institution: str = Column(String, nullable=False)
     additional_educational_institution: str = Column(String, nullable=False)
+    supervisor_first_name: str = Column(String, nullable=False)
+    supervisor_second_name: str = Column(String, nullable=False)
+    supervisor_third_name: str = Column(String, nullable=False)
 
     teams: Mapped[list["Team"]] = relationship(
         back_populates="participants",

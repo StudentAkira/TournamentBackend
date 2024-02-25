@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Body
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 
@@ -132,3 +132,41 @@ async def create_software(response: Response, software: list[Software], token: s
 async def create_equipment(response: Response, equipment: list[Equipment], token: str = Depends(authorized_only), db: Session = Depends(get_db)):
     service = ParticipationsService(db)
     return service.create_equipment(response, token, equipment)
+
+
+@participations.get("/software")
+async def get_software(
+        response: Response,
+        offset: Annotated[int, Query(gte=0, lt=50)],
+        limit: Annotated[int, Query(lt=50, gt=0)],
+        token: str = Depends(authorized_only),
+        db: Session = Depends(get_db)
+):
+    service = ParticipationsService(db)
+    return service.get_software(response, offset, limit, token)
+
+
+@participations.get("/equipment")
+async def get_software(
+        response: Response,
+        offset: Annotated[int, Query(gte=0, lt=50)],
+        limit: Annotated[int, Query(lt=50, gt=0)],
+        token: str = Depends(authorized_only),
+        db: Session = Depends(get_db)
+):
+    service = ParticipationsService(db)
+    return service.get_equipment(response, offset, limit, token)
+
+
+@participations.post("/append_team_to_event_nomination")
+async def append_team_to_event_nomination(
+        response: Response,
+        team: Team,
+        event_name: Annotated[str, Body()],
+        nomination_name: Annotated[str, Body()],
+        token: str = Depends(authorized_only),
+        db: Session = Depends(get_db)
+):
+    service = ParticipationsService(db)
+    # return service.append_team_to_event_nomination()
+

@@ -148,6 +148,7 @@ def create_software_db(db: Session, softwares: list[Software]):
     db.commit()
     return software
 
+
 def get_equipment_by_name_db(db: Session, name: str):
     equipment = db.query(models.Equipment).filter(models.Equipment.name == name).first()
     return equipment
@@ -185,6 +186,16 @@ def create_missing_items(
 
     return existing_items + new_items
 
+
+def get_equipment_db(db: Session, offset: int, limit: int):
+    equipment_db = db.query(models.Equipment).offset(offset).limit(limit).all()
+    equipment = [Equipment.from_orm(equipment_db) for equipment_db in equipment_db]
+    return equipment
+
+def get_software_db(db: Session, offset: int, limit: int):
+    software_db = db.query(models.Software).offset(offset).limit(limit).all()
+    software = [Software.from_orm(software_db) for software_db in software_db]
+    return software
 
 def create_participant_db(db: Session, participant: Participant):
     pass
