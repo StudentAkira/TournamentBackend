@@ -11,7 +11,12 @@ from routes.participations.participations_service import ParticipationsService
 participations = APIRouter(prefix="/participations", tags=["participations"])
 
 
-@participations.get("/events")
+@participations.get("/teams")
+async def create_teams(response: Response, token: str = Depends(authorized_only), db: Session = Depends(get_db)):
+    pass
+
+
+@participations.get("/event")
 async def get_events(
         offset: Annotated[int, Query(gt=0, lt=50)],
         limit: Annotated[int, Query(lt=50, gt=0)],
@@ -31,7 +36,7 @@ async def get_nominations(
     return service.get_nominations(offset, limit)
 
 
-@participations.post("/create_event")
+@participations.post("/event")
 async def create_event(
         response: Response,
         event: EventCreate,
@@ -42,7 +47,7 @@ async def create_event(
     return service.create_event(response, token, event)
 
 
-@participations.post("/create_nominations")
+@participations.post("/nominations")
 async def create_nominations(
         response: Response,
         nominations: list[BaseNomination],
@@ -65,8 +70,8 @@ async def append_nominations_for_event(
     return service.append_nominations_for_event(response, token, event, nominations)
 
 
-@participations.post("/create_team")
-async def create_team(
+@participations.post("/teams")
+async def create_teams(
         response: Response,
         team: Team,
         token: str = Depends(authorized_only),
@@ -76,7 +81,7 @@ async def create_team(
     return service.create_team(response, token, team)
 
 
-@participations.post("/create_participant")
+@participations.post("/participant")
 async def create_participant(
         response: Response,
         participant: Participant,

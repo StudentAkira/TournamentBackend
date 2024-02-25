@@ -54,29 +54,29 @@ class Participant(Base):
 #     __tablename__ = "team"
 #
 #     id: Mapped[int] = Column(Integer, primary_key=True, autoincrement=True)
+#     name: str = Column(String, unique=True)
 #
 #     nomination_events: Mapped[list["NominationEvent"]] = relationship(
 #         back_populates="teams",
-#         secondary="TeamNominationEvent"
-#
+#         secondary="team_nomination_event"
 #     )
-
+#
 
 class NominationEvent(Base):
     __tablename__ = "nomination_event"
 
     id: int = Column(Integer, primary_key=True, autoincrement=True)
 
-    event_id: Mapped[int] = mapped_column(ForeignKey("event.id"), primary_key=True)
-    nomination_id: Mapped[int] = mapped_column(ForeignKey("nomination.id"), primary_key=True)
+    event_id: Mapped[int] = mapped_column(ForeignKey("event.id"))
+    nomination_id: Mapped[int] = mapped_column(ForeignKey("nomination.id"))
 
     __table_args__ = (UniqueConstraint('event_id', 'nomination_id', name='_event_id__nomination_id'),
                       )
 
-    # teams: Mapped[list["Team"]] = relationship(
-    #     back_populates="nomination_events",
-    #     secondary="TeamNominationEvent"
-    # )
+    teams: Mapped[list["Team"]] = relationship(
+        back_populates="nomination_events",
+        secondary="team_nomination_event"
+    )
 
 
 class Nomination(Base):
@@ -106,17 +106,37 @@ class Event(Base):
     )
 
 
+class Team(Base):
+    __tablename__ = "team"
+
+    id: int = Column(Integer, primary_key=True)
+
+    nomination_events: Mapped[list["NominationEvent"]] = relationship(
+        back_populates="teams",
+        secondary="team_nomination_event"
+    )
+
+
+class TeamNominationEvent(Base):
+    __tablename__ = "team_nomination_event"
+
+    id: int = Column(Integer, primary_key=True)
+
+    team_id: Mapped["int"] = mapped_column(ForeignKey("team.id"))
+    nomination_event_id: Mapped["int"] = mapped_column(ForeignKey("nomination_event.id"))
+
+
+
 # class TeamNominationEvent(Base):
 #     __tablename__ = "team_nomination_event"
 #
-#     id: Mapped[int] = Column(Integer, primary_key=True, autoincrement=True)
+#     id: int = Column(Integer, primary_key=True, autoincrement=True)
 #
 #     team_id: Mapped[int] = mapped_column(ForeignKey("team.id"), primary_key=True)
 #     nomination_event_id: Mapped[int] = mapped_column(ForeignKey("nomination_event.id"), primary_key=True)
 #
-#
-#
-#
+#     __table_args__ = (UniqueConstraint('team_id', 'nomination_event_id', name='_team_id__nomination_event_id'),
+#                       )
 #
 
 
