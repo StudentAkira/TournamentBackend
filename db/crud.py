@@ -91,26 +91,8 @@ def save_nominations_db(db: Session, nominations: list[BaseNomination]):
 
 
 def create_non_existent_return_all_nominations_db(db: Session, nominations: list[BaseNomination]):
-    all_nominations = db.query(models.Nomination).all()
-    existing_nominations_names = {db_nomination.name for db_nomination in all_nominations}
-
-    new_nominations = [
-        models.Nomination(name=nomination.name)
-        for nomination in nominations
-        if nomination.name not in existing_nominations_names
-    ]
-    received_nominations_names = {nomination.name for nomination in nominations}
-    created_nominations_names = {nomination.name for nomination in new_nominations}
-
-    existing_nominations = [nomination for nomination in db.query(models.Nomination). \
-        filter(
-        models.Nomination.name.in_(received_nominations_names - created_nominations_names)
-    ).all()]
-
-    for db_nomination in new_nominations:
-        db.add(db_nomination)
-
-    return existing_nominations + new_nominations
+    nominations = create_missing_items(db, models.Nomination, nominations)
+    return nominations
 
 
 def create_event_db(db: Session, event: EventCreate, owner_id: int):
@@ -162,28 +144,9 @@ def get_software_by_name_db(db: Session, name: str):
 
 
 def create_software_db(db: Session, softwares: list[Software]):
-    all_softwares = db.query(models.Software).all()
-    existing_softwares_names = {db_software.name for db_software in all_softwares}
-
-    new_softwares = [
-        models.Software(name=software.name)
-        for software in softwares
-        if software.name not in existing_softwares_names
-    ]
-    received_softwares_names = {software.name for software in softwares}
-    created_softwares_names = {software.name for software in new_softwares}
-
-    existing_softwares = [software for software in db.query(models.Software). \
-        filter(
-        models.Software.name.in_(received_softwares_names - created_softwares_names)
-    ).all()]
-
-    for db_software in new_softwares:
-        db.add(db_software)
-
+    software = create_missing_items(db, models.Software, softwares)
     db.commit()
-    return existing_softwares + new_softwares
-
+    return software
 
 def get_equipment_by_name_db(db: Session, name: str):
     equipment = db.query(models.Equipment).filter(models.Equipment.name == name).first()
@@ -191,42 +154,16 @@ def get_equipment_by_name_db(db: Session, name: str):
 
 
 def create_equipment_db(db: Session, equipments: list[Equipment]):
-    all_equipments = db.query(models.Equipment).all()
-    existing_equipments_names = {db_equipment.name for db_equipment in all_equipments}
-
-    new_equipments = [
-        models.Equipment(name=equipment.name)
-        for equipment in equipments
-        if equipment.name not in existing_equipments_names
-    ]
-    received_equipments_names = {equipment.name for equipment in equipments}
-    created_equipments_names = {equipment.name for equipment in new_equipments}
-
-    existing_equipments = [equipment for equipment in db.query(models.Equipment). \
-        filter(
-        models.Equipment.name.in_(received_equipments_names - created_equipments_names)
-    ).all()]
-
-    for db_equipment in new_equipments:
-        db.add(db_equipment)
-
+    equipment = create_missing_items(db, models.Equipment, equipments)
     db.commit()
-    return existing_equipments + new_equipments
+    return equipment
 
 
-def create_participant_db(db: Session, participant: Participant):
-    pass
-
-
-def append_teams_for_participant(db: Session, teams: list[Team], participant: Participant):
-    pass
-
-
-def append_participants_for_team(db: Session, participants: list[Participant], team: Team):
-    pass
-
-
-def create_missmg_items(db: Session, model_name: models.Equipment | models.Software | models.Nomination, items: list[Equipment | Software | BaseNomination]):
+def create_missing_items(
+        db: Session,
+        model_name: type(models.Equipment) | type(models.Software) | type(models.Nomination),
+        items: list[Equipment | Software | BaseNomination]
+):
     all_items = db.query(model_name).all()
     existing_items_names = {db_item.name for db_item in all_items}
 
@@ -246,5 +183,16 @@ def create_missmg_items(db: Session, model_name: models.Equipment | models.Softw
     for db_item in new_items:
         db.add(db_item)
 
-    db.commit()
     return existing_items + new_items
+
+
+def create_participant_db(db: Session, participant: Participant):
+    pass
+
+
+def append_teams_for_participant(db: Session, teams: list[Team], participant: Participant):
+    pass
+
+
+def append_participants_for_team(db: Session, participants: list[Participant], team: Team):
+    pass
