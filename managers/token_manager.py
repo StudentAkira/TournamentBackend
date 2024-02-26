@@ -8,8 +8,8 @@ from starlette import status
 from starlette.responses import Response
 
 from config import settings
-from db.crud import save_token_db, delete_token_db, get_token_db
-from db.schemas import DecodedToken
+from db.crud.token import save_token_db, delete_token_db, get_token_db
+from db.schemas.token import TokenDecodedSchema
 
 
 class TokenManager:
@@ -48,7 +48,7 @@ class TokenManager:
         self.save_token_db(token, user_id)
         return token
 
-    def decode_token(self, token, response: Response) -> DecodedToken:
+    def decode_token(self, token, response: Response) -> TokenDecodedSchema:
         try:
             decoded = jwt.decode(
                 token,
@@ -74,6 +74,7 @@ class TokenManager:
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail={"error": self.__token_expired_error}
             )
+        decoded = TokenDecodedSchema(**decoded)
         return decoded
 
     def raise_exception_if_token_not_found(self, token):

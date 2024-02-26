@@ -1,8 +1,7 @@
 from sqlalchemy.orm import Session
-from starlette.responses import Response
 
-from db.crud import create_equipment_db, get_equipment_db
-from db.schemas import Equipment
+from db.crud.equipment import get_equipment_db, create_equipment_missing_in_db
+from db.schemas.equipment import EquipmentSchema
 
 
 class EquipmentManager:
@@ -10,11 +9,10 @@ class EquipmentManager:
     def __init__(self, db: Session):
         self.__db = db
 
-        self.__equipment_created_message = "equipment created"
+    def get_equipment(self, offset: int, limit: int) -> list[EquipmentSchema]:
+        equipments_db = get_equipment_db(self.__db, offset, limit)
+        equipment = [EquipmentSchema.from_orm(equipment_db) for equipment_db in equipments_db]
+        return equipment
 
-    def get_equipment(self, offset: int, limit: int):
-        return get_equipment_db(self.__db, offset, limit)
-
-    def create_equipment(self, equipments: list[Equipment]):
-        create_equipment_db(self.__db, equipments)
-        return {"message": self.__equipment_created_message}
+    def create_equipment(self, equipment: list[EquipmentSchema]) -> dict[str, str]:
+        create_equipment_missing_in_db(self.__db, equipment)

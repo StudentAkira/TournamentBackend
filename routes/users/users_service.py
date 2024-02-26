@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 
-from db.schemas import BaseUser, CreateUser, DatabaseUser
+from db.schemas.user import UserSchema, UserCreateSchema
 from managers.token_manager import TokenManager
 from managers.user_manager import UserManager
 
@@ -15,15 +15,14 @@ class UsersService:
 
         self.__user_created_message = "user created"
 
-    def get_user_data(self, response: Response, token: str) -> BaseUser:
-        decoded = self.__token_manager.decode_token(token, response)
-        db_user = self.__user_manager.get_user_by_id(decoded.get("user_id"))
+    def get_user_data(self, response: Response, token: str) -> UserSchema:
+        decoded_token = self.__token_manager.decode_token(token, response)
+        user = self.__user_manager.get_user_by_id(decoded_token.user_id)
         self.__token_manager.get_token_db(token)
-        user = BaseUser.parse_obj(DatabaseUser.from_orm(db_user))
         return user
 
-    def create_user(self, response: Response, user: CreateUser, token: str) -> dict[str, str]:
-        decoded = self.__token_manager.decode_token(token, response)
-        self.__user_manager.raise_exception_if_user_is_not_admin(decoded.get("role"))
+    def create_user(self, response: Response, user: UserCreateSchema, token: str) -> dict[str, str]:
+        decoded_token = self.__token_manager.decode_token(token, response)
+        self.__user_manager.raise_exception_if_user_is_not_admin(decoded_token.role)
         self.__user_manager.create_user(user)
         return {"message": self.__user_created_message}

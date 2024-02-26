@@ -2,9 +2,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from starlette import status
 
-from db import models
-from db.crud import get_event_by_name_db, create_event_db, append_event_nominations_db, get_nomination_event_db
-from db.schemas import EventCreate, BaseNomination, Event
+from db.crud.nomination_event import get_nomination_event_db
 
 
 class NominationEventManager:

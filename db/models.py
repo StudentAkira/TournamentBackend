@@ -1,6 +1,6 @@
 from phonenumbers import PhoneNumber
 from pydantic import EmailStr
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, UniqueConstraint, Date
+from sqlalchemy import Column, Integer, String, ForeignKey, UniqueConstraint, Date
 from sqlalchemy.orm import relationship, mapped_column, Mapped
 
 from .database import Base
