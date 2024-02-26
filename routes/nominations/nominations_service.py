@@ -40,6 +40,6 @@ class NominationsService:
     ):
         decoded_token = self.__token_manager.decode_token(token, response)
         self.__user_manager.raise_exception_if_user_specialist(decoded_token.role)
-        self.__event_manager.raise_exception_if_event_dont_exist(event.name)
+        self.__event_manager.raise_exception_if_event_dont_exist(event)
         self.__event_manager.append_nominations(event, nominations)
         return {"message": self.__nominations_appended_message}

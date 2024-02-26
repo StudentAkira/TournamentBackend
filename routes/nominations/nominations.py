@@ -14,8 +14,8 @@ nominations = APIRouter(prefix="/nominations", tags=["nominations"])
 
 @nominations.get("/nominations")
 async def get_nominations(
-        offset: Annotated[int, Query(gte=0, lt=50)],
-        limit: Annotated[int, Query(lt=50, gt=0)],
+        offset: Annotated[int, Query(gte=0, lt=50)] = 0,
+        limit: Annotated[int, Query(lt=50, gt=0)] = 10,
         db: Session = Depends(get_db)
 ):
     service = NominationsService(db)

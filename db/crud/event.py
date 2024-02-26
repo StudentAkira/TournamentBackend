@@ -48,7 +48,7 @@ def append_event_nominations_db(
 ) -> type(models.Event):
     nominations_db = create_nominations_missing_in_db(db, nominations)
     event_db = get_event_by_name_db(db, event.name)
-    event_db.nominations.extend(set(nominations_db) - set(event.nominations_db))
+    event_db.nominations.extend(set(nominations_db) - set(event_db.nominations))
     db.add(event_db)
     db.commit()
     db.refresh(event_db)

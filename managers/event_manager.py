@@ -55,8 +55,8 @@ class EventManager:
                 detail={"error": self.__event_does_not_exist_error}
             )
 
-    def raise_exception_if_event_dont_exist(self, event):
-        event = self.get_event_by_name(event.name)
+    def raise_exception_if_event_dont_exist(self, name: str):
+        event = self.get_event_by_name(name)
         if not event:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
