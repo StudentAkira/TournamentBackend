@@ -85,19 +85,20 @@ class Equipment(BaseModel):
 
 
 class Participant(BaseModel):
-    participant_email: EmailStr
+    email: EmailStr
     first_name: str
     second_name: str
     third_name: str
     region: str
     birth_date: datetime.date
-    software: list[Software] | None
-    equipment: list[Equipment] | None
     educational_institution: str
     additional_educational_institution: str
     supervisor_first_name: str
     supervisor_second_name: str
     supervisor_third_name: str
+
+    class Config:
+        from_attributes = True
 
 
 class Team(BaseModel):

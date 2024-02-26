@@ -23,7 +23,7 @@ class AuthService:
         self.__user_manager.check_user_password(db_user, user.password)
         token = self.__token_manager.generate_token(db_user.id, db_user.role)
         expires = datetime.utcnow() + timedelta(days=settings.jwt_token_expiration_time_days)
-        response.set_cookie(key="token", value=token, httponly=True, expires=expires.strftime("%a, %d %b %Y %H:%M:%S GMT"))
+        response.set_cookie(key="token", value=token, httponly=True, samesite="none", secure=True, expires=expires.strftime("%a, %d %b %Y %H:%M:%S GMT"))
         return {"message": self.__logged_in_message}
 
     def logout(self, response: Response, token) -> dict[str, str]:

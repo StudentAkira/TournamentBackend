@@ -23,6 +23,7 @@ class User(Base):
     tokens: Mapped[list["Token"]] = relationship(back_populates="owner")
     events: Mapped[list["Event"]] = relationship(back_populates="owner")
     created_teams: Mapped[list["Team"]] = relationship(back_populates="creator")
+    participants: Mapped[list["Participant"]] = relationship(back_populates="creator")
 
 
 class Token(Base):
@@ -39,7 +40,7 @@ class Participant(Base):
 
     id: int = Column(Integer, primary_key=True, autoincrement=True)
 
-    participant_email: EmailStr = Column(String, unique=True, nullable=False)
+    email: EmailStr = Column(String, unique=True, nullable=False)
     first_name: str = Column(String, nullable=False)
     second_name: str = Column(String, nullable=False)
     third_name: str = Column(String, nullable=False)
@@ -50,6 +51,10 @@ class Participant(Base):
     supervisor_first_name: str = Column(String, nullable=False)
     supervisor_second_name: str = Column(String, nullable=False)
     supervisor_third_name: str = Column(String, nullable=False)
+
+    creator_id: int = Column(Integer, ForeignKey("users.id"), nullable=False)
+
+    creator: Mapped["User"] = relationship("User", back_populates="participants")
 
     teams: Mapped[list["Team"]] = relationship(
         back_populates="participants",
@@ -104,7 +109,7 @@ class Team(Base):
     __tablename__ = "team"
 
     id: int = Column(Integer, primary_key=True)
-    name: str = Column(String, unique=True, nullable=False)
+    name: str = Column(String, unique=True, nullable=True)
 
     creator_id: int = Column(Integer, ForeignKey("users.id"), nullable=False)
 

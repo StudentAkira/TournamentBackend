@@ -16,17 +16,33 @@ db = SessionLocal()
 #
 # team = models.Team(name="team1")
 
-participant = models.Participant(
-    participant_email="participant1@mail.ru",
-    first_name="participant1",
-    second_name="participant1",
-    third_name="participant1",
-    region="participant1",
+p = schemas.Participant(
+    email="participant4@mail.ru",
+    first_name="participant2",
+    second_name="participant2",
+    third_name="participant2",
+    region="participant2",
     birth_date=datetime.date.today(),
-    educational_institution="participant1",
-    additional_educational_institution="participant1"
+    educational_institution="participant2",
+    additional_educational_institution="participant2",
+    supervisor_first_name="participant2",
+    supervisor_second_name="participant2",
+    supervisor_third_name="participant2",
 )
 
+
+#
+# participant = models.Participant(
+#     participant_email="participant1@mail.ru",
+#     first_name="participant1",
+#     second_name="participant1",
+#     third_name="participant1",
+#     region="participant1",
+#     birth_date=datetime.date.today(),
+#     educational_institution="participant1",
+#     additional_educational_institution="participant1"
+# )
+#
 
 # event = db.query(models.Event).filter(models.Event.name == "event6").first()
 

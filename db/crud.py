@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import EmailStr
 from sqlalchemy.orm import Session
 
@@ -68,10 +70,21 @@ def get_events_db(db: Session, offset: int, limit: int) -> list[Event]:
     return events
 
 
+def get_my_events_db(db: Session, offset: int, limit: int, owner_id):
+    db_events = db.query(models.Event).filter(models.Event.owner_id == owner_id).offset(offset).limit(limit).all()
+    events = [Event.from_orm(event) for event in db_events]
+    return events
+
+
 def get_nominations_db(db: Session, offset: int, limit: int):
     db_nominations = db.query(models.Nomination).offset(offset).limit(limit).all()
     nominations = [BaseNomination.from_orm(nomination) for nomination in db_nominations]
     return nominations
+
+
+def get_nomination_by_name_db(db: Session, name: str):
+    db_nomination = db.query(models.Nomination).filter(models.Nomination.name == name).first()
+    return db_nomination
 
 
 def get_nominations_by_names_db(db: Session, names: set[str]):
@@ -109,13 +122,14 @@ def create_event_db(db: Session, event: EventCreate, owner_id: int):
     return db_event
 
 
-def append_event_nominations_db(db: Session, event: models.Event, nominations: list[BaseNomination]):
+def append_event_nominations_db(db: Session, event: Event, nominations: list[BaseNomination]):
     db_nominations = create_non_existent_return_all_nominations_db(db, nominations)
-    event.nominations.extend(set(db_nominations) - set(event.nominations))
-    db.add(event)
+    db_event = get_event_by_name_db(db, event.name)
+    db_event.nominations.extend(set(db_nominations) - set(db_event.nominations))
+    db.add(db_event)
     db.commit()
-    db.refresh(event)
-    return event
+    db.refresh(db_event)
+    return db_event
 
 
 def get_team_by_name_db(db: Session, name: str) -> models.Team | None:
@@ -192,12 +206,53 @@ def get_equipment_db(db: Session, offset: int, limit: int):
     equipment = [Equipment.from_orm(equipment_db) for equipment_db in equipment_db]
     return equipment
 
+
 def get_software_db(db: Session, offset: int, limit: int):
     software_db = db.query(models.Software).offset(offset).limit(limit).all()
     software = [Software.from_orm(software_db) for software_db in software_db]
     return software
 
-def create_participant_db(db: Session, participant: Participant):
+
+def get_participant_by_email_db(db: Session, email: EmailStr):
+    participant = db.query(models.Participant).filter(models.Participant.email == email).first()
+    return participant
+
+
+def get_my_particiapnts_db(db: Session, user_id: int, offset: int, limit: int):
+    participants_db = db.query(models.Participant).filter(models.Participant.creator_id == user_id).offset(offset).limit(limit)
+
+    participants = [Participant.from_orm(participant_db) for participant_db in participants_db]
+    return participants
+
+
+def create_participant_db(db: Session, participant: Participant, creator_id: int):
+    participant_db = models.Participant(**participant.model_dump())
+    participant_db.creator_id = creator_id
+    team_db = models.Team(name=f"default_team_{participant.email}",  creator_id=participant_db.creator_id)
+    db.add(participant_db)
+    db.add(team_db)
+    db.commit()
+    return participant_db
+
+
+def get_teams_of_event_nomination_db(db: Session, event_name: str, nomination_name: str):
+    event_db = db.query(models.Event).filter(models.Event.name == event_name).first()
+    nomination_db = db.query(models.Nomination).filter(models.Nomination.name == nomination_name).first()
+    nomination_event_db = db.query(models.NominationEvent)\
+        .filter(models.NominationEvent.event_id == event_db.id
+                and models.NominationEvent.nomination_id == nomination_db.id).first()
+    teams_db = nomination_event_db.teams
+    return teams_db
+
+
+def get_participants_of_teams(db: Session, teams: list[type(models.Team)]):
+    participants = []
+    for team_db in teams:
+        participants.append(*team_db.participants)
+    pass#todo
+
+
+def append_team_to_event_nomination(db: Session, team_name: str, event_name: str, nomination_name: str):
     pass
 
 
