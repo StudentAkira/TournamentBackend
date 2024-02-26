@@ -235,25 +235,41 @@ def create_participant_db(db: Session, participant: Participant, creator_id: int
     return participant_db
 
 
-def get_teams_of_event_nomination_db(db: Session, event_name: str, nomination_name: str):
+def get_nomination_event_db(db: Session, event_name: str, nomination_name: str):
     event_db = db.query(models.Event).filter(models.Event.name == event_name).first()
     nomination_db = db.query(models.Nomination).filter(models.Nomination.name == nomination_name).first()
-    nomination_event_db = db.query(models.NominationEvent)\
+    nomination_event_db = db.query(models.NominationEvent) \
         .filter(models.NominationEvent.event_id == event_db.id
                 and models.NominationEvent.nomination_id == nomination_db.id).first()
+    return nomination_event_db
+
+
+def get_teams_of_event_nomination_db(db: Session, event_name: str, nomination_name: str):
+    nomination_event_db = get_nomination_event_db(db, event_name, nomination_name)
     teams_db = nomination_event_db.teams
     return teams_db
 
 
-def get_participants_of_teams(db: Session, teams: list[type(models.Team)]):
-    participants = []
+def get_team_participants_emails_db(db: Session, team_name: str):
+    team_db = get_team_by_name_db(db, team_name)
+    participants_emails = [participant.email for participant in team_db.participants]
+    return participants_emails
+
+
+def get_participants_emails_of_teams_db(teams: list[type(models.Team)]):
+    participants_emails = []
     for team_db in teams:
-        participants.append(*team_db.participants)
-    pass#todo
+        for participant in team_db.participants:
+            participants_emails.append(participant.email)
+    return participants_emails
 
 
-def append_team_to_event_nomination(db: Session, team_name: str, event_name: str, nomination_name: str):
-    pass
+def append_team_to_event_nomination_db(db: Session, team_name: str, event_name: str, nomination_name: str):
+    nomination_event_db = get_nomination_event_db(db, event_name, nomination_name)
+    team_db = db.query(models.Team).filter(models.Team.name == team_name).first()
+    nomination_event_db.teams.append(team_db)
+    db.add(nomination_event_db)
+    db.commit()
 
 
 def append_teams_for_participant(db: Session, teams: list[Team], participant: Participant):

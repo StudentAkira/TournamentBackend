@@ -4,6 +4,7 @@ from db.crud import get_events_db, get_my_events_db
 from db.schemas import Participant, Event, Team, EventCreate, BaseNomination, Software, Equipment, UserRole
 from managers.equipment_manager import EquipmentManager
 from managers.event_manager import EventManager
+from managers.nomination_event_manager import NominationEventManager
 from managers.nomination_manager import NominationManager
 from managers.paticipant_manager import ParticipantManager
 from managers.software_manager import SoftwareManager
@@ -24,6 +25,7 @@ class ParticipationsService:
         self.__participant_manager = ParticipantManager(db)
         self.__software_manager = SoftwareManager(db)
         self.__equipment_manager = EquipmentManager(db)
+        self.__nomination_event_manager = NominationEventManager(db)
 
     def get_events(self, offset, limit) -> list[Event]:
         events = get_events_db(self.__db, offset, limit)
@@ -94,6 +96,7 @@ class ParticipationsService:
         self.__team_manager.raise_exception_if_team_dont_exist(team_name)
         self.__event_manager.raise_exception_if_event_dont_exist(event_name)
         self.__nomination_manager.raise_exception_if_nomination_does_not_exist(nomination_name)
+        self.__nomination_event_manager.raise_exception_if_nomination_event_does_not_exist(event_name, nomination_name)
 
         decoded = self.__token_manager.decode_token(token, response)
         if decoded.get("role") == UserRole.admin:
