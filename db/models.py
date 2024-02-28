@@ -133,69 +133,10 @@ class TeamNominationEvent(Base):
     team_id: Mapped[int] = mapped_column(ForeignKey("team.id"))
     nomination_event_id: Mapped[int] = mapped_column(ForeignKey("nomination_event.id"))
 
-    softwares: Mapped[list["Software"]] = relationship(
-        back_populates="team_nomination_events",
-        secondary="software_team_nomination_event"
-    )
-
-    equipments: Mapped[list["Equipment"]] = relationship(
-        back_populates="team_nomination_events",
-        secondary="equipment_team_nomination_event"
-    )
+    software: str = Column(String)
+    equipment: str = Column(String)
 
     __table_args__ = (UniqueConstraint('team_id', 'nomination_event_id', name='_team_id__nomination_event_id'),)
-
-
-class Equipment(Base):
-    __tablename__ = "equipment"
-
-    id: int = Column(Integer, primary_key=True, autoincrement=True)
-    name: str = Column(String, unique=True)
-
-    team_nomination_events: Mapped[list["TeamNominationEvent"]] = relationship(
-        back_populates="equipments",
-        secondary="equipment_team_nomination_event"
-    )
-
-
-class Software(Base):
-    __tablename__ = "software"
-
-    id: int = Column(Integer, primary_key=True, autoincrement=True)
-    name: str = Column(String, unique=True)
-
-    team_nomination_events: Mapped[list["TeamNominationEvent"]] = relationship(
-        back_populates="softwares",
-        secondary="software_team_nomination_event"
-    )
-
-
-class SoftwareTeamNominationEvent(Base):
-    __tablename__ = "software_team_nomination_event"
-
-    id: int = Column(Integer, primary_key=True, autoincrement=True)
-
-    software_id: Mapped[int] = Column(Integer, ForeignKey("software.id"))
-    team_nomination_event_id: Mapped[int] = Column(Integer, ForeignKey("team_nomination_event.id"))
-
-    __table_args__ = (
-        UniqueConstraint(
-            'software_id', 'team_nomination_event_id', name='_software_id__team_nomination_event_id'),
-    )
-
-
-class EquipmentTeamNominationEvent(Base):
-    __tablename__ = "equipment_team_nomination_event"
-
-    id: int = Column(Integer, primary_key=True, autoincrement=True)
-
-    equipment_id: Mapped[int] = Column(Integer, ForeignKey("equipment.id"))
-    team_nomination_event_id: Mapped[int] = Column(Integer, ForeignKey("team_nomination_event.id"))
-
-    __table_args__ = (
-        UniqueConstraint(
-            'equipment_id', 'team_nomination_event_id', name='_equipment_id__team_nomination_event_id'),
-    )
 
 
 class TeamParticipant(Base):

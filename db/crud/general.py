@@ -1,16 +1,14 @@
 from sqlalchemy.orm import Session
 
 from db import models
-from db.schemas.equipment import EquipmentSchema
 from db.schemas.nomination import NominationSchema
-from db.schemas.software import SoftwareSchema
 
 
 def create_missing_items(
         db: Session,
-        model_name: type(models.Equipment) | type(models.Software) | type(models.Nomination),
-        items: list[EquipmentSchema | SoftwareSchema | NominationSchema]
-) -> list[type(models.Equipment) | type(models.Software) | type(models.Nomination)]:
+        model_name: type(models.Nomination),
+        items: list[NominationSchema]
+) -> list[type(models.Nomination)]:
     all_items = db.query(model_name).all()
     existing_items_names = {db_item.name for db_item in all_items}
 
