@@ -43,8 +43,8 @@ class ParticipantManager:
                 detail={"error": self.__email_taken_error}
             )
 
-    def raise_exception_if_participant_owner_wrong(self, participant: ParticipantSchema, creator_id: int):
-        participant_db = get_participant_by_email_db(self.__db, participant.email)
+    def raise_exception_if_participant_owner_wrong(self, participant_email: EmailStr, creator_id: int):
+        participant_db = get_participant_by_email_db(self.__db, participant_email)
         if participant_db.creator_id != creator_id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,

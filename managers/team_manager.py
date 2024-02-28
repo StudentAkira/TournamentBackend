@@ -40,27 +40,44 @@ class TeamManager:
         team_db = get_team_by_name_db(self.__db, name)
         return team_db
 
-
     def append_team_to_event_nomination(self, team_name: str, event_name: str, nomination_name: str):
-        # teams_db = self.get_teams_of_event_nomination(event_name, nomination_name)
-        # teams_participants_emails = set(get_participants_emails_of_teams_db(teams_db))
-        # team_participants_emails = set(get_team_participants_emails_db(self.__db, team_name))
-        #
-        # print(teams_db)
-        # print(teams_participants_emails)
-        # print(team_participants_emails)
-        # self.raise_exception_if_participant_in_existing_team(team_participants_emails, teams_participants_emails)
+        emails_of_all_participants_in_event_nomination = self.get_emails_of_all_participants_in_event_nomination(
+            event_name,
+            nomination_name
+        )
+        received_team_db = self.get_db_team_by_name(team_name)
+        received_team_participants_emails = self.get_emails_of_team(received_team_db)
+
+        print(emails_of_all_participants_in_event_nomination)
+        print(received_team_participants_emails)
+
+        self.raise_exception_if_participant_in_existing_team(
+            emails_of_all_participants_in_event_nomination,
+            received_team_participants_emails
+        )
         # append_team_to_event_nomination_db(self.__db, team_name, event_name, nomination_name)
-        # return {"message": self.__team_appended_message}
         pass
+
+    def get_emails_of_all_participants_in_event_nomination(self, event_name, nomination_name):
+        teams_db = get_teams_by_event_nomination_db(self.__db, event_name, nomination_name)
+        emails = set()
+        for team_db in teams_db:
+            emails.union(self.get_emails_of_team(team_db))
+        return emails
+
+    def get_emails_of_team(self, team_db: models.Team):
+        emails = set()
+        for participant_db in team_db.participants:
+            emails.add(participant_db.email)
+        return emails
 
     def get_teams_of_event_nomination(self, event_name: str, nomination_name: str) -> list[TeamSchema]:
         teams_db = get_teams_by_event_nomination_db(self.__db, event_name, nomination_name)
         teams = [TeamSchema.from_orm(team_db) for team_db in teams_db]
         return teams
 
-    def raise_exception_if_team_owner_wrong(self, team: TeamSchema, user_id: int):
-        team_db = self.get_db_team_by_name(team.name)
+    def raise_exception_if_team_owner_wrong(self, team_name: str, user_id: int):
+        team_db = self.get_db_team_by_name(team_name)
         if team_db.creator_id != user_id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,

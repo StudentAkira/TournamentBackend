@@ -52,8 +52,8 @@ class ParticipantsService:
         team = self.__team_manager.get_team_by_name(team_name)
 
         if decoded_token.role != UserRole.admin:
-            self.__team_manager.raise_exception_if_team_owner_wrong(team, decoded_token.user_id)
-            self.__participant_manager.raise_exception_if_participant_owner_wrong(participant, decoded_token.user_id)
+            self.__team_manager.raise_exception_if_team_owner_wrong(team_name, decoded_token.user_id)
+            self.__participant_manager.raise_exception_if_participant_owner_wrong(participant_email, decoded_token.user_id)
 
         self.__participant_manager.raise_exception_if_participant_already_in_team(participant, team)
 

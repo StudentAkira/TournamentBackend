@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Body
+from fastapi import APIRouter, Depends, Body, Query
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 
@@ -10,7 +10,7 @@ from routes.tournament_registration.tournament_registration_service import Tourn
 tournament_registration = APIRouter(prefix="/tournament_registration", tags=["tournament_registration"])
 
 
-@tournament_registration.get("/nomination_event")
+@tournament_registration.post("/nomination_event")
 async def append_team_to_nomination_event(
         response: Response,
         team_name: Annotated[str, Body()],
@@ -20,5 +20,16 @@ async def append_team_to_nomination_event(
         db: Session = Depends(get_db)
 ):
     service = TournamentRegistrationService(db)
-    pass
-    # return service.append_team_to_event_nomination(response, token, team_name, event_name, nomination_name)
+    return service.append_team_to_event_nomination(response, token, team_name, event_name, nomination_name)
+
+
+@tournament_registration.get('/nomination_event_teams')
+async def get_nomination_event_teams(
+        response: Response,
+        event_name: Annotated[str, Query()],
+        nomination_name: Annotated[str, Query()],
+        token: str = Depends(authorized_only),
+        db: Session = Depends(get_db)
+):
+    service = TournamentRegistrationService(db)
+    return service.get_teams_of_event_nomination(response, token, event_name, nomination_name)

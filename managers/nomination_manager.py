@@ -26,7 +26,7 @@ class NominationManager:
         if nomination_db:
             return NominationSchema.from_orm(nomination_db)
 
-    def raise_exception_if_nomination_does_not_exist(self, name: str):
+    def raise_exception_if_nomination_not_found(self, name: str):
         nomination = self.get_nomination_by_name(name)
         if not nomination:
             raise HTTPException(
