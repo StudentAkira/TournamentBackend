@@ -2,6 +2,7 @@ from starlette.responses import Response
 
 from db.schemas.participant import ParticipantSchema
 from db.schemas.team import TeamSchema
+from db.schemas.user import UserRole
 from managers.team_manager import TeamManager
 from managers.token_manager import TokenManager
 
@@ -21,8 +22,10 @@ class TeamsService:
         return {"message": self.__team_created_message}
 
     def get_teams_by_owner(self, response, token, offset: int, limit: int):
-        decoded = self.__token_manager.decode_token(token, response)
-        return self.__team_manager.get_teams_by_owner(offset, limit, decoded.user_id)
+        decoded_token = self.__token_manager.decode_token(token, response)
+        if decoded_token.role == UserRole.admin:
+            return self.__team_manager.get_teams(offset, limit)
+        return self.__team_manager.get_teams_by_owner(offset, limit, decoded_token.user_id)
 
     def append_participants_for_team(
             self,

@@ -12,7 +12,7 @@ events = APIRouter(prefix="/events", tags=["events"])
 
 
 @events.get("/event")
-async def get_my_events(
+async def get_events_by_owner(
         response: Response,
         offset: Annotated[int, Query(gte=0, lt=50)] = 0,
         limit: Annotated[int, Query(lt=50, gt=0)] = 10,

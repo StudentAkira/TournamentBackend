@@ -26,15 +26,16 @@ class TournamentRegistrationService:
             event_name: str,
             nomination_name: str
     ):
-        self.__team_manager.raise_exception_if_team_dont_exist(team_name)
-        self.__event_manager.raise_exception_if_event_dont_exist(event_name)
-        self.__nomination_manager.raise_exception_if_nomination_does_not_exist(nomination_name)
-        self.__nomination_event_manager.raise_exception_if_nomination_event_does_not_exist(event_name, nomination_name)
-
-        decoded_token = self.__token_manager.decode_token(token, response)
-        if decoded_token.role == UserRole.admin:
-            return self.__team_manager.append_team_to_event_nomination(team_name, event_name, nomination_name)
-        self.__team_manager.raise_exception_if_team_owner_wrong(team_name, decoded_token.user_id)
-        if decoded_token.role == UserRole.judge:
-            self.__event_manager.raise_exception_if_event_owner_wrong(event_name, decoded_token.user_id)
-        return self.__team_manager.append_team_to_event_nomination(team_name, event_name, nomination_name)
+        # self.__team_manager.raise_exception_if_team_not_found(team)
+        # self.__event_manager.raise_exception_if_event_dont_exist(event_name)
+        # self.__nomination_manager.raise_exception_if_nomination_does_not_exist(nomination_name)
+        # self.__nomination_event_manager.raise_exception_if_nomination_event_does_not_exist(event_name, nomination_name)
+        #
+        # decoded_token = self.__token_manager.decode_token(token, response)
+        # if decoded_token.role == UserRole.admin:
+        #     return self.__team_manager.append_team_to_event_nomination(team_name, event_name, nomination_name)
+        # self.__team_manager.raise_exception_if_team_owner_wrong(team_name, decoded_token.user_id)
+        # if decoded_token.role == UserRole.judge:
+        #     self.__event_manager.raise_exception_if_event_owner_wrong(event_name, decoded_token.user_id)
+        # return self.__team_manager.append_team_to_event_nomination(team_name, event_name, nomination_name)
+        pass

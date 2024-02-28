@@ -27,7 +27,7 @@ def get_teams_by_event_nomination_db(
         return teams_db
 
 
-def get_team_by_name_db(db: Session, team_name: str) -> type(models.Team):
+def get_team_by_name_db(db: Session, team_name: str) -> type(models.Team) | None:
     team_db = db.query(models.Team).filter(
         cast("ColumnElement[bool]", models.Team.name == team_name)
              ).first()
@@ -44,4 +44,9 @@ def get_teams_by_owner_db(db: Session, offset: int, limit: int, owner_id: int) -
     teams_db = db.query(models.Team).filter(
         cast("ColumnElement[bool]", models.Team.creator_id == owner_id)
     ).offset(offset).limit(limit).all()
+    return teams_db
+
+
+def get_teams_db(db: Session, offset: int, limit: int) -> list[type(models.Team)]:
+    teams_db = db.query(models.Team).offset(offset).limit(limit).all()
     return teams_db

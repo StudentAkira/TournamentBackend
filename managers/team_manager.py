@@ -2,7 +2,9 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from starlette import status
 
-from db.crud.team import get_teams_by_owner_db, create_team_db, get_team_by_name_db, get_teams_by_event_nomination_db
+from db import models
+from db.crud.team import get_teams_by_owner_db, create_team_db, get_team_by_name_db, get_teams_by_event_nomination_db, \
+    get_teams_db
 from db.schemas.team import TeamSchema
 
 
@@ -15,6 +17,11 @@ class TeamManager:
         self.__wrong_team_owner_error = "this team is not yours"
         self.__participant_in_another_team_error = "participant in another team"
 
+    def get_teams(self, offset: int, limit: int) -> list[TeamSchema]:
+        teams_db = get_teams_db(self.__db, offset, limit)
+        teams = [TeamSchema.from_orm(team_db) for team_db in teams_db]
+        return teams
+
     def get_teams_by_owner(self, offset: int, limit: int, owner_id: int) -> list[TeamSchema]:
         teams_db = get_teams_by_owner_db(self.__db, offset, limit, owner_id)
         teams = [TeamSchema.from_orm(team_db) for team_db in teams_db]
@@ -25,9 +32,14 @@ class TeamManager:
         create_team_db(self.__db, team, creator_id)
 
     def get_team_by_name(self, name: str) -> TeamSchema | None:
-        team_db = get_team_by_name_db(self.__db, name)
+        team_db = self.get_db_team_by_name(name)
         if team_db:
             return TeamSchema.from_orm(team_db)
+
+    def get_db_team_by_name(self, name) -> type(models.Team) | None:
+        team_db = get_team_by_name_db(self.__db, name)
+        return team_db
+
 
     def append_team_to_event_nomination(self, team_name: str, event_name: str, nomination_name: str):
         # teams_db = self.get_teams_of_event_nomination(event_name, nomination_name)
@@ -47,9 +59,9 @@ class TeamManager:
         teams = [TeamSchema.from_orm(team_db) for team_db in teams_db]
         return teams
 
-    def raise_exception_if_team_owner_wrong(self, team_name: str, user_id: int):
-        team_db = self.get_team_by_name(team_name)
-        if team_db.owner_id != user_id:
+    def raise_exception_if_team_owner_wrong(self, team: TeamSchema, user_id: int):
+        team_db = self.get_db_team_by_name(team.name)
+        if team_db.creator_id != user_id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail={"error": self.__wrong_team_owner_error}
@@ -63,8 +75,8 @@ class TeamManager:
                 detail={"error": self.__team_name_taken_error}
             )
 
-    def raise_exception_if_team_dont_exist(self, name: str):
-        team = self.get_team_by_name(name)
+    def raise_exception_if_team_not_found(self, team_name: str):
+        team = self.get_team_by_name(team_name)
         if not team:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
