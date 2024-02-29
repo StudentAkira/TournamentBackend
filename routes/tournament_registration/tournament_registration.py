@@ -26,10 +26,10 @@ async def append_team_to_nomination_event(
 @tournament_registration.get('/nomination_event_teams')
 async def get_nomination_event_teams(
         response: Response,
-        event_name: Annotated[str, Query()],
         nomination_name: Annotated[str, Query()],
+        event_name: Annotated[str, Query()],
         token: str = Depends(authorized_only),
         db: Session = Depends(get_db)
 ):
     service = TournamentRegistrationService(db)
-    return service.get_teams_of_event_nomination(response, token, event_name, nomination_name)
+    return service.get_teams_of_event_nomination(response, token, nomination_name, event_name)

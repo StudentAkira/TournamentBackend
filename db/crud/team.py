@@ -18,10 +18,10 @@ def create_team_db(db: Session, team: TeamSchema, creator_id: int):
 
 def get_teams_by_event_nomination_db(
         db: Session,
+        nomination_name: str,
         event_name: str,
-        nomination_name: str
 ) -> list[type(models.Team)] | None:
-    nomination_event_db = get_nomination_event_db(db, event_name, nomination_name)
+    nomination_event_db = get_nomination_event_db(db, nomination_name, event_name)
     if nomination_event_db:
         teams_db = nomination_event_db.teams
         return teams_db

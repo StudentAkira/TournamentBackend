@@ -22,7 +22,7 @@ class NominationEventManager:
         return [TeamSchema.from_orm(team_db) for team_db in nomination_event_db.teams]
 
     def get_teams_of_event_nomination(self, nomination_name: str, event_name: str) -> list[TeamSchema]:
-        teams_db = get_teams_by_event_nomination_db(self.__db, event_name, nomination_name)
+        teams_db = get_teams_by_event_nomination_db(self.__db, nomination_name, event_name)
         teams = [TeamSchema.from_orm(team_db) for team_db in teams_db]
         return teams
 
@@ -38,10 +38,10 @@ class NominationEventManager:
             emails_of_all_participants_in_event_nomination,
             received_team_participants_emails
         )
-        append_team_to_nomination_event_db(self.__db, team_name, event_name, nomination_name)
+        append_team_to_nomination_event_db(self.__db, team_name, nomination_name, event_name)
 
     def get_emails_of_all_participants_in_event_nomination(self, event_name, nomination_name):
-        teams_db = get_teams_by_event_nomination_db(self.__db, event_name, nomination_name)
+        teams_db = get_teams_by_event_nomination_db(self.__db, nomination_name, event_name)
         emails = set()
         for team_db in teams_db:
             emails.union(self.__team_manager.get_emails_of_team(team_db))

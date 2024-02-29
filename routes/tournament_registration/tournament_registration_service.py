@@ -25,11 +25,18 @@ class TournamentRegistrationService:
             self,
             response: Response,
             token: str,
+            nomination_name: str,
             event_name: str,
-            nomination_name: str
     ) -> list[TeamSchema]:
-        self.__token_manager.decode_token(token, response)
-        self.__nomination_event_manager.raise_exception_if_nomination_event_not_found(event_name, nomination_name)
+        decoded_token = self.__token_manager.decode_token(token, response)
+
+        self.__event_manager.raise_exception_if_event_not_found(event_name)
+        self.__nomination_manager.raise_exception_if_nomination_not_found(nomination_name)
+        self.__nomination_event_manager.raise_exception_if_nomination_event_not_found(nomination_name, event_name)
+
+        if decoded_token.role == UserRole.judge:
+            self.__event_manager.raise_exception_if_event_owner_wrong(event_name, decoded_token.user_id)
+
         return self.__nomination_event_manager.get_nomination_event_teams(nomination_name, event_name)
 
     def append_team_to_event_nomination(
@@ -45,7 +52,7 @@ class TournamentRegistrationService:
         self.__team_manager.raise_exception_if_team_not_found(team_name)
         self.__event_manager.raise_exception_if_event_not_found(event_name)
         self.__nomination_manager.raise_exception_if_nomination_not_found(nomination_name)
-        self.__nomination_event_manager.raise_exception_if_nomination_event_not_found(event_name, nomination_name)
+        self.__nomination_event_manager.raise_exception_if_nomination_event_not_found(nomination_name, event_name)
 
         if decoded_token.role == UserRole.specialist or decoded_token.role == UserRole.judge:
             self.__team_manager.raise_exception_if_team_owner_wrong(team_name, decoded_token.user_id)

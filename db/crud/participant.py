@@ -13,6 +13,7 @@ def create_participant_db(db: Session, participant: ParticipantSchema, creator_i
     participant_db = models.Participant(**participant.model_dump())
     participant_db.creator_id = creator_id
     team_db = models.Team(name=f"default_team_{participant.email}", creator_id=participant_db.creator_id)
+    participant_db.teams.append(team_db)
     db.add(participant_db)
     db.add(team_db)
     db.commit()
