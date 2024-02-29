@@ -1,5 +1,4 @@
 from fastapi import HTTPException
-from pydantic import EmailStr
 from sqlalchemy.orm import Session
 from starlette import status
 
@@ -36,10 +35,6 @@ class NominationEventManager:
         received_team_db = get_team_by_name_db(self.__db, team_name)
         received_team_participants_emails = self.__team_manager.get_emails_of_team(received_team_db)
 
-        self.__team_manager.raise_exception_if_participant_in_existing_team(
-            emails_of_all_participants_in_event_nomination,
-            received_team_participants_emails
-        )
         append_team_to_nomination_event_db(self.__db, team_name, nomination_name, event_name)
 
     def get_emails_of_all_participants_in_event_nomination(self, event_name, nomination_name):

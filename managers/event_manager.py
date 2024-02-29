@@ -2,7 +2,6 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from starlette import status
 
-from db import models
 from db.crud.event import create_event_db, get_event_by_name_db, get_events_by_owner_db, append_event_nominations_db, \
     get_events_db
 from db.schemas.event import EventCreateSchema, EventSchema

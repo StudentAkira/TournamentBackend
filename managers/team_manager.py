@@ -59,22 +59,8 @@ class TeamManager:
 
     def raise_exception_if_team_not_found(self, team_name: str):
         team = self.get_team_by_name(team_name)
-        print(team)
         if not team:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail={"error": self.__team_not_found_error}
             )
-
-    def raise_exception_if_participant_in_existing_team(
-            self,
-            team_participants_emails: set,
-            teams_participants_emails: set
-    ):
-        if len(teams_participants_emails.intersection(team_participants_emails)) != 0:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail={"error": self.__participant_in_another_team_error}
-            )
-
-
