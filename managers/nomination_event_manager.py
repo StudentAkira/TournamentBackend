@@ -62,6 +62,7 @@ class NominationEventManager:
             event_name: str
     ):
         teams_names = set(team.name for team in self.get_teams_of_event_nomination(nomination_name, event_name))
+        print("teams names :: ", teams_names)
         if team_name in teams_names:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
