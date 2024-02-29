@@ -10,11 +10,9 @@ def get_nomination_event_db(
         nomination_name: str,
         event_name: str,
 ) -> type(models.NominationEvent) | None:
-    print(event_name)
     event_db = db.query(models.Event).filter(
         cast("ColumnElement[bool]", models.Event.name == event_name)
     ).first()
-    print(event_db)
     nomination_db = db.query(models.Nomination).filter(
         cast("ColumnElement[bool]", models.Nomination.name == nomination_name)
     ).first()
