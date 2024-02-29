@@ -12,12 +12,12 @@ class NominationEventManager:
 
         self.__nomination_event_does_not_exist_error = "nomination event does not exist"
 
-    def get_nomination_event_teams(self, event_name: str, nomination_name: str) -> list[TeamSchema]:
-        nomination_event_db = get_nomination_event_db(self.__db, event_name, nomination_name)
+    def get_nomination_event_teams(self, nomination_name: str, event_name: str) -> list[TeamSchema]:
+        nomination_event_db = get_nomination_event_db(self.__db, nomination_name, event_name)
         return [TeamSchema.from_orm(team_db) for team_db in nomination_event_db.teams]
 
-    def raise_exception_if_nomination_event_not_found(self, event_name: str, nomination_name: str):
-        nomination_event = get_nomination_event_db(self.__db, event_name, nomination_name)
+    def raise_exception_if_nomination_event_not_found(self, nomination_name: str, event_name: str):
+        nomination_event = get_nomination_event_db(self.__db, nomination_name,  event_name)
         if not nomination_event:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,

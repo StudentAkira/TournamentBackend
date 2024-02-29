@@ -7,8 +7,8 @@ from db import models
 
 def get_nomination_event_db(
         db: Session,
+        nomination_name: str,
         event_name: str,
-        nomination_name: str
 ) -> type(models.NominationEvent) | None:
     event_db = db.query(models.Event).filter(
         cast("ColumnElement[bool]", models.Event.name == event_name)

@@ -1,5 +1,6 @@
 from starlette.responses import Response
 
+from db.schemas.team import TeamSchema
 from db.schemas.user import UserRole
 from managers.event_manager import EventManager
 from managers.nomination_event_manager import NominationEventManager
@@ -20,32 +21,39 @@ class TournamentRegistrationService:
 
         self.__team_appended_message = "team appended to nomination event"
 
-    def get_teams_of_event_nomination(self, response: Response, token: str, event_name: str, nomination_name: str):
+    def get_teams_of_event_nomination(
+            self,
+            response: Response,
+            token: str,
+            event_name: str,
+            nomination_name: str
+    ) -> list[TeamSchema]:
         self.__token_manager.decode_token(token, response)
         self.__nomination_event_manager.raise_exception_if_nomination_event_not_found(event_name, nomination_name)
-        return self.__nomination_event_manager.get_nomination_event_teams(event_name, nomination_name)
+        return self.__nomination_event_manager.get_nomination_event_teams(nomination_name, event_name)
 
     def append_team_to_event_nomination(
             self,
             response: Response,
             token: str,
             team_name: str,
+            nomination_name: str,
             event_name: str,
-            nomination_name: str
     ):
         decoded_token = self.__token_manager.decode_token(token, response)
 
         self.__team_manager.raise_exception_if_team_not_found(team_name)
-        self.__event_manager.raise_exception_if_event_dont_exist(event_name)
+        self.__event_manager.raise_exception_if_event_not_found(event_name)
         self.__nomination_manager.raise_exception_if_nomination_not_found(nomination_name)
         self.__nomination_event_manager.raise_exception_if_nomination_event_not_found(event_name, nomination_name)
 
-        if decoded_token.role == UserRole.specialist:
+        if decoded_token.role == UserRole.specialist or decoded_token.role == UserRole.judge:
             self.__team_manager.raise_exception_if_team_owner_wrong(team_name, decoded_token.user_id)
         if decoded_token.role == UserRole.judge:
-            self.__team_manager.raise_exception_if_team_owner_wrong(team_name, decoded_token.user_id)
             self.__event_manager.raise_exception_if_event_owner_wrong(event_name, decoded_token.user_id)
 
-        self.__team_manager.append_team_to_event_nomination(team_name, event_name, nomination_name)
+        self.__team_manager.raise_exception_if_team_already_in_nomination_event(team_name, nomination_name, event_name)
+
+        self.__team_manager.append_team_to_event_nomination(team_name, nomination_name, event_name)
 
         return {"message": self.__team_appended_message}

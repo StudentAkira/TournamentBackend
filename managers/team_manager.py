@@ -4,7 +4,7 @@ from starlette import status
 
 from db import models
 from db.crud.team import get_teams_by_owner_db, create_team_db, get_team_by_name_db, get_teams_by_event_nomination_db, \
-    get_teams_db
+    get_teams_db, append_team_to_nomination_event_db
 from db.schemas.team import TeamSchema
 
 
@@ -16,6 +16,7 @@ class TeamManager:
         self.__team_not_found_error = "team not found"
         self.__wrong_team_owner_error = "this team is not yours"
         self.__participant_in_another_team_error = "participant in another team"
+        self.__team_already_in_nomination_event_error = "team already in nomination event"
 
     def get_teams(self, offset: int, limit: int) -> list[TeamSchema]:
         teams_db = get_teams_db(self.__db, offset, limit)
@@ -40,7 +41,7 @@ class TeamManager:
         team_db = get_team_by_name_db(self.__db, name)
         return team_db
 
-    def append_team_to_event_nomination(self, team_name: str, event_name: str, nomination_name: str):
+    def append_team_to_event_nomination(self, team_name: str, nomination_name: str, event_name: str):
         emails_of_all_participants_in_event_nomination = self.get_emails_of_all_participants_in_event_nomination(
             event_name,
             nomination_name
@@ -48,15 +49,11 @@ class TeamManager:
         received_team_db = self.get_db_team_by_name(team_name)
         received_team_participants_emails = self.get_emails_of_team(received_team_db)
 
-        print(emails_of_all_participants_in_event_nomination)
-        print(received_team_participants_emails)
-
         self.raise_exception_if_participant_in_existing_team(
             emails_of_all_participants_in_event_nomination,
             received_team_participants_emails
         )
-        # append_team_to_event_nomination_db(self.__db, team_name, event_name, nomination_name)
-        pass
+        append_team_to_nomination_event_db(self.__db, team_name, event_name, nomination_name)
 
     def get_emails_of_all_participants_in_event_nomination(self, event_name, nomination_name):
         teams_db = get_teams_by_event_nomination_db(self.__db, event_name, nomination_name)
@@ -109,4 +106,12 @@ class TeamManager:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail={"error": self.__participant_in_another_team_error}
+            )
+
+    def raise_exception_if_team_already_in_nomination_event(self, team_name: str, nomination_name: str, event_name: str):
+        teams_names = set(team.name for team in self.get_teams_of_event_nomination(nomination_name, event_name))
+        if team_name in teams_names:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail={"error": self.__team_already_in_nomination_event_error}
             )
