@@ -48,11 +48,11 @@ class EventManager:
             )
 
     def raise_exception_if_event_owner_wrong(self, event_name: str, user_id: int):
-        event_db = self.get_event_by_name(event_name)
+        event_db = get_event_by_name_db(self.__db, event_name)
         if event_db.owner_id != user_id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail={"error": self.__event_does_not_exist_error}
+                detail={"error": self.__wrong_event_owner_error}
             )
 
     def raise_exception_if_event_not_found(self, name: str):

@@ -52,8 +52,12 @@ class TournamentRegistrationService:
         if decoded_token.role == UserRole.judge:
             self.__event_manager.raise_exception_if_event_owner_wrong(event_name, decoded_token.user_id)
 
-        self.__team_manager.raise_exception_if_team_already_in_nomination_event(team_name, nomination_name, event_name)
+        self.__nomination_event_manager.raise_exception_if_team_already_in_nomination_event(
+            team_name,
+            nomination_name,
+            event_name
+        )
 
-        self.__team_manager.append_team_to_event_nomination(team_name, nomination_name, event_name)
+        self.__nomination_event_manager.append_team_to_event_nomination(team_name, nomination_name, event_name)
 
         return {"message": self.__team_appended_message}
