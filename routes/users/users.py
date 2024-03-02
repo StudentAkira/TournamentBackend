@@ -10,7 +10,7 @@ from routes.users.users_service import UsersService
 users = APIRouter(prefix="/users", tags=["users"])
 
 
-@users.get("/get_my_profile/")
+@users.get("/get_my_profile")
 async def get_my_profile(
         response: Response,
         token: str = Depends(authorized_only),

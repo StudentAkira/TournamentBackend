@@ -29,9 +29,10 @@ class AuthService:
             key="token",
             value=token,
             httponly=True,
-            samesite="none",
+            samesite="lax",
             secure=True,
-            expires=expires.strftime("%a, %d %b %Y %H:%M:%S GMT")
+            expires=expires.strftime("%a, %d %b %Y %H:%M:%S GMT"),
+            domain="127.0.0.1"
         )
         return {"message": self.__logged_in_message}
 

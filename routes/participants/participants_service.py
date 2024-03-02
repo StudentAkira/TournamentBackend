@@ -59,4 +59,3 @@ class ParticipantsService:
 
         self.__participant_manager.append_participant_to_team(participant, team)
         return {"message": self.__participant_appended_to_team_message}
-
