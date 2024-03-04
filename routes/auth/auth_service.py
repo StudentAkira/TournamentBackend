@@ -19,11 +19,12 @@ class AuthService:
         self.__logged_in_message = "logged in"
         self.__logged_out_message = "logged out"
 
-    def login(self, response: Response, user: UserLoginSchema) -> dict[str, str]:
-        user_db = self.__user_manager.get_db_user_by_email(user.email)
-        self.__user_manager.raise_exception_if_user_not_found(user_db)
-        self.__user_manager.check_user_password(user_db, user.password)
-        token = self.__token_manager.generate_token(user_db.id, user_db.role)
+    def login(self, response: Response, user_login: UserLoginSchema) -> dict[str, str]:
+        user = self.__user_manager.get_user_by_email(user_login.email)
+        self.__user_manager.raise_exception_if_user_not_found(user)
+        self.__user_manager.check_user_password(user, user_login.password)
+        user_id = self.__user_manager.get_user_id_associated_with_email(user)
+        token = self.__token_manager.generate_token(user_id, user.role)
         expires = datetime.utcnow() + timedelta(days=settings.jwt_token_expiration_time_days)
         response.set_cookie(
             key="token",

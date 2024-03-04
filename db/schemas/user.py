@@ -37,3 +37,10 @@ class UserDatabaseSchema(UserSchema):
 
     class Config:
         from_attributes = True
+
+
+class EditUserSchema(BaseModel):
+    first_name: str
+    second_name: str
+    third_name: str
+    phone: PhoneNumber

@@ -39,7 +39,7 @@ class TournamentRegistrationService:
 
         return self.__nomination_event_manager.get_nomination_event_teams(nomination_name, event_name)
 
-    def append_team_to_event_nomination(
+    def append_team_to_event_nomination(#long method; refactor todo
             self,
             response: Response,
             token: str,
@@ -74,3 +74,7 @@ class TournamentRegistrationService:
         self.__nomination_event_manager.append_team_to_event_nomination(team_name, nomination_name, event_name)
 
         return {"message": self.__team_appended_message}
+
+    def get_nomination_events(self, offset, limit, response, token):
+        decoded_token = self.__token_manager.decode_token(token, response)
+        self.__nomination_event_manager.get_events_nominations(offset, limit, decoded_token.user_id)

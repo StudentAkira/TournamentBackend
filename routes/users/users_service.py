@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 
-from db.schemas.user import UserSchema, UserCreateSchema
+from db.schemas.user import UserSchema, UserCreateSchema, EditUserSchema
 from managers.token_manager import TokenManager
 from managers.user_manager import UserManager
 
@@ -14,6 +14,12 @@ class UsersService:
         self.__token_manager = TokenManager(self.__db)
 
         self.__user_created_message = "user created"
+        self.__user_data_updated_message = "user data updated"
+
+    def edit_user_data(self, response: Response, token: str, user_data: EditUserSchema):
+        decoded_token = self.__token_manager.decode_token(token, response)
+        self.__user_manager.edit_user_data(user_data, decoded_token.user_id)
+        return {"message": self.__user_data_updated_message}
 
     def get_user_data(self, response: Response, token: str) -> UserSchema:
         decoded_token = self.__token_manager.decode_token(token, response)

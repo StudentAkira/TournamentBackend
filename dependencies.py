@@ -17,6 +17,6 @@ def authorized_only(token: Annotated[str | None, Cookie()] = None):
     if not token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail={"message": "logged out"}
+            detail={"error": "logged out"}
         )
     return token

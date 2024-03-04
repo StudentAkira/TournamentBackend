@@ -28,6 +28,7 @@ async def get_teams(
         offset: Annotated[int, Query(gte=0, lt=50)] = 0,
         limit: Annotated[int, Query(lt=50, gt=0)] = 10,
         token: str = Depends(authorized_only),
-        db: Session = Depends(get_db)):
+        db: Session = Depends(get_db)
+):
     service = TeamsService(db)
     return service.get_teams_by_owner(response, token, offset, limit)

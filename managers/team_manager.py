@@ -4,7 +4,7 @@ from starlette import status
 
 from db import models
 from db.crud.team import get_teams_by_owner_db, create_team_db, get_team_by_name_db, get_teams_db
-from db.schemas.team import TeamSchema
+from db.schemas.team import TeamSchema, TeamParticipantsSchema
 
 
 class TeamManager:
@@ -16,14 +16,15 @@ class TeamManager:
         self.__wrong_team_owner_error = "this team is not yours"
         self.__participant_in_another_team_error = "participant in another team"
 
-    def get_teams(self, offset: int, limit: int) -> list[TeamSchema]:
+    def get_teams(self, offset: int, limit: int) -> list[TeamParticipantsSchema]:
         teams_db = get_teams_db(self.__db, offset, limit)
-        teams = [TeamSchema.from_orm(team_db) for team_db in teams_db]
+        teams = [TeamParticipantsSchema.from_orm(team_db) for team_db in teams_db]
         return teams
 
-    def get_teams_by_owner(self, offset: int, limit: int, owner_id: int) -> list[TeamSchema]:
+    def get_teams_by_owner(self, offset: int, limit: int, owner_id: int) -> list[TeamParticipantsSchema]:
         teams_db = get_teams_by_owner_db(self.__db, offset, limit, owner_id)
-        teams = [TeamSchema.from_orm(team_db) for team_db in teams_db]
+        teams = [TeamParticipantsSchema.from_orm(team_db) for team_db in teams_db]
+
         return teams
 
     def create_team(self, team: TeamSchema, creator_id: int):

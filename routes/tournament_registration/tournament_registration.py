@@ -10,7 +10,7 @@ from routes.tournament_registration.tournament_registration_service import Tourn
 tournament_registration = APIRouter(prefix="/tournament_registration", tags=["tournament_registration"])
 
 
-@tournament_registration.post("/nomination_event")
+@tournament_registration.post("/nomination_event_team")
 async def append_team_to_nomination_event(
         response: Response,
         team_name: Annotated[str, Body()],
@@ -33,3 +33,15 @@ async def get_nomination_event_teams(
 ):
     service = TournamentRegistrationService(db)
     return service.get_teams_of_event_nomination(response, token, nomination_name, event_name)
+
+
+@tournament_registration.get("/nomination_event")
+async def get_nominations_events(
+        response: Response,
+        offset: Annotated[int, Query()],
+        limit: Annotated[int, Query()],
+        token: str = Depends(authorized_only),
+        db: Session = Depends(get_db)
+):
+    service = TournamentRegistrationService(db)
+    return service.get_nomination_events(offset, limit, response, token)

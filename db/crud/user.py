@@ -4,7 +4,7 @@ from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
 from db import models
-from db.schemas.user import UserCreateSchema
+from db.schemas.user import UserCreateSchema, EditUserSchema
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -41,3 +41,13 @@ def get_user_by_id_db(db: Session, user_id: int) -> type(models.User) | None:
     ).first()
     if user_db:
         return user_db
+
+
+def edit_user_data_db(db: Session, user_data: EditUserSchema, user_id: int):
+    user_db = db.query(models.User).filter(cast("ColumnElement[bool]", models.User.id == user_id)).first()
+    user_db.first_name = user_data.first_name
+    user_db.second_name = user_data.second_name
+    user_db.third_name = user_data.third_name
+    user_db.phone = user_data.phone
+    db.add(user_db)
+    db.commit()

@@ -4,8 +4,8 @@ from sqlalchemy.orm import Session
 from starlette import status
 
 from db import models
-from db.crud.user import get_user_by_id_db, get_user_by_email_db, create_user_db, pwd_context
-from db.schemas.user import UserCreateSchema, UserRole, UserSchema
+from db.crud.user import get_user_by_id_db, get_user_by_email_db, create_user_db, pwd_context, edit_user_data_db
+from db.schemas.user import UserCreateSchema, UserRole, UserSchema, EditUserSchema
 
 
 class UserManager:
@@ -28,25 +28,28 @@ class UserManager:
             return UserSchema.from_orm(user_db)
 
     def get_user_by_email(self, email: str) -> UserSchema | None:
-        user_db = self.get_db_user_by_email(email)
+        user_db = get_user_by_email_db(self.__db, email)
         if user_db:
             return UserSchema.from_orm(user_db)
 
-    def get_db_user_by_email(self, email: str) -> models.User:
-        user_db = get_user_by_email_db(self.__db, email)
-        return user_db
+    def get_user_id_associated_with_email(self, user: UserSchema) -> int:
+        user_db = get_user_by_email_db(self.__db, user.email)
+        return user_db.id
 
     def create_user(self, user: UserCreateSchema):
-        self.raise_exception_if_email_taken(user.email)
+        self.raise_exception_if_email_taken(user)
         create_user_db(self.__db, user)
 
     def check_user_password(self, user: UserSchema, password: str):
-        user_db = self.get_db_user_by_email(user.email)
-        password_correct = pwd_context.verify(password, user_db.hashed_password)
-        self.raise_exception_if_password_incorrect(password_correct)
+        user_db = get_user_by_email_db(self.__db, user.email)
+        password_check = pwd_context.verify(password, user_db.hashed_password)
+        self.raise_exception_if_password_incorrect(password_check)
 
-    def raise_exception_if_email_taken(self, email: EmailStr):
-        user_db = get_user_by_email_db(self.__db, email)
+    def edit_user_data(self, user_data: EditUserSchema, user_id: int):
+        edit_user_data_db(self.__db, user_data, user_id)
+
+    def raise_exception_if_email_taken(self, user: UserSchema):
+        user_db = get_user_by_email_db(self.__db, user.email)
         if user_db:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
@@ -67,22 +70,22 @@ class UserManager:
                 detail={"error": self.__user_not_found_error}
             )
 
-    def raise_exception_if_user_is_not_admin(self, role: str):
-        if role != UserRole.admin:
+    def raise_exception_if_user_is_not_admin(self, user: UserSchema):
+        if user.role != UserRole.admin:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail={"error": self.__access_denied_error}
             )
 
-    def raise_exception_if_user_is_not_judge(self, role: str):
-        if role != UserRole.judge:
+    def raise_exception_if_user_is_not_judge(self, user: UserSchema):
+        if user.role != UserRole.judge:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail={"error": self.__access_denied_error}
             )
 
-    def raise_exception_if_user_specialist(self, role):
-        if role == UserRole.specialist:
+    def raise_exception_if_user_specialist(self, user: UserSchema):
+        if user.role == UserRole.specialist:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail={"error": self.__access_denied_error}

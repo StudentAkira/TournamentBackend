@@ -3,14 +3,14 @@ from sqlalchemy.orm import Session
 from starlette.responses import Response
 
 from db.crud.user import create_user_db
-from db.schemas.user import UserSchema, UserCreateSchema, UserRole
+from db.schemas.user import UserSchema, UserCreateSchema, UserRole, EditUserSchema
 from dependencies import get_db, authorized_only
 from routes.users.users_service import UsersService
 
 users = APIRouter(prefix="/users", tags=["users"])
 
 
-@users.get("/get_my_profile")
+@users.get("/profile")
 async def get_my_profile(
         response: Response,
         token: str = Depends(authorized_only),
@@ -18,6 +18,16 @@ async def get_my_profile(
 ) -> UserSchema:
     service = UsersService(db)
     return service.get_user_data(response, token)
+
+
+@users.put("/profile")
+async def edit_profile(
+        response: Response,
+        user_data: EditUserSchema,
+        token: str = Depends(authorized_only),
+        db: Session = Depends(get_db)):
+    service = UsersService(db)
+    return service.edit_user_data(response, token, user_data)
 
 
 @users.get('/create_admin')

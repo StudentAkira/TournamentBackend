@@ -2,7 +2,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from starlette import status
 
-from db.crud.nomination_event import get_nomination_event_db
+from db.crud.nomination_event import get_nomination_event_db, get_nomination_events_db
 from db.crud.team import get_teams_by_event_nomination_db, get_team_by_name_db, append_team_to_nomination_event_db
 from db.schemas.team import TeamSchema
 from managers.team_manager import TeamManager
@@ -17,6 +17,10 @@ class NominationEventManager:
         self.__nomination_event_does_not_exist_error = "nomination event does not exist"
         self.__team_already_in_nomination_event_error = "team already in nomination event"
         self.__participant_in_another_team_error = "participant found in another team of nomination event"
+
+    def get_events_nominations(self, offset: int, limit: int):
+        get_nomination_events_db(self.__db, offset, limit)
+        return [TeamSchema.from_orm(team_db) for team_db in nomination_event_db.teams]
 
     def get_nomination_event_teams(self, nomination_name: str, event_name: str) -> list[TeamSchema]:
         nomination_event_db = get_nomination_event_db(self.__db, nomination_name, event_name)
