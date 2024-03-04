@@ -1,4 +1,5 @@
 import datetime
+import time
 
 import jwt
 from fastapi import HTTPException
@@ -29,10 +30,10 @@ class TokenManager:
     def save_token_db(self, token: str, user_id: int):
         save_token_db(self.__db, token, user_id)
 
-    def delete_token_db(self, token: str):
+    def delete_token_from_db(self, token: str):
         delete_token_db(self.__db, token)
 
-    def get_token_db(self, token: str):
+    def check_if_token_exists_in_db(self, token: str):
         db_token = get_token_db(self.__db, token)
         self.raise_exception_if_token_not_found(db_token)
 
@@ -42,8 +43,9 @@ class TokenManager:
             "role": role,
             "exp":
                 datetime.datetime.now(tz=datetime.timezone.utc) +
-                datetime.timedelta(days=self.__jwt_token_expiration_time)
-             }
+                datetime.timedelta(days=self.__jwt_token_expiration_time),
+            "milliseconds": (round(time.time() * 1000) % 1000)
+        }
         token = jwt.encode(payload=to_encode, key=self.__jwt_token_secret, algorithm=self.__jwt_algorithm)
         self.save_token_db(token, user_id)
         return token

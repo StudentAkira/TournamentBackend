@@ -37,9 +37,9 @@ class AuthService:
         )
         return {"message": self.__logged_in_message}
 
-    def logout(self, response: Response, token) -> dict[str, str]:
+    def logout(self, response: Response, token: str) -> dict[str, str]:
         self.__token_manager.decode_token(token, response)
-        self.__token_manager.get_token_db(token)
-        self.__token_manager.delete_token_db(token)
+        self.__token_manager.check_if_token_exists_in_db(token)
+        self.__token_manager.delete_token_from_db(token)
         response.delete_cookie(key="token")
         return {"message": self.__logged_out_message}
