@@ -22,6 +22,10 @@ def create_event_db(db: Session, event: EventCreateSchema, owner_id: int) -> typ
     return event_db
 
 
+def get_all_events_db(db: Session):
+    return db.query(models.Event).all()
+
+
 def get_events_db(db: Session, offset: int, limit: int) -> list[type(models.Event)]:
     events_db = db.query(models.Event).offset(offset).limit(limit).all()
     return events_db

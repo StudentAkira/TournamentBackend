@@ -18,6 +18,10 @@ def save_nominations_db(db: Session, nominations: list[NominationSchema]) -> lis
     return nominations_db
 
 
+def get_all_nominations_db(db: Session):
+    return db.query(models.Nomination).all()
+
+
 def get_nominations_by_names_db(db: Session, names: set[str]) -> list[type(models.Nomination)]:
     nominations_db = db.query(models.Nomination).filter(
         models.Nomination.name.in_(names)

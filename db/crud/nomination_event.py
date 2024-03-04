@@ -3,8 +3,8 @@ from typing import cast
 from sqlalchemy.orm import Session
 
 from db import models
-from db.crud.event import get_events_by_owner_db, get_events_db
-from db.crud.nominations import get_nominations_db
+from db.crud.event import get_events_by_owner_db, get_events_db, get_all_events_db
+from db.crud.nominations import get_nominations_db, get_all_nominations_db
 from db.schemas.nomination_event import NominationEventSchema
 
 
@@ -38,8 +38,8 @@ def get_nomination_event_db(
 
 
 def get_nomination_events_db(db: Session, offset: int, limit: int):
-    events_db = get_events_db(db, offset, limit)
-    nominations_db = get_nominations_db(db, offset, limit)
+    events_db = get_all_events_db(db)
+    nominations_db = get_all_nominations_db(db)
 
     event_id_name_pairs = {event_db.id: event_db.name for event_db in events_db}
     nomination_id_name_pairs = {nomination_db.id: nomination_db.name for nomination_db in nominations_db}
@@ -88,5 +88,4 @@ def get_nomination_events_by_owner_db(
         )
 
     return nomination_events
-
 
