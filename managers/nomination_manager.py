@@ -2,7 +2,6 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from starlette import status
 
-from db import models
 from db.crud.nominations import get_nominations_db, save_nominations_db, get_nomination_by_name_db
 from db.schemas.nomination import NominationSchema
 

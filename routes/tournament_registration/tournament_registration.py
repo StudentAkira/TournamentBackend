@@ -32,7 +32,7 @@ async def get_nomination_event_teams(
         db: Session = Depends(get_db)
 ):
     service = TournamentRegistrationService(db)
-    return service.get_teams_of_event_nomination(response, token, nomination_name, event_name)
+    return service.get_teams_of_nomination_event(response, token, nomination_name, event_name)
 
 
 @tournament_registration.get("/nomination_event")
@@ -44,4 +44,4 @@ async def get_nominations_events(
         db: Session = Depends(get_db)
 ):
     service = TournamentRegistrationService(db)
-    return service.get_nomination_events(offset, limit, response, token)
+    return service.get_nomination_events(response, token, offset, limit)

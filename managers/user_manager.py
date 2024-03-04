@@ -1,9 +1,7 @@
 from fastapi import HTTPException
-from pydantic import EmailStr
 from sqlalchemy.orm import Session
 from starlette import status
 
-from db import models
 from db.crud.user import get_user_by_id_db, get_user_by_email_db, create_user_db, pwd_context, edit_user_data_db
 from db.schemas.user import UserCreateSchema, UserRole, UserSchema, EditUserSchema
 
@@ -70,8 +68,8 @@ class UserManager:
                 detail={"error": self.__user_not_found_error}
             )
 
-    def raise_exception_if_user_is_not_admin(self, user: UserSchema):
-        if user.role != UserRole.admin:
+    def raise_exception_if_user_is_not_admin(self, role: str):
+        if role != UserRole.admin:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail={"error": self.__access_denied_error}
@@ -84,8 +82,8 @@ class UserManager:
                 detail={"error": self.__access_denied_error}
             )
 
-    def raise_exception_if_user_specialist(self, user: UserSchema):
-        if user.role == UserRole.specialist:
+    def raise_exception_if_user_specialist(self, role: str):
+        if role == UserRole.specialist:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail={"error": self.__access_denied_error}

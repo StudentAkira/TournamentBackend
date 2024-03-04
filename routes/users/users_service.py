@@ -24,7 +24,7 @@ class UsersService:
     def get_user_data(self, response: Response, token: str) -> UserSchema:
         decoded_token = self.__token_manager.decode_token(token, response)
         user = self.__user_manager.get_user_by_id(decoded_token.user_id)
-        self.__token_manager.get_token_db(token)
+        self.__token_manager.check_if_token_exists_in_db(token)
         return user
 
     def create_user(self, response: Response, user: UserCreateSchema, token: str) -> dict[str, str]:

@@ -71,7 +71,7 @@ class TokenManager:
             )
         except jwt.ExpiredSignatureError:
             response.delete_cookie(key="token")
-            self.delete_token_db(token)
+            delete_token_db(self.__db, token)
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail={"error": self.__token_expired_error}

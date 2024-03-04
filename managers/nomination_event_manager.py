@@ -2,8 +2,10 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from starlette import status
 
-from db.crud.nomination_event import get_nomination_event_db, get_nomination_events_db
-from db.crud.team import get_teams_by_event_nomination_db, get_team_by_name_db, append_team_to_nomination_event_db
+from db.crud.nomination_event import get_nomination_event_db, get_nomination_events_db, \
+    get_nomination_events_by_owner_db
+from db.crud.team import get_teams_by_event_nomination_db, get_team_by_name_db
+from db.schemas.nomination_event import NominationEventSchema
 from db.schemas.team import TeamSchema
 from managers.team_manager import TeamManager
 
@@ -18,28 +20,29 @@ class NominationEventManager:
         self.__team_already_in_nomination_event_error = "team already in nomination event"
         self.__participant_in_another_team_error = "participant found in another team of nomination event"
 
-    def get_events_nominations(self, offset: int, limit: int):
-        get_nomination_events_db(self.__db, offset, limit)
-        return [TeamSchema.from_orm(team_db) for team_db in nomination_event_db.teams]
+    def get_nominations_events(self, offset: int, limit: int) -> list[NominationEventSchema]:
+        nominations_events = get_nomination_events_db(self.__db, offset, limit)
+        return nominations_events
 
-    def get_nomination_event_teams(self, nomination_name: str, event_name: str) -> list[TeamSchema]:
-        nomination_event_db = get_nomination_event_db(self.__db, nomination_name, event_name)
-        return [TeamSchema.from_orm(team_db) for team_db in nomination_event_db.teams]
+    def get_nominations_events_by_owner(self, offset: int, limit: int, owner_id: int) -> list[NominationEventSchema]:
+        nominations_events = get_nomination_events_by_owner_db(self.__db, offset, limit, owner_id)
+        return nominations_events
 
-    def get_teams_of_event_nomination(self, nomination_name: str, event_name: str) -> list[TeamSchema]:
+    def get_teams_of_nomination_event(self, nomination_name: str, event_name: str) -> list[TeamSchema]:
         teams_db = get_teams_by_event_nomination_db(self.__db, nomination_name, event_name)
         teams = [TeamSchema.from_orm(team_db) for team_db in teams_db]
         return teams
 
-    def append_team_to_event_nomination(self, team_name: str, nomination_name: str, event_name: str):
-        emails_of_all_participants_in_event_nomination = self.get_emails_of_all_participants_in_event_nomination(
-            event_name,
-            nomination_name
-        )
-        received_team_db = get_team_by_name_db(self.__db, team_name)
-        received_team_participants_emails = self.__team_manager.get_emails_of_team(received_team_db)
-
-        append_team_to_nomination_event_db(self.__db, team_name, nomination_name, event_name)
+    def append_team_to_event_nomination(self, team_name: str, nomination_name: str, event_name: str):#todo
+        # emails_of_all_participants_in_event_nomination = self.get_emails_of_all_participants_in_event_nomination(
+        #     event_name,
+        #     nomination_name
+        # )
+        # received_team_db = get_team_by_name_db(self.__db, team_name)
+        # received_team_participants_emails = self.__team_manager.get_emails_of_team(received_team_db)
+        #
+        # append_team_to_nomination_event_db(self.__db, team_name, nomination_name, event_name)
+        pass
 
     def get_emails_of_all_participants_in_event_nomination(self, event_name, nomination_name):
         teams_db = get_teams_by_event_nomination_db(self.__db, nomination_name, event_name)
@@ -47,6 +50,14 @@ class NominationEventManager:
         for team_db in teams_db:
             emails.union(self.__team_manager.get_emails_of_team(team_db))
         return emails
+
+    def get_participant_emails_of_nomination_event(self, nomination_name: str, event_name: str):
+        teams_db = get_teams_by_event_nomination_db(self.__db, nomination_name, event_name)
+        nomination_event_participant_emails = set()
+        for team_db in teams_db:
+            for participant_db in team_db.participants:
+                nomination_event_participant_emails.add(participant_db.email)
+        return nomination_event_participant_emails
 
     def raise_exception_if_nomination_event_not_found(self, nomination_name: str, event_name: str):
         nomination_event = get_nomination_event_db(self.__db, nomination_name,  event_name)
@@ -62,14 +73,14 @@ class NominationEventManager:
             nomination_name: str,
             event_name: str
     ):
-        teams_names = set(team.name for team in self.get_teams_of_event_nomination(nomination_name, event_name))
+        teams_names = set(team.name for team in self.get_teams_of_nomination_event(nomination_name, event_name))
         if team_name in teams_names:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail={"error": self.__team_already_in_nomination_event_error}
             )
 
-    def raise_exception_if_participant_already_in_event_nomination(
+    def raise_exception_if_participant_already_in_nomination_event(
             self,
             team_name: str,
             nomination_name: str,
@@ -79,14 +90,14 @@ class NominationEventManager:
         received_team_participants_emails = set(
             participant.email for participant in received_team_db.participants
         )
+        nomination_event_participant_emails = self.get_participant_emails_of_nomination_event(
+            nomination_name,
+            event_name
+        )
+        self.check_emails_intersection(nomination_event_participant_emails, received_team_participants_emails)
 
-        teams_db = get_teams_by_event_nomination_db(self.__db, nomination_name, event_name)
-        nomination_event_participant_emails = set()
-        for team_db in teams_db:
-            for participant_db in team_db.participants:
-                nomination_event_participant_emails.add(participant_db.email)
-
-        if len(nomination_event_participant_emails.intersection(received_team_participants_emails)):
+    def check_emails_intersection(self, intersectable, intersecting):
+        if len(intersectable.intersection(intersecting)):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail={"error": self.__participant_in_another_team_error}

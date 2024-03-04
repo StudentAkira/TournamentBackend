@@ -27,11 +27,3 @@ class TeamsService:
             return self.__team_manager.get_teams(offset, limit)
         return self.__team_manager.get_teams_by_owner(offset, limit, decoded_token.user_id)
 
-    def append_participants_for_team(
-            self,
-            response: Response,
-            token: str,
-            teams: TeamSchema,
-            participant: list[ParticipantSchema]
-    ):
-        pass
