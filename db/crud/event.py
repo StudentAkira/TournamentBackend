@@ -45,6 +45,13 @@ def get_events_by_owner_db(db: Session, offset: int, limit: int, owner_id: int) 
     return events_db
 
 
+def get_all_events_by_owner_db(db: Session, owner_id: int):
+    events_db = db.query(models.Event).filter(
+        cast("ColumnElement[bool]", models.Event.owner_id == owner_id)
+    ).all()
+    return events_db
+
+
 def append_event_nominations_db(
         db: Session,
         event: EventSchema,

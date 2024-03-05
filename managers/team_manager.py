@@ -15,6 +15,8 @@ class TeamManager:
         self.__team_not_found_error = "team not found"
         self.__wrong_team_owner_error = "this team is not yours"
         self.__participant_in_another_team_error = "participant in another team"
+        self.__cant_append_participant_to_default_team = "you cant not append participant to default team"
+        self.__cant_create_team_marked_as_default = "you cant not name team as default"
 
     def get_teams(self, offset: int, limit: int) -> list[TeamParticipantsSchema]:
         teams_db = get_teams_db(self.__db, offset, limit)
@@ -29,6 +31,7 @@ class TeamManager:
 
     def create_team(self, team: TeamSchema, creator_id: int):
         self.raise_exception_if_team_name_taken(team.name)
+        self.raise_exception_if_team_name_has_default_mark(team)
         create_team_db(self.__db, team, creator_id)
 
     def get_team_by_name(self, name: str) -> TeamSchema | None:
@@ -41,6 +44,13 @@ class TeamManager:
         for participant_db in team_db.participants:
             emails.add(participant_db.email)
         return emails
+
+    def check_if_team_default(self, team:TeamSchema):
+        if "default_team" in team.name:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail={"error": self.__cant_append_participant_to_default_team}
+            )
 
     def raise_exception_if_team_owner_wrong(self, team_name: str, user_id: int):
         team_db = get_team_by_name_db(self.__db, team_name)
@@ -64,4 +74,11 @@ class TeamManager:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail={"error": self.__team_not_found_error}
+            )
+
+    def raise_exception_if_team_name_has_default_mark(self, team: TeamSchema):
+        if "default_team" in team.name:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail={"error": self.__cant_create_team_marked_as_default}
             )

@@ -23,8 +23,8 @@ async def append_team_to_nomination_event(
     return service.append_team_to_event_nomination(response, token, team_name, nomination_name, event_name)
 
 
-@tournament_registration.get('/nomination_event_teams')
-async def get_nomination_event_teams(
+@tournament_registration.get('/teams_of_nomination_event')
+async def get_teams_of_nomination_event(
         response: Response,
         nomination_name: Annotated[str, Query()],
         event_name: Annotated[str, Query()],
@@ -35,8 +35,8 @@ async def get_nomination_event_teams(
     return service.get_teams_of_nomination_event(response, token, nomination_name, event_name)
 
 
-@tournament_registration.get("/nomination_event")
-async def get_nominations_events(
+@tournament_registration.get("/nomination_event_full_info")
+async def get_nominations_events_full_info(
         response: Response,
         offset: Annotated[int, Query()],
         limit: Annotated[int, Query()],
@@ -44,4 +44,16 @@ async def get_nominations_events(
         db: Session = Depends(get_db)
 ):
     service = TournamentRegistrationService(db)
-    return service.get_nomination_events(response, token, offset, limit)
+    return service.get_nomination_events_full_info(response, token, offset, limit)
+
+
+@tournament_registration.get("/nomination_event_names")
+async def get_nominations_events_names(
+        response: Response,
+        offset: Annotated[int, Query()],
+        limit: Annotated[int, Query()],
+        token: str = Depends(authorized_only),
+        db: Session = Depends(get_db)
+):
+    service = TournamentRegistrationService(db)
+    return service.get_nomination_events_names(response, token, offset, limit)

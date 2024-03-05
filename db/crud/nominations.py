@@ -31,7 +31,6 @@ def get_nominations_by_names_db(db: Session, names: set[str]) -> list[type(model
 
 def get_nominations_db(db: Session, offset: int, limit: int) -> list[type(models.Nomination)]:
     nominations_db = db.query(models.Nomination).offset(offset).limit(limit).all()
-    # nominations = [NominationSchema.from_orm(nomination) for nomination in nominations_db]
     return nominations_db
 
 

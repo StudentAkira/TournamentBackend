@@ -2,10 +2,10 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from starlette import status
 
-from db.crud.nomination_event import get_nomination_event_db, get_nomination_events_db, \
-    get_nomination_events_by_owner_db
+from db.crud.nomination_event import get_nomination_event_db, get_nomination_events_full_info_db, \
+    get_nomination_events_full_info_by_owner_db, get_nomination_events_names_db, get_nomination_events_names_by_owner_db
 from db.crud.team import get_teams_by_event_nomination_db, get_team_by_name_db
-from db.schemas.nomination_event import NominationEventSchema
+from db.schemas.nomination_event import NominationEventSchema, NominationEventNameSchema
 from db.schemas.team import TeamSchema
 from managers.team_manager import TeamManager
 
@@ -20,12 +20,20 @@ class NominationEventManager:
         self.__team_already_in_nomination_event_error = "team already in nomination event"
         self.__participant_in_another_team_error = "participant found in another team of nomination event"
 
-    def get_nominations_events(self, offset: int, limit: int) -> list[NominationEventSchema]:
-        nominations_events = get_nomination_events_db(self.__db, offset, limit)
+    def get_nominations_events_names(self, offset: int, limit: int) -> list[NominationEventNameSchema]:
+        nominations_events = get_nomination_events_names_db(self.__db, offset, limit)
         return nominations_events
 
-    def get_nominations_events_by_owner(self, offset: int, limit: int, owner_id: int) -> list[NominationEventSchema]:
-        nominations_events = get_nomination_events_by_owner_db(self.__db, offset, limit, owner_id)
+    def get_nominations_events_names_by_owner(self, offset: int, limit: int, owner_id: int) -> list[NominationEventNameSchema]:
+        nominations_events = get_nomination_events_names_by_owner_db(self.__db, offset, limit, owner_id)
+        return nominations_events
+
+    def get_nominations_events_full_info(self, offset: int, limit: int) -> list[NominationEventSchema]:
+        nominations_events = get_nomination_events_full_info_db(self.__db, offset, limit)
+        return nominations_events
+
+    def get_nominations_events_full_info_by_owner(self, offset: int, limit: int, owner_id: int) -> list[NominationEventSchema]:
+        nominations_events = get_nomination_events_full_info_by_owner_db(self.__db, offset, limit, owner_id)
         return nominations_events
 
     def get_teams_of_nomination_event(self, nomination_name: str, event_name: str) -> list[TeamSchema]:

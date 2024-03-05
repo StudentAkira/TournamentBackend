@@ -1,5 +1,6 @@
 from starlette.responses import Response
 
+from db.schemas.nomination_event import NominationEventSchema, NominationEventNameSchema
 from db.schemas.team import TeamSchema
 from db.schemas.token import TokenDecodedSchema
 from db.schemas.user import UserRole
@@ -84,8 +85,34 @@ class TournamentRegistrationService:
         if decoded_token.role == UserRole.judge:
             self.__event_manager.raise_exception_if_event_owner_wrong(event_name, decoded_token.user_id)
 
-    def get_nomination_events(self, response, token, offset, limit):
+    def get_nomination_events_full_info(
+            self,
+            response: Response,
+            token: str,
+            offset: int,
+            limit: int
+    ) -> list[NominationEventSchema]:
         decoded_token = self.__token_manager.decode_token(token, response)
         if decoded_token.role != UserRole.judge:
-            return self.__nomination_event_manager.get_nominations_events(offset, limit)
-        return self.__nomination_event_manager.get_nominations_events_by_owner(offset, limit, decoded_token.user_id)
+            return self.__nomination_event_manager.get_nominations_events_full_info(offset, limit)
+        return self.__nomination_event_manager.get_nominations_events_full_info_by_owner(
+            offset,
+            limit,
+            decoded_token.user_id
+        )
+
+    def get_nomination_events_names(
+            self,
+            response: Response,
+            token: str,
+            offset: int,
+            limit: int
+    ) -> list[NominationEventNameSchema]:
+        decoded_token = self.__token_manager.decode_token(token, response)
+        if decoded_token.role != UserRole.judge:
+            return self.__nomination_event_manager.get_nominations_events_names(offset, limit)
+        return self.__nomination_event_manager.get_nominations_events_names_by_owner(
+            offset,
+            limit,
+            decoded_token.user_id
+        )

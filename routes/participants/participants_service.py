@@ -51,10 +51,11 @@ class ParticipantsService:
         participant = self.__participant_manager.get_participant_by_email(participant_email)
         team = self.__team_manager.get_team_by_name(team_name)
         self.__participant_manager.raise_exception_if_participant_already_in_team(participant, team)
-
+        self.__team_manager.check_if_team_default(team)
         self.__participant_manager.append_participant_to_team(participant, team)
 
         return {"message": self.__participant_appended_to_team_message}
+
 
     def check_entities_existence(self, participant_email: EmailStr, team_name: str):
         self.__participant_manager.raise_exception_if_participant_not_found(participant_email)
