@@ -1,10 +1,11 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
+from pydantic import EmailStr
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 
-from db.schemas.team import TeamSchema
+from db.schemas.team import TeamSchema, TeamParticipantsSchema
 from dependencies import get_db, authorized_only
 from routes.teams.teams_service import TeamsService
 
@@ -15,11 +16,14 @@ teams = APIRouter(prefix="/teams", tags=["teams"])
 async def create_team(
         response: Response,
         team: TeamSchema,
+        participants_emails: list[EmailStr],
         token: str = Depends(authorized_only),
         db: Session = Depends(get_db)
 ):
+    print(team)
+    print(participants_emails)
     service = TeamsService(db)
-    return service.create_team(response, token, team)
+    return service.create_team(response, token, team, participants_emails)
 
 
 @teams.get("/teams")

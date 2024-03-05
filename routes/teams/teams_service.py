@@ -1,7 +1,8 @@
+from pydantic import EmailStr
 from starlette.responses import Response
 
 from db.schemas.participant import ParticipantSchema
-from db.schemas.team import TeamSchema
+from db.schemas.team import TeamSchema, TeamParticipantsSchema
 from db.schemas.user import UserRole
 from managers.team_manager import TeamManager
 from managers.token_manager import TokenManager
@@ -16,9 +17,12 @@ class TeamsService:
         self.__team_created_message = "team created"
         self.__team_appended_message = "team appended"
 
-    def create_team(self, response, token: str, team: TeamSchema):
+    def create_team(self, response, token: str, team: TeamSchema, participants_emails: list[EmailStr]):
         decoded_token = self.__token_manager.decode_token(token, response)
-        self.__team_manager.create_team(team, decoded_token.user_id)
+        self.__team_manager.create_team(
+            team,
+            set(participants_emails),
+            decoded_token.user_id)
         return {"message": self.__team_created_message}
 
     def get_teams_by_owner(self, response, token, offset: int, limit: int):

@@ -8,9 +8,11 @@ from db.crud.nomination_event import get_nomination_event_db
 from db.schemas.team import TeamSchema
 
 
-def create_team_db(db: Session, team: TeamSchema, creator_id: int):
+def create_team_db(db: Session, team: TeamSchema, participants_emails: set[EmailStr], creator_id: int):
     team_db = models.Team(name=team.name)
     team_db.creator_id = creator_id
+    participants_db = db.query(models.Participant).filter(models.Participant.email.in_(participants_emails)).all()
+    team_db.participants.extend(participants_db)
     db.add(team_db)
     db.commit()
     return team_db

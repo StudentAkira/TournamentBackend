@@ -1,15 +1,18 @@
 from fastapi import HTTPException
+from pydantic import EmailStr
 from sqlalchemy.orm import Session
 from starlette import status
 
 from db import models
 from db.crud.team import get_teams_by_owner_db, create_team_db, get_team_by_name_db, get_teams_db
 from db.schemas.team import TeamSchema, TeamParticipantsSchema
+from managers.paticipant_manager import ParticipantManager
 
 
 class TeamManager:
     def __init__(self, db: Session):
         self.__db = db
+        self.__participant_manager = ParticipantManager(db)
 
         self.__team_name_taken_error = "team name taken"
         self.__team_not_found_error = "team not found"
@@ -29,10 +32,15 @@ class TeamManager:
 
         return teams
 
-    def create_team(self, team: TeamSchema, creator_id: int):
-        self.raise_exception_if_team_name_taken(team.name)
+    def create_team(self, team: TeamSchema, participants_emails: set[EmailStr], creator_id: int):
+        self.check_entities_existence(team, participants_emails)
         self.raise_exception_if_team_name_has_default_mark(team)
-        create_team_db(self.__db, team, creator_id)
+        create_team_db(self.__db, team, participants_emails, creator_id)
+
+    def check_entities_existence(self, team: TeamSchema, participant_emails: set[EmailStr]):
+        self.raise_exception_if_team_name_taken(team.name)
+        for participant_email in participant_emails:
+            self.__participant_manager.raise_exception_if_participant_not_found(participant_email)
 
     def get_team_by_name(self, name: str) -> TeamSchema | None:
         team_db = get_team_by_name_db(self.__db, name)
