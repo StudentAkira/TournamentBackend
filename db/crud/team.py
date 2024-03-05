@@ -33,7 +33,7 @@ def get_teams_by_event_nomination_db(
 def get_team_by_name_db(db: Session, team_name: str) -> type(models.Team) | None:
     team_db = db.query(models.Team).filter(
         cast("ColumnElement[bool]", models.Team.name == team_name)
-             ).first()
+    ).first()
     return team_db
 
 
@@ -79,3 +79,40 @@ def append_team_to_nomination_event_db(db: Session, team_name: str, nomination_n
 
     db.add(nomination_event_db)
     db.commit()
+
+
+def set_team_software_and_equipment_in_event_nomination_db(db: Session, team_name: str,
+                                                           nomination_name: str,
+                                                           event_name: str,
+                                                           software: str,
+                                                           equipment: str
+                                                           ):
+    team_id = db.query(models.Team.id).filter(
+        cast("ColumnElement[bool]", models.Team.name == team_name)
+    ).first()[0]
+
+    nomination_id = db.query(models.Nomination.id).filter(
+        cast("ColumnElement[bool]", models.Nomination.name == nomination_name)
+    ).first()[0]
+    event_id = db.query(models.Event.id).filter(
+        cast("ColumnElement[bool]", models.Event.name == event_name)
+    ).first()[0]
+
+    nomination_event_id = db.query(models.NominationEvent.id).filter(
+        and_(models.NominationEvent.nomination_id == nomination_id, models.NominationEvent.event_id == event_id)
+    ).first()[0]
+
+    team_nomination_event_db = db.query(models.TeamNominationEvent).filter(
+        and_(
+            models.TeamNominationEvent.team_id == team_id,
+            models.TeamNominationEvent.nomination_event_id == nomination_event_id
+        )
+    ).first()
+
+    team_nomination_event_db.software = software
+    team_nomination_event_db.equipment = equipment
+
+    db.add(team_nomination_event_db)
+    db.commit()
+
+

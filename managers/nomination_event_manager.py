@@ -19,6 +19,7 @@ class NominationEventManager:
         self.__nomination_event_does_not_exist_error = "nomination event does not exist"
         self.__team_already_in_nomination_event_error = "team already in nomination event"
         self.__participant_in_another_team_error = "participant found in another team of nomination event"
+        self.__team_not_in_nomination_event_error = "team not in event nomination error"
 
     def get_nominations_events_names(self, offset: int, limit: int) -> list[NominationEventNameSchema]:
         nominations_events = get_nomination_events_names_db(self.__db, offset, limit)
@@ -74,7 +75,6 @@ class NominationEventManager:
             event_name: str
     ):
         teams_names = set(team.name for team in self.get_teams_of_nomination_event(nomination_name, event_name))
-        print(teams_names)
         if team_name in teams_names:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
@@ -102,4 +102,12 @@ class NominationEventManager:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail={"error": self.__participant_in_another_team_error}
+            )
+
+    def raise_exception_if_team_not_in_event_nomination(self, team_name: str, nomination_name: str, event_name: str):
+        teams_names = set(team.name for team in self.get_teams_of_nomination_event(nomination_name, event_name))
+        if team_name not in teams_names:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail={"error": self.__team_not_in_nomination_event_error}
             )

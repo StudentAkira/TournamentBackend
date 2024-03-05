@@ -7,8 +7,8 @@ from db.crud.event import get_all_events_db, get_all_events_by_owner_db
 from db.crud.nominations import get_all_nominations_db
 from db.schemas.nomination_event import NominationEventSchema, NominationEventNameSchema
 from db.schemas.participant import ParticipantSchema
-from db.schemas.team import TeamSchema, TeamParticipantsSchema
-
+from db.schemas.team import TeamParticipantsSchema
+from sqlalchemy import and_
 
 def get_nomination_and_event_ids(db: Session, offset: int, limit: int):
     nominations_events_db = db.query(models.NominationEvent).offset(offset).limit(limit).all()
@@ -33,9 +33,13 @@ def get_nomination_event_db(
     nomination_db = db.query(models.Nomination).filter(
         cast("ColumnElement[bool]", models.Nomination.name == nomination_name)
     ).first()
-    nomination_event_db = db.query(models.NominationEvent) \
-        .filter(models.NominationEvent.event_id == event_db.id
-                and models.NominationEvent.nomination_id == nomination_db.id).first()
+
+    print(event_db.id, event_db.name)
+    print(nomination_db.id, nomination_db.name)
+
+    nomination_event_db = db.query(models.NominationEvent).\
+        filter(and_(models.NominationEvent.event_id == event_db.id,
+                    models.NominationEvent.nomination_id == nomination_db.id)).first()
     return nomination_event_db
 
 

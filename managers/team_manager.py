@@ -1,10 +1,13 @@
+from email.utils import parseaddr
+
 from fastapi import HTTPException
 from pydantic import EmailStr
 from sqlalchemy.orm import Session
 from starlette import status
 
 from db import models
-from db.crud.team import get_teams_by_owner_db, create_team_db, get_team_by_name_db, get_teams_db
+from db.crud.team import get_teams_by_owner_db, create_team_db, get_team_by_name_db, get_teams_db, \
+    set_team_software_and_equipment_in_event_nomination_db
 from db.schemas.team import TeamSchema, TeamParticipantsSchema
 from managers.paticipant_manager import ParticipantManager
 
@@ -18,8 +21,9 @@ class TeamManager:
         self.__team_not_found_error = "team not found"
         self.__wrong_team_owner_error = "this team is not yours"
         self.__participant_in_another_team_error = "participant in another team"
-        self.__cant_append_participant_to_default_team = "you cant not append participant to default team"
-        self.__cant_create_team_marked_as_default = "you cant not name team as default"
+        self.__cant_append_participant_to_default_team_error = "you cant not append participant to default team"
+        self.__cant_create_team_marked_as_default_error = "you cant not name team as default"
+        self.__team_contains_email_address_error = "team cannot contain email address"
 
     def get_teams(self, offset: int, limit: int) -> list[TeamParticipantsSchema]:
         teams_db = get_teams_db(self.__db, offset, limit)
@@ -34,7 +38,7 @@ class TeamManager:
 
     def create_team(self, team: TeamSchema, participants_emails: set[EmailStr], creator_id: int):
         self.check_entities_existence(team, participants_emails)
-        self.raise_exception_if_team_name_has_default_mark(team)
+        self.raise_exception_if_team_name_invalid(team)
         create_team_db(self.__db, team, participants_emails, creator_id)
 
     def check_entities_existence(self, team: TeamSchema, participant_emails: set[EmailStr]):
@@ -53,11 +57,22 @@ class TeamManager:
             emails.add(participant_db.email)
         return emails
 
+    def set_team_software_and_equipment_in_event_nomination(
+            self,
+            team_name: str,
+            nomination_name: str,
+            event_name: str,
+            software: str,
+            equipment: str
+    ):
+        set_team_software_and_equipment_in_event_nomination_db(self.__db, team_name, nomination_name, event_name, software, equipment)
+
+
     def check_if_team_default(self, team:TeamSchema):
         if "default_team" in team.name:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail={"error": self.__cant_append_participant_to_default_team}
+                detail={"error": self.__cant_append_participant_to_default_team_error}
             )
 
     def raise_exception_if_team_owner_wrong(self, team_name: str, user_id: int):
@@ -84,9 +99,14 @@ class TeamManager:
                 detail={"error": self.__team_not_found_error}
             )
 
-    def raise_exception_if_team_name_has_default_mark(self, team: TeamSchema):
+    def raise_exception_if_team_name_invalid(self, team: TeamSchema):
+        if '@' in parseaddr(team.name)[1]:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail={"error": self.__team_contains_email_address_error}
+            )
         if "default_team" in team.name:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail={"error": self.__cant_create_team_marked_as_default}
+                detail={"error": self.__cant_create_team_marked_as_default_error}
             )

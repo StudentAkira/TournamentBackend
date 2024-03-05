@@ -56,7 +56,6 @@ class ParticipantsService:
 
         return {"message": self.__participant_appended_to_team_message}
 
-
     def check_entities_existence(self, participant_email: EmailStr, team_name: str):
         self.__participant_manager.raise_exception_if_participant_not_found(participant_email)
         self.__team_manager.raise_exception_if_team_not_found(team_name)
