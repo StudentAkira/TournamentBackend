@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from db import models
 from db.crud.nomination_event import get_nomination_event_db
 from db.schemas.team import TeamSchema
+from sqlalchemy import and_
 
 
 def create_team_db(db: Session, team: TeamSchema, participants_emails: set[EmailStr], creator_id: int):
@@ -59,17 +60,19 @@ def append_team_to_nomination_event_db(db: Session, team_name: str, nomination_n
         cast("ColumnElement[bool]", models.Team.name == team_name)
     ).first()
 
-    event_db = db.query(models.Event.id).filter(
+    event_db = db.query(models.Event).filter(
         cast("ColumnElement[bool]", models.Event.name == event_name)
     ).first()
 
-    nomination_db = db.query(models.Nomination.id).filter(
+    nomination_db = db.query(models.Nomination).filter(
         cast("ColumnElement[bool]", models.Nomination.name == nomination_name)
     ).first()
 
     nomination_event_db = db.query(models.NominationEvent).filter(
-        models.NominationEvent.event_id == event_db.id and
-        models.NominationEvent.nomination_id == nomination_db.id
+        and_(
+            models.NominationEvent.event_id == event_db.id,
+            models.NominationEvent.nomination_id == nomination_db.id
+        )
     ).first()
 
     nomination_event_db.teams.append(team_db)

@@ -5,7 +5,7 @@ from pydantic import EmailStr
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 
-from db.schemas.team import TeamSchema, TeamParticipantsSchema
+from db.schemas.team import TeamSchema
 from dependencies import get_db, authorized_only
 from routes.teams.teams_service import TeamsService
 
@@ -20,8 +20,6 @@ async def create_team(
         token: str = Depends(authorized_only),
         db: Session = Depends(get_db)
 ):
-    print(team)
-    print(participants_emails)
     service = TeamsService(db)
     return service.create_team(response, token, team, participants_emails)
 

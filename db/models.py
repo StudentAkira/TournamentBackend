@@ -1,6 +1,6 @@
 from phonenumbers import PhoneNumber
 from pydantic import EmailStr
-from sqlalchemy import Column, Integer, String, ForeignKey, UniqueConstraint, Date
+from sqlalchemy import Column, Integer, String, ForeignKey, UniqueConstraint, Date, Boolean
 from sqlalchemy.orm import relationship, mapped_column, Mapped
 
 from .database import Base
@@ -69,6 +69,9 @@ class NominationEvent(Base):
 
     event_id: Mapped[int] = mapped_column(ForeignKey("event.id"))
     nomination_id: Mapped[int] = mapped_column(ForeignKey("nomination.id"))
+
+    start_date: Mapped[Date] = Column(Date)
+    registration_open: Mapped[bool] = Column(Boolean)
 
     teams: Mapped[list["Team"]] = relationship(
         back_populates="nomination_events",

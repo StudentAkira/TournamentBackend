@@ -4,7 +4,7 @@ from starlette import status
 
 from db.crud.nomination_event import get_nomination_event_db, get_nomination_events_full_info_db, \
     get_nomination_events_full_info_by_owner_db, get_nomination_events_names_db, get_nomination_events_names_by_owner_db
-from db.crud.team import get_teams_by_event_nomination_db, get_team_by_name_db
+from db.crud.team import get_teams_by_event_nomination_db, get_team_by_name_db, append_team_to_nomination_event_db
 from db.schemas.nomination_event import NominationEventSchema, NominationEventNameSchema
 from db.schemas.team import TeamSchema
 from managers.team_manager import TeamManager
@@ -41,16 +41,8 @@ class NominationEventManager:
         teams = [TeamSchema.from_orm(team_db) for team_db in teams_db]
         return teams
 
-    def append_team_to_event_nomination(self, team_name: str, nomination_name: str, event_name: str):#todo
-        # emails_of_all_participants_in_event_nomination = self.get_emails_of_all_participants_in_event_nomination(
-        #     event_name,
-        #     nomination_name
-        # )
-        # received_team_db = get_team_by_name_db(self.__db, team_name)
-        # received_team_participants_emails = self.__team_manager.get_emails_of_team(received_team_db)
-        #
-        # append_team_to_nomination_event_db(self.__db, team_name, nomination_name, event_name)
-        pass
+    def append_team_to_event_nomination(self, team_name: str, nomination_name: str, event_name: str):
+        append_team_to_nomination_event_db(self.__db, team_name, nomination_name, event_name)
 
     def get_emails_of_all_participants_in_event_nomination(self, event_name, nomination_name):
         teams_db = get_teams_by_event_nomination_db(self.__db, nomination_name, event_name)
@@ -82,6 +74,7 @@ class NominationEventManager:
             event_name: str
     ):
         teams_names = set(team.name for team in self.get_teams_of_nomination_event(nomination_name, event_name))
+        print(teams_names)
         if team_name in teams_names:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
