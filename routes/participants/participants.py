@@ -36,13 +36,13 @@ async def create_participant(
     return service.create_participant(response, token, participant)
 
 
-# @participants.post("/participant_to_team")
-# async def append_participant_to_team(
-#         response: Response,
-#         participant_email: EmailStr,
-#         team_name: str,
-#         token: str = Depends(authorized_only),
-#         db: Session = Depends(get_db)
-# ):
-#     service = ParticipantsService(db)
-#     return service.append_participant_to_team(response, token, participant_email, team_name)
+@participants.post("/participant_to_team")
+async def append_participant_to_team(
+        response: Response,
+        participant_email: EmailStr,
+        team_name: str,
+        token: str = Depends(authorized_only),
+        db: Session = Depends(get_db)
+):
+    service = ParticipantsService(db)
+    return service.append_participant_to_team(response, token, participant_email, team_name)

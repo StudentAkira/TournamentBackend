@@ -75,6 +75,15 @@ class TeamManager:
                 detail={"error": self.__cant_append_participant_to_default_team_error}
             )
 
+    def get_team_name_from_team_name_or_participant_email(self, team_name_or_participant_email):
+        team = self.get_team_by_name(team_name_or_participant_email)
+        if team:
+            return team.name
+        participant = self.__participant_manager.get_participant_by_email(team_name_or_participant_email)
+        if participant:
+            return f"default_team_{participant.email}"
+        self.__participant_manager.raise_exception_if_participant_not_found(team_name_or_participant_email)
+
     def raise_exception_if_team_owner_wrong(self, team_name: str, user_id: int):
         team_db = get_team_by_name_db(self.__db, team_name)
         if team_db.creator_id != user_id:

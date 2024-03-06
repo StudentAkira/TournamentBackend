@@ -59,7 +59,9 @@ class TournamentRegistrationService:
 
         decoded_token = self.__token_manager.decode_token(token, response)
 
-        self.__validator.check_entities_existence(team_name, nomination_name, event_name)
+        self.__validator.check_team_event_nomination__nomination_event__existence(team_name, nomination_name,
+                                                                                  event_name)
+
         self.validate_user_entity_ownership(decoded_token, team_name, event_name)
         self.check_participant_team_relation_existence(team_name, nomination_name, event_name)
 
@@ -67,31 +69,13 @@ class TournamentRegistrationService:
         return {"message": self.__team_appended_message}
 
     def get_team_name_from_team_name_or_participant_email(self, team_name_or_participant_email):
-        team = self.__team_manager.get_team_by_name(team_name_or_participant_email)
-        if team:
-            return team.name
-        participant = self.__participant_manager.get_participant_by_email(team_name_or_participant_email)
-        if participant:
-            return f"default_team_{participant.email}"
-        self.__participant_manager.raise_exception_if_participant_not_found(team_name_or_participant_email)
+        return self.__team_manager.get_team_name_from_team_name_or_participant_email(team_name_or_participant_email)
 
     def check_participant_team_relation_existence(self, team_name: str, nomination_name: str, event_name: str):
-        self.__nomination_event_manager.raise_exception_if_team_already_in_nomination_event(
-            team_name,
-            nomination_name,
-            event_name
-        )
-        self.__nomination_event_manager.raise_exception_if_participant_already_in_nomination_event(
-            team_name,
-            nomination_name,
-            event_name
-        )
+        self.__validator.check_participant_team_relation_existence(team_name, nomination_name, event_name)
 
     def validate_user_entity_ownership(self, decoded_token: TokenDecodedSchema, team_name: str, event_name: str):
-        if decoded_token.role == UserRole.specialist or decoded_token.role == UserRole.judge:
-            self.__team_manager.raise_exception_if_team_owner_wrong(team_name, decoded_token.user_id)
-        if decoded_token.role == UserRole.judge:
-            self.__event_manager.raise_exception_if_event_owner_wrong(event_name, decoded_token.user_id)
+        self.__validator.validate_user_entity_ownership(decoded_token, team_name, event_name)
 
     def get_nomination_events_full_info(
             self,

@@ -25,7 +25,8 @@ class NominationEventManager:
         nominations_events = get_nomination_events_names_db(self.__db, offset, limit)
         return nominations_events
 
-    def get_nominations_events_names_by_owner(self, offset: int, limit: int, owner_id: int) -> list[NominationEventNameSchema]:
+    def get_nominations_events_names_by_owner(
+            self, offset: int, limit: int, owner_id: int) -> list[NominationEventNameSchema]:
         nominations_events = get_nomination_events_names_by_owner_db(self.__db, offset, limit, owner_id)
         return nominations_events
 
@@ -33,7 +34,8 @@ class NominationEventManager:
         nominations_events = get_nomination_events_full_info_db(self.__db, offset, limit)
         return nominations_events
 
-    def get_nominations_events_full_info_by_owner(self, offset: int, limit: int, owner_id: int) -> list[NominationEventSchema]:
+    def get_nominations_events_full_info_by_owner(
+            self, offset: int, limit: int, owner_id: int) -> list[NominationEventSchema]:
         nominations_events = get_nomination_events_full_info_by_owner_db(self.__db, offset, limit, owner_id)
         return nominations_events
 

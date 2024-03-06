@@ -1,8 +1,7 @@
 from pydantic import EmailStr
 from starlette.responses import Response
 
-from db.schemas.participant import ParticipantSchema
-from db.schemas.team import TeamSchema, TeamParticipantsSchema
+from db.schemas.team import TeamSchema
 from db.schemas.user import UserRole
 from managers.event_manager import EventManager
 from managers.team_manager import TeamManager
@@ -41,14 +40,29 @@ class TeamsService:
             self,
             response: Response,
             token: str,
-            team_name: str,
+            team_name_or_participant_email: str,
             nomination_name: str,
             event_name: str,
             software: str,
             equipment: str
     ):
         decoded_token = self.__token_manager.decode_token(token, response)
-        self.__validator.check_entities_existence(team_name, nomination_name, event_name)
+
+        team_name = self.__team_manager.get_team_name_from_team_name_or_participant_email(
+            team_name_or_participant_email
+        )
+
+        self.__validator.check_team_event_nomination__nomination_event__existence(
+            team_name,
+            nomination_name,
+            event_name
+        )
+        self.__validator.check_if_team_not_in_event_nomination(
+            team_name,
+            nomination_name,
+            event_name
+        )
+
         self.__team_manager.raise_exception_if_team_owner_wrong(team_name, decoded_token.user_id)
         self.__event_manager.raise_exception_if_event_owner_wrong(event_name, decoded_token.user_id)
         self.__team_manager.set_team_software_and_equipment_in_event_nomination(
