@@ -36,6 +36,12 @@ class Validator:
                                                                  event_name: str
                                                                  ):
         self.__team_manager.raise_exception_if_team_not_found(team_name)
+        self.check_event_nomination__nomination_event_existence(nomination_name, event_name)
+
+    def check_event_nomination__nomination_event_existence(self,
+                                                           nomination_name: str,
+                                                           event_name: str
+        ):
         self.__event_manager.raise_exception_if_event_not_found(event_name)
         self.__nomination_manager.raise_exception_if_nomination_not_found(nomination_name)
         self.__nomination_event_manager.raise_exception_if_nomination_event_not_found(nomination_name, event_name)

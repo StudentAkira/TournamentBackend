@@ -35,17 +35,13 @@ class TournamentRegistrationService:
             nomination_name: str,
             event_name: str,
     ) -> list[TeamSchema]:
-        #
-        # decoded_token = self.__token_manager.decode_token(token, response)
-        #
-        # self.__event_manager.raise_exception_if_event_not_found(event_name)
-        # self.__nomination_manager.raise_exception_if_nomination_not_found(nomination_name)
-        # self.__nomination_event_manager.raise_exception_if_nomination_event_not_found(nomination_name, event_name)
-        # if decoded_token.role == UserRole.judge:
-        #     self.__event_manager.raise_exception_if_event_owner_wrong(event_name, decoded_token.user_id)
-        #
-        # return self.__nomination_event_manager.get_teams_of_nomination_event(nomination_name, event_name)
-        pass
+        decoded_token = self.__token_manager.decode_token(token, response)
+
+        self.__validator.check_event_nomination__nomination_event_existence(nomination_name, event_name)
+        if decoded_token.role == UserRole.judge:
+            self.__event_manager.raise_exception_if_event_owner_wrong(event_name, decoded_token.user_id)
+
+        return self.__nomination_event_manager.get_teams_of_nomination_event(nomination_name, event_name)
 
     def append_team_to_event_nomination(
             self,

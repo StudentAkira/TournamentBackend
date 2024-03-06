@@ -68,3 +68,7 @@ def check_if_participant_already_in_team_db(db: Session, participant: Participan
     participant_db = get_participant_by_email_db(db, participant.email)
     team_db = get_team_by_name_db(db, team.name)
     return team_db in set(participant_db.teams)
+
+
+def get_participants_of_team_db(db: Session, team_name: str):
+    team_db = db.query(models.Team).filter( cast("ColumnElement[bool]", models.Team.name == team_name)).first()

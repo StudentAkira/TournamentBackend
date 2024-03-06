@@ -42,13 +42,16 @@ def get_nomination_event_db(
 
 
 def get_nomination_events_full_info_db(db: Session, offset: int, limit: int):
-    nomination_events = db.query(models.NominationEvent).offset(offset).limit(limit).all()
-
+    events_db = db.query(models.Event).all()
+    for event_db in events_db:
+        for nomination_db in event_db.nominations:
+            teams_db = get_nomination_event_teams_db(db, nomination_db.name, event_db.name)
+            team_names = [team_db.name for team_db in teams_db]
+            print(event_db.name, nomination_db.name, team_names)
 
 
 def get_nomination_events_full_info_by_owner_db(db: Session, offset: int, limit: int, owner_id: int):
     nomination_events = db.query(models.NominationEvent).offset(offset).limit(limit).all()
-
 
 
 def get_nomination_event_teams_db(db: Session, nomination_name: str, event_name: str):
