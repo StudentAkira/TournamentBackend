@@ -20,7 +20,6 @@ class TeamManager:
         self.__team_name_taken_error = "team name taken"
         self.__team_not_found_error = "team not found"
         self.__wrong_team_owner_error = "this team is not yours"
-        self.__participant_in_another_team_error = "participant in another team"
         self.__cant_append_participant_to_default_team_error = "you cant not append participant to default team"
         self.__cant_create_team_marked_as_default_error = "you cant not name team as default"
         self.__team_contains_email_address_error = "team cannot contain email address"
@@ -66,14 +65,6 @@ class TeamManager:
             equipment: str
     ):
         set_team_software_and_equipment_in_event_nomination_db(self.__db, team_name, nomination_name, event_name, software, equipment)
-
-
-    def check_if_team_default(self, team:TeamSchema):
-        if "default_team" in team.name:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail={"error": self.__cant_append_participant_to_default_team_error}
-            )
 
     def get_team_name_from_team_name_or_participant_email(self, team_name_or_participant_email):
         team = self.get_team_by_name(team_name_or_participant_email)

@@ -55,29 +55,35 @@ def get_teams_db(db: Session, offset: int, limit: int) -> list[type(models.Team)
     return teams_db
 
 
-def append_team_to_nomination_event_db(db: Session, team_name: str, nomination_name: str, event_name: str):
-    team_db = db.query(models.Team).filter(
+def append_team_to_nomination_event_db(
+        db: Session,
+        team_name: str,
+        participant_emails: list[EmailStr],
+        nomination_name: str,
+        event_name: str
+):
+    team_id = db.query(models.Team.id).filter(
         cast("ColumnElement[bool]", models.Team.name == team_name)
-    ).first()
+    ).first()[0]
 
-    event_db = db.query(models.Event).filter(
-        cast("ColumnElement[bool]", models.Event.name == event_name)
-    ).first()
+    participant_ids = db.query(models.Participant.id).filter(models.Participant.email.in_(set(participant_emails))).all()
 
-    nomination_db = db.query(models.Nomination).filter(
-        cast("ColumnElement[bool]", models.Nomination.name == nomination_name)
-    ).first()
+    set_participant_ids = set()
+    for participant_id in participant_ids:
+        set_participant_ids.add(participant_id[0])
 
-    nomination_event_db = db.query(models.NominationEvent).filter(
+    nomination_event_db = get_nomination_event_db(db, nomination_name, event_name)
+
+    team_participants = db.query(models.TeamParticipant).filter(
         and_(
-            models.NominationEvent.event_id == event_db.id,
-            models.NominationEvent.nomination_id == nomination_db.id
+            models.TeamParticipant.team_id == team_id,
+            models.TeamParticipant.participant_id.in_(set_participant_ids)
         )
-    ).first()
+    ).all()
 
-    nomination_event_db.teams.append(team_db)
-
-    db.add(nomination_event_db)
+    for team_participant in team_participants:
+        team_participant.nomination_events.append(nomination_event_db)
+        db.add(team_participant)
     db.commit()
 
 
@@ -87,32 +93,34 @@ def set_team_software_and_equipment_in_event_nomination_db(db: Session, team_nam
                                                            software: str,
                                                            equipment: str
                                                            ):
-    team_id = db.query(models.Team.id).filter(
-        cast("ColumnElement[bool]", models.Team.name == team_name)
-    ).first()[0]
-
-    nomination_id = db.query(models.Nomination.id).filter(
-        cast("ColumnElement[bool]", models.Nomination.name == nomination_name)
-    ).first()[0]
-    event_id = db.query(models.Event.id).filter(
-        cast("ColumnElement[bool]", models.Event.name == event_name)
-    ).first()[0]
-
-    nomination_event_id = db.query(models.NominationEvent.id).filter(
-        and_(models.NominationEvent.nomination_id == nomination_id, models.NominationEvent.event_id == event_id)
-    ).first()[0]
-
-    team_nomination_event_db = db.query(models.TeamNominationEvent).filter(
-        and_(
-            models.TeamNominationEvent.team_id == team_id,
-            models.TeamNominationEvent.nomination_event_id == nomination_event_id
-        )
-    ).first()
-
-    team_nomination_event_db.software = software
-    team_nomination_event_db.equipment = equipment
-
-    db.add(team_nomination_event_db)
-    db.commit()
+    pass
+    # team_id = db.query(models.Team.id).filter(
+    #     cast("ColumnElement[bool]", models.Team.name == team_name)
+    # ).first()[0]
+    #
+    # nomination_id = db.query(models.Nomination.id).filter(
+    #     cast("ColumnElement[bool]", models.Nomination.name == nomination_name)
+    # ).first()[0]
+    # event_id = db.query(models.Event.id).filter(
+    #     cast("ColumnElement[bool]", models.Event.name == event_name)
+    # ).first()[0]
+    #
+    # nomination_event_id = db.query(models.NominationEvent.id).filter(
+    #     and_(models.NominationEvent.nomination_id == nomination_id, models.NominationEvent.event_id == event_id)
+    # ).first()[0]
+    #
+    # team_nomination_event_db = db.query(models.TeamNominationEvent).filter(
+    #     and_(
+    #         models.TeamNominationEvent.team_id == team_id,
+    #         models.TeamNominationEvent.nomination_event_id == nomination_event_id
+    #     )
+    # ).first()
+    #
+    # team_nomination_event_db.software = software
+    # team_nomination_event_db.equipment = equipment
+    #
+    # db.add(team_nomination_event_db)
+    # db.commit()
+    pass
 
 

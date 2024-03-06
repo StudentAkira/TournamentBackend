@@ -15,13 +15,21 @@ tournament_registration = APIRouter(prefix="/tournament_registration", tags=["to
 async def append_team_to_nomination_event(
         response: Response,
         team_name_or_participant_email: Annotated[str | EmailStr, Body()],
+        participant_emails: list[EmailStr],
         event_name: Annotated[str, Body()],
         nomination_name: Annotated[str, Body()],
         token: str = Depends(authorized_only),
         db: Session = Depends(get_db)
 ):
     service = TournamentRegistrationService(db)
-    return service.append_team_to_event_nomination(response, token, team_name_or_participant_email, nomination_name, event_name)
+    return service.append_team_to_event_nomination(
+        response,
+        token,
+        team_name_or_participant_email,
+        participant_emails,
+        nomination_name,
+        event_name
+    )
 
 
 @tournament_registration.get('/teams_of_nomination_event')

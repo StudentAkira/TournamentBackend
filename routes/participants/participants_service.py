@@ -7,6 +7,7 @@ from db.schemas.user import UserRole
 from managers.paticipant_manager import ParticipantManager
 from managers.team_manager import TeamManager
 from managers.token_manager import TokenManager
+from validators.validator import Validator
 
 
 class ParticipantsService:
@@ -17,6 +18,7 @@ class ParticipantsService:
         self.__token_manager = TokenManager(db)
         self.__participant_manager = ParticipantManager(db)
         self.__team_manager = TeamManager(db)
+        self.__validator = Validator(db)
 
         self.__participant_created_message = "participant created"
         self.__participant_appended_to_team_message = "participant appended to team"
@@ -43,22 +45,18 @@ class ParticipantsService:
             participant_email: EmailStr,
             team_name: str,
     ) -> dict[str, str]:
-        # decoded_token = self.__token_manager.decode_token(token, response)
-        # self.check_entities_existence(participant_email, team_name)
-        # self.check_ownership_for_not_admin(decoded_token, participant_email, team_name)
-        #
-        # participant = self.__participant_manager.get_participant_by_email(participant_email)
-        # team = self.__team_manager.get_team_by_name(team_name)
-        # self.__participant_manager.raise_exception_if_participant_already_in_team(participant, team)
-        # self.__team_manager.check_if_team_default(team)
-        # self.__participant_manager.append_participant_to_team(participant, team)
-        #
-        # return {"message": self.__participant_appended_to_team_message}
-        pass
+        decoded_token = self.__token_manager.decode_token(token, response)
+        self.__validator.check_participant_and_team_existence(participant_email, team_name)
+        self.check_ownership_for_not_admin(decoded_token, participant_email, team_name)
 
-    def check_entities_existence(self, participant_email: EmailStr, team_name: str):
-        self.__participant_manager.raise_exception_if_participant_not_found(participant_email)
-        self.__team_manager.raise_exception_if_team_not_found(team_name)
+        participant = self.__participant_manager.get_participant_by_email(participant_email)
+        team = self.__team_manager.get_team_by_name(team_name)
+
+        self.__participant_manager.raise_exception_if_participant_already_in_team(participant, team)
+        self.__validator.raise_exception_if_team_default(team)
+        self.__participant_manager.append_participant_to_team(participant, team)
+
+        return {"message": self.__participant_appended_to_team_message}
 
     def check_ownership_for_not_admin(self, decoded_token: TokenDecodedSchema, participant_email: str, team_name: str):
         if decoded_token.role != UserRole.admin:

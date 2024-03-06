@@ -41,7 +41,7 @@ def get_participants_by_owner_db(
     return participants
 
 
-def get_emails_of_teams_members(teams: list[type(models.Team)]) -> list[str]:
+def get_emails_of_teams_members_db(teams: list[type(models.Team)]) -> list[str]:
     participants_emails = []
     for team_db in teams:
         for participant in team_db.participants:
