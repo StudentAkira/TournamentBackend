@@ -65,4 +65,3 @@ class ParticipantManager:
                 status_code=status.HTTP_409_CONFLICT,
                 detail={"error": self.__participant_already_in_team_error}
             )
-

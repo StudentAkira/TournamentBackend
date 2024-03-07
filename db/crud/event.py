@@ -45,7 +45,7 @@ def get_events_by_owner_db(db: Session, offset: int, limit: int, owner_id: int) 
     return events_db
 
 
-def get_all_events_by_owner_db(db: Session, owner_id: int):
+def get_all_events_by_owner_db(db: Session, owner_id: int) -> list[type(models.Event)]:
     events_db = db.query(models.Event).filter(
         cast("ColumnElement[bool]", models.Event.owner_id == owner_id)
     ).all()

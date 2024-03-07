@@ -70,8 +70,8 @@ class NominationEvent(Base):
     event_id: Mapped[int] = mapped_column(ForeignKey("event.id"))
     nomination_id: Mapped[int] = mapped_column(ForeignKey("nomination.id"))
 
-    # date: Date = Column(Date, nullable=True)
-    # registration_finished: bool = Column(Boolean, nullable=False, default=False)
+    date: Date = Column(Date, nullable=True)
+    registration_finished: bool = Column(Boolean, nullable=False, default=False)
 
     team_participants: Mapped[list["TeamParticipant"]] = relationship(
         back_populates="nomination_events",

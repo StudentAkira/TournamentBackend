@@ -1,7 +1,10 @@
+from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
 from db import models
 from db.schemas.nomination import NominationSchema
+from db.schemas.nomination_event import NominationEventSchema
+from db.schemas.team import TeamParticipantsSchema
 
 
 def create_missing_items(
@@ -30,3 +33,37 @@ def create_missing_items(
         db.add(db_item)
 
     return existing_items + new_items
+
+
+def get_nomination_events_info_db(db: Session, events_db: list[models.Event]):
+    nomination_event_full_info_list = []
+    for event_db in events_db:
+        for nomination_db in event_db.nominations:
+            nomination_event_db = db.query(models.NominationEvent). \
+                filter(and_(models.NominationEvent.nomination_id == nomination_db.id,
+                            models.NominationEvent.event_id == event_db.id)).first()
+
+            team_ids = set(team_participant.team_id for team_participant in nomination_event_db.team_participants)
+
+            team_id_data = db.query(models.Team.id, models.Team).filter(models.Team.id.in_(team_ids)).all()
+
+            team_id_names_dict = {key: value for key, value in team_id_data}
+
+            teams = []
+
+            for team_id in team_ids:
+                team = team_id_names_dict[team_id]
+                teams.append(team)
+
+            nomination_event_full_info = NominationEventSchema(
+                event_name=event_db.name,
+                nomination_name=nomination_db.name,
+                teams=[
+                    TeamParticipantsSchema.from_orm(
+                        team
+                    ) for team in teams
+                ]
+            )
+
+            nomination_event_full_info_list.append(nomination_event_full_info)
+    return nomination_event_full_info_list

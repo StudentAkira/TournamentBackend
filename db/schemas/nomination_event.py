@@ -10,7 +10,6 @@ class NominationEventNameSchema(BaseModel):
 
 class NominationEventSchema(NominationEventNameSchema):
 
-
     teams: list[TeamParticipantsSchema]
 
     class Config:

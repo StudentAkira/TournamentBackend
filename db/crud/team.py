@@ -81,9 +81,8 @@ def append_team_to_nomination_event_db(
         )
     ).all()
 
-    for team_participant in team_participants:
-        team_participant.nomination_events.append(nomination_event_db)
-        db.add(team_participant)
+    nomination_event_db.team_participants.extend(team_participants)
+    db.add(nomination_event_db)
     db.commit()
 
 

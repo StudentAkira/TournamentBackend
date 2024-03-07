@@ -5,11 +5,11 @@ from sqlalchemy.orm import Session
 from db import models
 from db.crud.event import get_all_events_db, get_all_events_by_owner_db
 from db.crud.nominations import get_all_nominations_db
-from db.models import TeamParticipantNominationEvent
-from db.schemas.nomination_event import NominationEventSchema, NominationEventNameSchema
-from db.schemas.participant import ParticipantSchema
-from db.schemas.team import TeamParticipantsSchema
+from db.schemas.nomination_event import NominationEventNameSchema, NominationEventSchema
 from sqlalchemy import and_
+
+from db.schemas.team import TeamParticipantsSchema
+
 
 def get_nomination_and_event_ids(db: Session, offset: int, limit: int):
     nominations_events_db = db.query(models.NominationEvent).offset(offset).limit(limit).all()
@@ -41,13 +41,39 @@ def get_nomination_event_db(
     return nomination_event_db
 
 
-def get_nomination_events_full_info_db(db: Session, offset: int, limit: int):
-    events_db = db.query(models.Event).all()
+def get_nomination_events_full_info_db(db: Session, offset: int, limit: int) -> list[NominationEventSchema]:
+    events_db = db.query(models.Event).offset(offset).limit(limit).all()
+    nomination_event_full_info_list = []
     for event_db in events_db:
         for nomination_db in event_db.nominations:
-            teams_db = get_nomination_event_teams_db(db, nomination_db.name, event_db.name)
-            team_names = [team_db.name for team_db in teams_db]
-            print(event_db.name, nomination_db.name, team_names)
+            nomination_event_db = db.query(models.NominationEvent). \
+                filter(and_(models.NominationEvent.nomination_id == nomination_db.id,
+                            models.NominationEvent.event_id == event_db.id)).first()
+
+            team_ids = set(team_participant.team_id for team_participant in nomination_event_db.team_participants)
+
+            team_id_data = db.query(models.Team.id, models.Team).filter(models.Team.id.in_(team_ids)).all()
+
+            team_id_names_dict = {key: value for key, value in team_id_data}
+
+            teams = []
+
+            for team_id in team_ids:
+                team = team_id_names_dict[team_id]
+                teams.append(team)
+
+            nomination_event_full_info = NominationEventSchema(
+                event_name=event_db.name,
+                nomination_name=nomination_db.name,
+                teams=[
+                    TeamParticipantsSchema.from_orm(
+                        team
+                    ) for team in teams
+                ]
+            )
+
+            nomination_event_full_info_list.append(nomination_event_full_info)
+    return nomination_event_full_info_list
 
 
 def get_nomination_events_full_info_by_owner_db(db: Session, offset: int, limit: int, owner_id: int):
