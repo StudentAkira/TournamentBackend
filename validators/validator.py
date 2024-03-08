@@ -2,7 +2,7 @@ from fastapi import HTTPException
 from pydantic import EmailStr
 from starlette import status
 
-from db.crud.nomination_event import get_nomination_event_teams_db
+from db.crud.nomination_event import get_nomination_event_teams_db, get_nomination_event_db
 from db.crud.participant import get_emails_of_teams_members_db
 from db.crud.team import get_team_participants_emails_db, get_team_by_name_db
 from db.schemas.team import TeamSchema
@@ -28,6 +28,7 @@ class Validator:
         self.__participant_not_in_team_error = "participant not in team error"
         self.__team_already_in_nomination_event_error = "team already in nomination event"
         self.__participant_in_another_team_error = "participant in another team"
+        self.__registration_finished_error = "Registration_finished"
 
     def check_team_event_nomination__nomination_event__existence(self,
                                                                  team_name: str,
@@ -111,4 +112,12 @@ class Validator:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail={"error": self.__participant_in_another_team_error}
+            )
+
+    def raise_exception_if_registration_finished(self, nomination_name: str, event_name: str):
+        nomination_event_db = get_nomination_event_db(self.__db, nomination_name, event_name)
+        if nomination_event_db.registration_finished:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail={"error", self.__registration_finished_error}
             )

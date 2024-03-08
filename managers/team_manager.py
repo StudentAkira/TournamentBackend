@@ -6,8 +6,7 @@ from sqlalchemy.orm import Session
 from starlette import status
 
 from db import models
-from db.crud.team import get_teams_by_owner_db, create_team_db, get_team_by_name_db, get_teams_db, \
-    set_team_software_and_equipment_in_event_nomination_db
+from db.crud.team import get_teams_by_owner_db, create_team_db, get_team_by_name_db, get_teams_db
 from db.schemas.team import TeamSchema, TeamParticipantsSchema
 from managers.paticipant_manager import ParticipantManager
 
@@ -55,16 +54,6 @@ class TeamManager:
         for participant_db in team_db.participants:
             emails.add(participant_db.email)
         return emails
-
-    def set_team_software_and_equipment_in_event_nomination(
-            self,
-            team_name: str,
-            nomination_name: str,
-            event_name: str,
-            software: str,
-            equipment: str
-    ):
-        set_team_software_and_equipment_in_event_nomination_db(self.__db, team_name, nomination_name, event_name, software, equipment)
 
     def get_team_name_from_team_name_or_participant_email(self, team_name_or_participant_email):
         team = self.get_team_by_name(team_name_or_participant_email)

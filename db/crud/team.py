@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from db import models
 from db.crud.nomination_event import get_nomination_event_db
-from db.schemas.team import TeamSchema
+from db.schemas.team import TeamSchema, TeamToEventNominationSchema
 from sqlalchemy import and_
 
 
@@ -57,11 +57,13 @@ def get_teams_db(db: Session, offset: int, limit: int) -> list[type(models.Team)
 
 def append_team_to_nomination_event_db(
         db: Session,
-        team_name: str,
-        participant_emails: list[EmailStr],
-        nomination_name: str,
-        event_name: str
+        team_nomination_event_data: TeamToEventNominationSchema
 ):
+    team_name = team_nomination_event_data.team_name
+    participant_emails = team_nomination_event_data.participant_emails
+    nomination_name = team_nomination_event_data.nomination_name
+    event_name = team_nomination_event_data.event_name
+
     team_id = db.query(models.Team.id).filter(
         cast("ColumnElement[bool]", models.Team.name == team_name)
     ).first()[0]
@@ -83,43 +85,28 @@ def append_team_to_nomination_event_db(
 
     nomination_event_db.team_participants.extend(team_participants)
     db.add(nomination_event_db)
+    set_software_equipment_db(
+        db,
+        nomination_event_db,
+        team_nomination_event_data.software,
+        team_nomination_event_data.equipment
+    )
     db.commit()
 
 
-def set_team_software_and_equipment_in_event_nomination_db(db: Session, team_name: str,
-                                                           nomination_name: str,
-                                                           event_name: str,
-                                                           software: str,
-                                                           equipment: str
-                                                           ):
-    pass
-    # team_id = db.query(models.Team.id).filter(
-    #     cast("ColumnElement[bool]", models.Team.name == team_name)
-    # ).first()[0]
-    #
-    # nomination_id = db.query(models.Nomination.id).filter(
-    #     cast("ColumnElement[bool]", models.Nomination.name == nomination_name)
-    # ).first()[0]
-    # event_id = db.query(models.Event.id).filter(
-    #     cast("ColumnElement[bool]", models.Event.name == event_name)
-    # ).first()[0]
-    #
-    # nomination_event_id = db.query(models.NominationEvent.id).filter(
-    #     and_(models.NominationEvent.nomination_id == nomination_id, models.NominationEvent.event_id == event_id)
-    # ).first()[0]
-    #
-    # team_nomination_event_db = db.query(models.TeamNominationEvent).filter(
-    #     and_(
-    #         models.TeamNominationEvent.team_id == team_id,
-    #         models.TeamNominationEvent.nomination_event_id == nomination_event_id
-    #     )
-    # ).first()
-    #
-    # team_nomination_event_db.software = software
-    # team_nomination_event_db.equipment = equipment
-    #
-    # db.add(team_nomination_event_db)
-    # db.commit()
-    pass
+def set_software_equipment_db(db, nomination_event_db: type(models.NominationEvent), software: str, equipment: str):
 
+    team_participant_nomination_events_db = db.query(models.TeamParticipantNominationEvent).filter(
+        and_(
+            models.TeamParticipantNominationEvent.nomination_event_id == nomination_event_db.id,
+            models.TeamParticipantNominationEvent.team_participant_id.in_(
+                set(team_participant.id for team_participant in nomination_event_db.team_participants)
+            )
+        )
+    )
+
+    for team_participant_nomination_event_db in team_participant_nomination_events_db:
+        team_participant_nomination_event_db.software = software
+        team_participant_nomination_event_db.equipment = equipment
+        db.add(team_participant_nomination_event_db)
 

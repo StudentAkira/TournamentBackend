@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Body
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 
@@ -43,3 +43,26 @@ async def append_nominations_for_event(
 ):
     service = NominationsService(db)
     return service.append_nominations_for_event(response, token, event, nominations_)
+
+
+@nominations.put("/nomination")
+async def update_nomination(
+        response: Response,
+        old_nomination: NominationSchema,
+        new_nomination: NominationSchema,
+        token: str = Depends(authorized_only),
+        db: Session = Depends(get_db)
+):
+    service = NominationsService(db)
+    return service.update_nomination(response, token, old_nomination, new_nomination)
+
+
+@nominations.delete("/nomination")
+async def delete_nomination(
+        response: Response,
+        nomination_name: Annotated[str, Body()],
+        token: str = Depends(authorized_only),
+        db: Session = Depends(get_db)
+):
+    service = NominationsService(db)
+    return service.delete_nomination(response, token, nomination_name)

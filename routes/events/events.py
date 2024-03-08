@@ -33,3 +33,14 @@ async def create_event(
     service = EventsService(db)
     return service.create_event(response, token, event)
 
+
+@events.put("/event")
+async def update_event(
+        response: Response,
+        old_event: EventCreateSchema,
+        new_event: EventCreateSchema,
+        token: str = Depends(authorized_only),
+        db: Session = Depends(get_db)
+)   -> dict[str, str]:
+    service = EventsService(db)
+    return service.create_event(response, token, old_event, new_event)

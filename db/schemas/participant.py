@@ -11,7 +11,7 @@ class ParticipantSchema(BaseModel):
     region: str
     birth_date: datetime.date
     educational_institution: str
-    additional_educational_institution: str
+    additional_educational_institution: str | None
     supervisor_first_name: str
     supervisor_second_name: str
     supervisor_third_name: str

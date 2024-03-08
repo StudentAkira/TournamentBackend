@@ -13,6 +13,7 @@ def create_event_db(db: Session, event: EventCreateSchema, owner_id: int) -> typ
     nominations_db = create_nominations_missing_in_db(db, nominations)
     event_db = models.Event(
         name=event.name,
+        date=event.date,
         owner_id=owner_id
     )
     event_db.nominations.extend(nominations_db)
@@ -64,3 +65,11 @@ def append_event_nominations_db(
     db.commit()
     db.refresh(event_db)
     return event_db
+
+
+def update_event_db(db: Session, old_event: EventCreateSchema, new_event: EventCreateSchema,) -> type(models.Event):
+    event_db = db.query(models.Event).filter(cast("ColumnElement[bool]", models.Event.name == old_event.name)).first()
+    event_db.name = new_event.name
+    event_db.date = new_event.date
+    db.add(event_db)
+    db.commit()

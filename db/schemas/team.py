@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, EmailStr
 
 from db.schemas.participant import ParticipantSchema
 
@@ -16,3 +16,12 @@ class TeamParticipantsSchema(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class TeamToEventNominationSchema(BaseModel):
+    team_name: str | EmailStr
+    participant_emails: list[EmailStr]
+    event_name: str
+    nomination_name: str
+    software: str | None
+    equipment: str | None

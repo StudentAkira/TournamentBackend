@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from starlette import status
 
 from db.crud.event import create_event_db, get_event_by_name_db, get_events_by_owner_db, append_event_nominations_db, \
-    get_events_db
+    get_events_db, update_event_db
 from db.schemas.event import EventCreateSchema, EventSchema
 from db.schemas.nomination import NominationSchema
 
@@ -37,6 +37,10 @@ class EventManager:
 
     def append_nominations(self, event: EventSchema, nominations: list[NominationSchema]):
         append_event_nominations_db(self.__db, event, nominations)
+
+    def update_event(self, old_event: EventCreateSchema, new_event: EventCreateSchema):
+        self.raise_exception_if_event_name_taken(new_event.name)
+        update_event_db(self.__db, old_event, new_event)
 
     def raise_exception_if_event_name_taken(self, name):
         event_db = self.get_event_by_name(name)

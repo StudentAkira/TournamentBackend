@@ -70,7 +70,6 @@ class NominationEvent(Base):
     event_id: Mapped[int] = mapped_column(ForeignKey("event.id"))
     nomination_id: Mapped[int] = mapped_column(ForeignKey("nomination.id"))
 
-    date: Date = Column(Date, nullable=True)
     registration_finished: bool = Column(Boolean, nullable=False, default=False)
 
     team_participants: Mapped[list["TeamParticipant"]] = relationship(
@@ -87,7 +86,6 @@ class Nomination(Base):
     id: int = Column(Integer, primary_key=True, autoincrement=True)
     name: str = Column(String, unique=True)
 
-
     events: Mapped[list["Event"]] = relationship(
         back_populates="nominations",
         secondary="nomination_event"
@@ -101,6 +99,7 @@ class Event(Base):
     name: str = Column(String, unique=True)
 
     owner_id: int = Column(Integer, ForeignKey("users.id"), nullable=False)
+    date: Date = Column(Date, nullable=False, default="2003-05-19")
 
     owner: Mapped[list["User"]] = relationship(back_populates="events")
     nominations: Mapped[list["Nomination"]] = relationship(
@@ -148,3 +147,24 @@ class TeamParticipantNominationEvent(Base):
 
     team_participant_id: Mapped["int"] = mapped_column(ForeignKey("team_participant.id"))
     nomination_event_id: Mapped["int"] = mapped_column(ForeignKey("nomination_event.id"))
+
+    equipment = Column(String)
+    software = Column(String)
+
+
+class Match(Base):
+    __tablename__ = "match"
+
+    id: int = Column(Integer, primary_key=True, autoincrement=True)
+
+
+class Group(Base):
+    __tablename__ = "group"
+
+    id: int = Column(Integer, primary_key=True, autoincrement=True)
+
+
+class Grid(Base):
+    __tablename__ = "grid"
+
+    id: int = Column(Integer, primary_key=True, autoincrement=True)

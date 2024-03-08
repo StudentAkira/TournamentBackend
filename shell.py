@@ -2,10 +2,12 @@ import time
 
 from sqlalchemy import and_
 
+from db.crud.nomination_event import get_nomination_event_db
 from db.database import *
 from db import models
 from db.schemas.nomination_event import NominationEventSchema
 from db.schemas.team import TeamParticipantsSchema
+
 
 db = SessionLocal()
 

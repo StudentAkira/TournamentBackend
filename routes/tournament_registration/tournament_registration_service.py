@@ -2,7 +2,7 @@ from pydantic import EmailStr
 from starlette.responses import Response
 
 from db.schemas.nomination_event import NominationEventSchema, NominationEventNameSchema
-from db.schemas.team import TeamSchema
+from db.schemas.team import TeamSchema, TeamToEventNominationSchema
 from db.schemas.user import UserRole
 from managers.event_manager import EventManager
 from managers.nomination_event_manager import NominationEventManager
@@ -28,34 +28,22 @@ class TournamentRegistrationService:
 
         self.__team_appended_message = "team appended to nomination event"
 
-    def get_teams_of_nomination_event(
-            self,
-            response: Response,
-            token: str,
-            nomination_name: str,
-            event_name: str,
-    ) -> list[TeamSchema]:
-        decoded_token = self.__token_manager.decode_token(token, response)
-
-        self.__validator.check_event_nomination__nomination_event_existence(nomination_name, event_name)
-        if decoded_token.role == UserRole.judge:
-            self.__event_manager.raise_exception_if_event_owner_wrong(event_name, decoded_token.user_id)
-
-        return self.__nomination_event_manager.get_teams_of_nomination_event(nomination_name, event_name)
-
     def append_team_to_event_nomination(
             self,
             response: Response,
             token: str,
-            team_name_or_participant_email: str,
-            participant_emails: list[EmailStr],
-            nomination_name: str,
-            event_name: str,
+            team_nomination_event_data: TeamToEventNominationSchema
     ):
 
-        team_name = self.get_team_name_from_team_name_or_participant_email(team_name_or_participant_email)
-
+        team_name = self.get_team_name_from_team_name_or_participant_email(
+            team_nomination_event_data.team_name
+        )
         decoded_token = self.__token_manager.decode_token(token, response)
+
+        team_nomination_event_data.team_name = team_name
+        nomination_name = team_nomination_event_data.nomination_name
+        event_name = team_nomination_event_data.event_name
+        participant_emails = team_nomination_event_data.participant_emails
 
         self.__validator.check_team_event_nomination__nomination_event__existence(team_name, nomination_name,
                                                                                   event_name)
@@ -66,10 +54,7 @@ class TournamentRegistrationService:
         self.__validator.raise_exception_if_participant_in_another_team(team_name, nomination_name, event_name)
 
         self.__nomination_event_manager.append_team_to_event_nomination(
-            team_name,
-            participant_emails,
-            nomination_name,
-            event_name
+            team_nomination_event_data
         )
 
         return {"message": self.__team_appended_message}
@@ -77,34 +62,4 @@ class TournamentRegistrationService:
     def get_team_name_from_team_name_or_participant_email(self, team_name_or_participant_email):
         return self.__team_manager.get_team_name_from_team_name_or_participant_email(team_name_or_participant_email)
 
-    def get_nomination_events_full_info(
-            self,
-            response: Response,
-            token: str,
-            offset: int,
-            limit: int
-    ) -> list[NominationEventSchema]:
-        decoded_token = self.__token_manager.decode_token(token, response)
-        if decoded_token.role != UserRole.judge:
-            return self.__nomination_event_manager.get_nominations_events_full_info(offset, limit)
-        return self.__nomination_event_manager.get_nominations_events_full_info_by_owner(
-            offset,
-            limit,
-            decoded_token.user_id
-        )
 
-    def get_nomination_events_names(
-            self,
-            response: Response,
-            token: str,
-            offset: int,
-            limit: int
-    ) -> list[NominationEventNameSchema]:
-        decoded_token = self.__token_manager.decode_token(token, response)
-        if decoded_token.role != UserRole.judge:
-            return self.__nomination_event_manager.get_nominations_events_names(offset, limit)
-        return self.__nomination_event_manager.get_nominations_events_names_by_owner(
-            offset,
-            limit,
-            decoded_token.user_id
-        )

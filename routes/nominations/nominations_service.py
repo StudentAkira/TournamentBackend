@@ -20,6 +20,7 @@ class NominationsService:
 
         self.__nominations_created_message = "nominations created"
         self.__nominations_appended_message = "nominations appended"
+        self.__nomination_updated_message = "nomination updated"
 
     def get_nominations(self, offset, limit) -> list[NominationSchema]:
         nominations = self.__nomination_manager.get_nominations(offset, limit)
@@ -43,3 +44,25 @@ class NominationsService:
         self.__event_manager.raise_exception_if_event_not_found(event.name)
         self.__event_manager.append_nominations(event, nominations)
         return {"message": self.__nominations_appended_message}
+
+    def update_nomination(
+            self,
+            response: Response,
+            token: str,
+            old_nomination: NominationSchema,
+            new_nomination: NominationSchema
+    ):
+        decoded_token = self.__token_manager.decode_token(token, response)
+        self.__nomination_manager.raise_exception_if_nomination_name_taken(new_nomination.name)
+        self.__nomination_manager.update_nomination(old_nomination, new_nomination)
+        return {"message": self.__nomination_updated_message}
+
+    def delete_nomination(
+            self,
+            response: Response,
+            token: str,
+            nomination_name: str
+    ):
+        decoded_token = self.__token_manager.decode_token(token, response)
+        self.__nomination_manager.raise_exception_if_nomination_not_found(nomination_name)
+        self.__nomination_manager.detele_nomination()

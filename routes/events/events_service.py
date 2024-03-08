@@ -16,6 +16,7 @@ class EventsService:
         self.__event_manager = EventManager(db)
 
         self.__event_created_message = "event created"
+        self.__event_updated_message = "event updated"
 
     def get_events(self, offset, limit) -> list[EventSchema]:
         events = self.__event_manager.get_events(offset, limit)
@@ -36,4 +37,14 @@ class EventsService:
         self.__event_manager.create_event(event, decoded_token.user_id)
         return {"message": self.__event_created_message}
 
-
+    def update_event(
+            self,
+            response: Response,
+            token: str,
+            old_event: EventCreateSchema,
+            new_event: EventCreateSchema,
+    ) -> dict[str, str]:
+        decoded_token = self.__token_manager.decode_token(token, response)
+        self.__user_manager.raise_exception_if_user_specialist(decoded_token.role)
+        self.__event_manager.update_event(old_event, new_event)
+        return {"message": self.__event_created_message}

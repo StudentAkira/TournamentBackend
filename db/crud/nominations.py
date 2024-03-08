@@ -1,5 +1,6 @@
 from typing import cast
 
+from sqlalchemy import exists
 from sqlalchemy.orm import Session
 
 from db import models
@@ -39,3 +40,20 @@ def get_nomination_by_name_db(db: Session, name: str) -> type(models.Nomination)
         cast("ColumnElement[bool]", models.Nomination.name == name)
     ).first()
     return nomination_db
+
+
+def nomination_exists_db(db: Session, nomination_name: str):
+    entity_exists = db.query(exists().where(cast("ColumnElement[bool]", models.Nomination.name == nomination_name))).scalar()
+    return entity_exists
+
+
+def update_nomination_db(db: Session, old_nomination: NominationSchema, new_nomination: NominationSchema):
+    nomination_db = db.query(models.Nomination).\
+        filter(cast("ColumnElement[bool]", models.Nomination.name == old_nomination.name)).first()
+    nomination_db.name = new_nomination.name
+    db.add(nomination_db)
+    db.commit()
+
+
+def delete_nomination_db(db: Session, nomination_name: str):
+    pass

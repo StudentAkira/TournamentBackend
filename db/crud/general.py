@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from db import models
 from db.models import Nomination, Event
+from db.schemas.event import EventListSchema
 from db.schemas.nomination import NominationSchema
 from db.schemas.nomination_event import NominationEventSchema, NominationEventNameSchema
 from db.schemas.team import TeamParticipantsSchema
@@ -86,3 +87,10 @@ def get_nomination_events_names_db(
     )
 
     return nomination_events
+
+
+def get_events_data(events_db: list[type(models.Event)]):
+    events_data = []
+    for event_db in events_db:
+        events_data.append(EventListSchema.from_orm(event_db))
+    return events_data
