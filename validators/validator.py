@@ -29,7 +29,6 @@ class Validator:
         self.__team_already_in_nomination_event_error = "team already in nomination event"
         self.__participant_in_another_team_error = "participant in another team"
 
-
     def check_team_event_nomination__nomination_event__existence(self,
                                                                  team_name: str,
                                                                  nomination_name: str,
@@ -41,7 +40,7 @@ class Validator:
     def check_event_nomination__nomination_event_existence(self,
                                                            nomination_name: str,
                                                            event_name: str
-        ):
+                                                           ):
         self.__event_manager.raise_exception_if_event_not_found(event_name)
         self.__nomination_manager.raise_exception_if_nomination_not_found(nomination_name)
         self.__nomination_event_manager.raise_exception_if_nomination_event_not_found(nomination_name, event_name)
@@ -89,11 +88,10 @@ class Validator:
                 detail={"error": self.__participant_not_in_team_error}
             )
 
-    def raise_exception_if_team_already_in_nomination_event(self, team_name: str, nomination_name: str, event_name: str):
+    def raise_exception_if_team_already_in_nomination_event(self, team_name: str, nomination_name: str,
+                                                            event_name: str):
         team_db = get_team_by_name_db(self.__db, team_name)
         teams_db = get_nomination_event_teams_db(self.__db, nomination_name, event_name)
-
-        print([team.name for team in teams_db])
 
         if team_db in teams_db:
             raise HTTPException(

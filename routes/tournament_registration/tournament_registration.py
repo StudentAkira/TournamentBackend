@@ -47,8 +47,8 @@ async def get_teams_of_nomination_event(
 @tournament_registration.get("/nomination_event_full_info")
 async def get_nominations_events_full_info(
         response: Response,
-        offset: Annotated[int, Query()],
-        limit: Annotated[int, Query()],
+        offset: Annotated[int, Query(gte=0, lt=50)] = 0,
+        limit: Annotated[int, Query(lt=50, gt=0)] = 10,
         token: str = Depends(authorized_only),
         db: Session = Depends(get_db)
 ):
@@ -59,8 +59,8 @@ async def get_nominations_events_full_info(
 @tournament_registration.get("/nomination_event_names")
 async def get_nominations_events_names(
         response: Response,
-        offset: Annotated[int, Query()],
-        limit: Annotated[int, Query()],
+        offset: Annotated[int, Query(gte=0, lt=50)] = 0,
+        limit: Annotated[int, Query(lt=50, gt=0)] = 10,
         token: str = Depends(authorized_only),
         db: Session = Depends(get_db)
 ):

@@ -2,8 +2,9 @@ from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
 from db import models
+from db.models import Nomination, Event
 from db.schemas.nomination import NominationSchema
-from db.schemas.nomination_event import NominationEventSchema
+from db.schemas.nomination_event import NominationEventSchema, NominationEventNameSchema
 from db.schemas.team import TeamParticipantsSchema
 
 
@@ -35,7 +36,7 @@ def create_missing_items(
     return existing_items + new_items
 
 
-def get_nomination_events_info_db(db: Session, events_db: list[models.Event]):
+def get_nomination_events_info_db(db: Session, events_db: list[type(models.Event)]):
     nomination_event_full_info_list = []
     for event_db in events_db:
         for nomination_db in event_db.nominations:
@@ -44,17 +45,7 @@ def get_nomination_events_info_db(db: Session, events_db: list[models.Event]):
                             models.NominationEvent.event_id == event_db.id)).first()
 
             team_ids = set(team_participant.team_id for team_participant in nomination_event_db.team_participants)
-
-            team_id_data = db.query(models.Team.id, models.Team).filter(models.Team.id.in_(team_ids)).all()
-
-            team_id_names_dict = {key: value for key, value in team_id_data}
-
-            teams = []
-
-            for team_id in team_ids:
-                team = team_id_names_dict[team_id]
-                teams.append(team)
-
+            teams = db.query(models.Team).filter(models.Team.id.in_(team_ids)).all()
             nomination_event_full_info = NominationEventSchema(
                 event_name=event_db.name,
                 nomination_name=nomination_db.name,
@@ -67,3 +58,31 @@ def get_nomination_events_info_db(db: Session, events_db: list[models.Event]):
 
             nomination_event_full_info_list.append(nomination_event_full_info)
     return nomination_event_full_info_list
+
+
+def get_nomination_events_names_db(
+        db: Session,
+        nominations_db: list[type(Nomination)],
+        events_db: list[type(Event)],
+        offset: int,
+        limit: int
+):
+
+    event_id_name_pairs = {event_db.id: event_db.name for event_db in events_db}
+    nomination_id_name_pairs = {nomination_db.id: nomination_db.name for nomination_db in nominations_db}
+
+    nominations_events_db = db.query(models.NominationEvent). \
+        filter(models.NominationEvent.event_id.in_(event_id_name_pairs)). \
+        offset(offset).limit(limit).all()
+
+    nomination_events = []
+
+    for nomination_event_db in nominations_events_db:
+        nomination_events.append(
+        NominationEventNameSchema(
+            event_name=event_id_name_pairs[nomination_event_db.event_id],
+            nomination_name=nomination_id_name_pairs[nomination_event_db.nomination_id],
+        )
+    )
+
+    return nomination_events
