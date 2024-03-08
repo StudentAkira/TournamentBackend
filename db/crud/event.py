@@ -8,7 +8,7 @@ from db.schemas.event import EventSchema, EventCreateSchema
 from db.schemas.nomination import NominationSchema
 
 
-def create_event_db(db: Session, event: EventCreateSchema, owner_id: int) -> type(models.Event):
+def create_event_db(db: Session, event: EventCreateSchema, owner_id: int) -> type(models.Event):#todo
     nominations = event.nominations
     nominations_db = create_nominations_missing_in_db(db, nominations)
     event_db = models.Event(

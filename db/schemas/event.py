@@ -2,6 +2,7 @@ import datetime
 
 from pydantic import BaseModel, Field
 from db.schemas.nomination import NominationSchema
+from db.schemas.nomination_event import NominationEventType
 
 
 class EventSchema(BaseModel):
@@ -13,7 +14,7 @@ class EventSchema(BaseModel):
 
 
 class EventCreateSchema(EventSchema):
-    nominations: list[NominationSchema] | None
+    nominations: list[tuple[NominationSchema, NominationEventType]] | None
 
 
 class EventListSchema(EventSchema):

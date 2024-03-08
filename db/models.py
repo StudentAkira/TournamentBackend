@@ -4,6 +4,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey, UniqueConstraint, Da
 from sqlalchemy.orm import relationship, mapped_column, Mapped
 
 from .database import Base
+from .schemas.nomination_event import NominationEventType
 
 
 class User(Base):
@@ -71,6 +72,7 @@ class NominationEvent(Base):
     nomination_id: Mapped[int] = mapped_column(ForeignKey("nomination.id"))
 
     registration_finished: bool = Column(Boolean, nullable=False, default=False)
+    type: NominationEventType = Column(String, nullable=False, default=NominationEventType.olympyc)
 
     team_participants: Mapped[list["TeamParticipant"]] = relationship(
         back_populates="nomination_events",
@@ -104,7 +106,7 @@ class Event(Base):
     owner: Mapped[list["User"]] = relationship(back_populates="events")
     nominations: Mapped[list["Nomination"]] = relationship(
         back_populates="events",
-        secondary="nomination_event"
+        secondary="nomination_event",
     )
 
 
