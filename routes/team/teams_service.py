@@ -3,9 +3,9 @@ from starlette.responses import Response
 
 from db.schemas.team import TeamSchema
 from db.schemas.user import UserRole
-from managers.event_manager import EventManager
-from managers.team_manager import TeamManager
-from managers.token_manager import TokenManager
+from managers.event import EventManager
+from managers.team import TeamManager
+from managers.token import TokenManager
 from validators.validator import Validator
 
 

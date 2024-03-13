@@ -8,9 +8,9 @@ from starlette.responses import Response
 from db.schemas.participant import ParticipantSchema
 from db.schemas.team import TeamSchema
 from dependencies import get_db, authorized_only
-from routes.participants.participants_service import ParticipantsService
+from routes.participant.participants_service import ParticipantsService
 
-participants = APIRouter(prefix="/participants", tags=["participants"])
+participants = APIRouter(prefix="/participant", tags=["participant"])
 
 
 @participants.get("/participant")

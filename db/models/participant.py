@@ -29,11 +29,11 @@ class Participant(Base):
     supervisor_second_name: str = Column(String, nullable=False)
     supervisor_third_name: str = Column(String, nullable=False)
 
-    creator_id: int = Column(Integer, ForeignKey("users.id"), nullable=False)
+    creator_id: int = Column(Integer, ForeignKey("user.id"), nullable=False)
 
-    creator: Mapped["User"] = relationship("User", back_populates="participants")
+    creator: Mapped["User"] = relationship("User", back_populates="participant")
 
     teams: Mapped[list["Team"]] = relationship(
-        back_populates="participants",
+        back_populates="participant",
         secondary="team_participant"
     )

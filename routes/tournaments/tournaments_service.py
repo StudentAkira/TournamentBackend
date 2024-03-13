@@ -1,8 +1,8 @@
 from starlette.responses import Response
 
 from db.schemas.nomination_event import NominationEventSchema
-from managers.nomination_event_manager import NominationEventManager
-from managers.token_manager import TokenManager
+from managers.nomination_event import NominationEventManager
+from managers.token import TokenManager
 
 
 class TournamentService:

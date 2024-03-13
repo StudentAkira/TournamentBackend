@@ -17,11 +17,11 @@ class Team(Base):
     id: int = Column(Integer, primary_key=True)
     name: str = Column(String, unique=True, nullable=True)
 
-    creator_id: int = Column(Integer, ForeignKey("users.id"), nullable=False)
+    creator_id: int = Column(Integer, ForeignKey("user.id"), nullable=False)
 
     creator: Mapped["User"] = relationship(back_populates="created_teams")
 
     participants: Mapped[list["Participant"]] = relationship(
-        back_populates="teams",
+        back_populates="team",
         secondary="team_participant"
     )

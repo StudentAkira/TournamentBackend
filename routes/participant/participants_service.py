@@ -4,9 +4,9 @@ from starlette.responses import Response
 from db.schemas.participant import ParticipantSchema
 from db.schemas.token import TokenDecodedSchema
 from db.schemas.user import UserRole
-from managers.paticipant_manager import ParticipantManager
-from managers.team_manager import TeamManager
-from managers.token_manager import TokenManager
+from managers.participant import ParticipantManager
+from managers.team import TeamManager
+from managers.token import TokenManager
 from validators.validator import Validator
 
 

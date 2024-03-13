@@ -16,6 +16,6 @@ class Nomination(Base):
     name: str = Column(String, unique=True)
 
     events: Mapped[list["Event"]] = relationship(
-        back_populates="nominations",
+        back_populates="nomination",
         secondary="nomination_event"
     )

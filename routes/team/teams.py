@@ -7,9 +7,9 @@ from starlette.responses import Response
 
 from db.schemas.team import TeamSchema
 from dependencies import get_db, authorized_only
-from routes.teams.teams_service import TeamsService
+from routes.team.teams_service import TeamsService
 
-teams = APIRouter(prefix="/teams", tags=["teams"])
+teams = APIRouter(prefix="/team", tags=["team"])
 
 
 @teams.post("/teams")
@@ -36,7 +36,7 @@ async def get_teams(
     return service.get_teams_by_owner(response, token, offset, limit)
 
 
-# @teams.post("/team_software_equipment")
+# @team.post("/team_software_equipment")
 # async def set_team_software_and_equipment_in_event_nomination(
 #         response: Response,
 #         team_name: Annotated[str, Body()],

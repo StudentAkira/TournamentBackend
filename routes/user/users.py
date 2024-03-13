@@ -5,9 +5,9 @@ from starlette.responses import Response
 from db.crud.user import create_user_db
 from db.schemas.user import UserSchema, UserCreateSchema, UserRole, EditUserSchema
 from dependencies import get_db, authorized_only
-from routes.users.users_service import UsersService
+from routes.user.users_service import UsersService
 
-users = APIRouter(prefix="/users", tags=["users"])
+users = APIRouter(prefix="/user", tags=["user"])
 
 
 @users.get("/profile")

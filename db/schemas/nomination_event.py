@@ -1,8 +1,6 @@
 from enum import Enum
-
 from pydantic import BaseModel
-
-from db.schemas.team import TeamParticipantsSchema
+from db.schemas.team_participant import TeamParticipantsSchema
 
 
 class NominationEventType(str, Enum):

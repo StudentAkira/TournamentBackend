@@ -8,7 +8,7 @@ from starlette import status
 from db import models
 from db.crud.team import get_teams_by_owner_db, create_team_db, get_team_by_name_db, get_teams_db
 from db.schemas.team import TeamSchema, TeamParticipantsSchema
-from managers.paticipant_manager import ParticipantManager
+from managers.participant import ParticipantManager
 
 
 class TeamManager:

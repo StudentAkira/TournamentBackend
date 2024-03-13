@@ -3,19 +3,19 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from db import database, models
 from routes.auth.auth import auth
-from routes.events.events import events
+from routes.event.events import events
 from routes.nomination_event.nomination_event import nomination_event
-from routes.nominations.nominations import nominations
-from routes.participants.participants import participants
-from routes.teams.teams import teams
+from routes.nomination.nominations import nominations
+from routes.participant.participants import participants
+from routes.team.teams import teams
 from routes.tournament_registration.tournament_registration import tournament_registration
 from routes.tournaments.tournaments import tournaments
-from routes.users.users import users
+from routes.user.users import users
 
 
 app = FastAPI()
 
-models.Base.metadata.create_all(bind=database.engine)
+database.Base.metadata.create_all(bind=database.engine)
 
 origins = ['http://localhost:3000', 'http://127.0.0.1:3000',
            'https://localhost:3000', 'https://127.0.0.1:3000',

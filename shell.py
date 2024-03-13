@@ -48,7 +48,7 @@ print(time.time() - start)
 # events_db = db.query(models.Event).all()
 # nomination_event_full_info_list = []
 # for event_db in events_db:
-#     for nomination_db in event_db.nominations:
+#     for nomination_db in event_db.nomination:
 #         nomination_event_db = db.query(models.NominationEvent).\
 #             filter(and_(models.NominationEvent.nomination_id == nomination_db.id, models.NominationEvent.event_id == event_db.id)).first()
 #
@@ -62,11 +62,11 @@ print(time.time() - start)
 #         team_id_names_dict = {key: value for key, value in team_id_data}
 #         participant_id_email_dict = {key: value for key, value in participant_id_data}
 #
-#         teams = []
+#         team = []
 #
 #         for team_id in team_ids:
 #             team = team_id_names_dict[team_id]
-#             teams.append(team)
+#             team.append(team)
 #
 #         print(event_db.name)
 #         print("\t", nomination_db.name)
@@ -74,10 +74,10 @@ print(time.time() - start)
 #         nomination_event_full_info = NominationEventSchema(
 #             event_name=event_db.name,
 #             nomination_name=nomination_db.name,
-#             teams=[
+#             team=[
 #                 TeamParticipantsSchema.from_orm(
 #                     team
-#                 ) for team in teams
+#                 ) for team in team
 #             ]
 #         )
 #

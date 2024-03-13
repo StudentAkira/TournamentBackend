@@ -2,9 +2,9 @@ from starlette.responses import Response
 
 from db.schemas.event import EventSchema, EventCreateSchema
 from db.schemas.user import UserRole
-from managers.event_manager import EventManager
-from managers.token_manager import TokenManager
-from managers.user_manager import UserManager
+from managers.event import EventManager
+from managers.token import TokenManager
+from managers.user import UserManager
 
 
 class EventsService:

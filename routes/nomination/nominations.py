@@ -7,9 +7,9 @@ from starlette.responses import Response
 from db.schemas.event import EventSchema
 from db.schemas.nomination import NominationSchema
 from dependencies import get_db, authorized_only
-from routes.nominations.nominations_service import NominationsService
+from routes.nomination.nominations_service import NominationsService
 
-nominations = APIRouter(prefix="/nominations", tags=["nominations"])
+nominations = APIRouter(prefix="/nomination", tags=["nomination"])
 
 
 @nominations.get("/nominations")

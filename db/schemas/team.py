@@ -10,15 +10,7 @@ class TeamSchema(BaseModel):
         from_attributes = True
 
 
-class TeamParticipantsSchema(BaseModel):
-    name: str
-    participants: list[ParticipantSchema]
-
-    class Config:
-        from_attributes = True
-
-
-class TeamToEventNominationSchema(BaseModel):
+class AppendTeamToEventNominationSchema(BaseModel):
     team_name: str | EmailStr
     participant_emails: list[EmailStr]
     event_name: str

@@ -4,12 +4,12 @@ from starlette.responses import Response
 from db.schemas.nomination_event import NominationEventSchema, NominationEventNameSchema
 from db.schemas.team import TeamSchema, TeamToEventNominationSchema
 from db.schemas.user import UserRole
-from managers.event_manager import EventManager
-from managers.nomination_event_manager import NominationEventManager
-from managers.nomination_manager import NominationManager
-from managers.paticipant_manager import ParticipantManager
-from managers.team_manager import TeamManager
-from managers.token_manager import TokenManager
+from managers.event import EventManager
+from managers.nomination_event import NominationEventManager
+from managers.nomination import NominationManager
+from managers.participant import ParticipantManager
+from managers.team import TeamManager
+from managers.token import TokenManager
 from validators.validator import Validator
 
 

@@ -8,11 +8,11 @@ from db.crud.team import get_team_participants_emails_db, get_team_by_name_db
 from db.schemas.team import TeamSchema
 from db.schemas.token import TokenDecodedSchema
 from db.schemas.user import UserRole
-from managers.event_manager import EventManager
-from managers.nomination_event_manager import NominationEventManager
-from managers.nomination_manager import NominationManager
-from managers.paticipant_manager import ParticipantManager
-from managers.team_manager import TeamManager
+from managers.event import EventManager
+from managers.nomination_event import NominationEventManager
+from managers.nomination import NominationManager
+from managers.participant import ParticipantManager
+from managers.team import TeamManager
 
 
 class Validator:

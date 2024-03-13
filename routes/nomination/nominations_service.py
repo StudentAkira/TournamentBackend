@@ -2,10 +2,10 @@ from starlette.responses import Response
 
 from db.schemas.event import EventSchema
 from db.schemas.nomination import NominationSchema
-from managers.event_manager import EventManager
-from managers.nomination_manager import NominationManager
-from managers.token_manager import TokenManager
-from managers.user_manager import UserManager
+from managers.event import EventManager
+from managers.nomination import NominationManager
+from managers.token import TokenManager
+from managers.user import UserManager
 
 
 class NominationsService:
@@ -18,8 +18,8 @@ class NominationsService:
         self.__user_manager = UserManager(db)
         self.__event_manager = EventManager(db)
 
-        self.__nominations_created_message = "nominations created"
-        self.__nominations_appended_message = "nominations appended"
+        self.__nominations_created_message = "nomination created"
+        self.__nominations_appended_message = "nomination appended"
         self.__nomination_updated_message = "nomination updated"
 
     def get_nominations(self, offset, limit) -> list[NominationSchema]:

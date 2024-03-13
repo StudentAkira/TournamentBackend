@@ -12,7 +12,7 @@ from db.crud.nomination_event import get_nomination_event_db, get_nomination_eve
 from db.crud.team import get_team_by_name_db, append_team_to_nomination_event_db
 from db.schemas.nomination_event import NominationEventSchema, NominationEventNameSchema
 from db.schemas.team import TeamSchema, TeamToEventNominationSchema
-from managers.team_manager import TeamManager
+from managers.team import TeamManager
 
 
 class NominationEventManager:

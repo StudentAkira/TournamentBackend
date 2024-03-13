@@ -6,9 +6,9 @@ from starlette.responses import Response
 
 from db.schemas.event import EventSchema, EventCreateSchema
 from dependencies import get_db, authorized_only
-from routes.events.events_service import EventsService
+from routes.event.events_service import EventsService
 
-events = APIRouter(prefix="/events", tags=["events"])
+events = APIRouter(prefix="/event", tags=["event"])
 
 
 @events.get("/event")
