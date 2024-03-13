@@ -13,7 +13,9 @@ def create_missing_items(
         db: Session,
         model_name: type(models.Nomination),
         items: list[NominationSchema]
-) -> list[type(models.Nomination)]:
+) -> list[type(models.Nomination)] | None:
+    if not items:
+        return None
     all_items = db.query(model_name).all()
     existing_items_names = {db_item.name for db_item in all_items}
 
@@ -89,8 +91,4 @@ def get_nomination_events_names_db(
     return nomination_events
 
 
-def get_events_data(events_db: list[type(models.Event)]):
-    events_data = []
-    for event_db in events_db:
-        events_data.append(EventListSchema.from_orm(event_db))
-    return events_data
+

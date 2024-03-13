@@ -8,7 +8,7 @@ from db.crud.general import create_missing_items
 from db.schemas.nomination import NominationSchema
 
 
-def create_nominations_missing_in_db(db: Session, nominations: list[NominationSchema]) -> list[type(models.Nomination)]:
+def create_nominations_missing_in_db(db: Session, nominations: list[NominationSchema] | None) -> list[type(models.Nomination)]:
     nominations_db = create_missing_items(db, models.Nomination, nominations)
     return nominations_db
 

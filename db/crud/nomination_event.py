@@ -119,3 +119,5 @@ def finish_event_nomination_registration_db(db: Session, nomination_name: str, e
     nomination_event_db.registration_finished = True
     db.add(nomination_event_db)
     db.commit()
+
+
