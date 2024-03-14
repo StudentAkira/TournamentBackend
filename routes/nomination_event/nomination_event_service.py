@@ -1,27 +1,33 @@
 from starlette.responses import Response
 
-from db.schemas.nomination_event import NominationEventNameSchema, NominationEventSchema
-from db.schemas.team import TeamSchema
+from db.schemas.event import EventSchema
 from db.schemas.user import UserRole
 from managers.event import EventManager
 from managers.nomination_event import NominationEventManager
+from managers.team_nomination_event import TeamNominationEventManager
 from managers.token import TokenManager
+from managers.user import UserManager
 from validators.validator import Validator
 
 
 class NominationEventService:
     def __init__(self, db):
+        self.__db = db
+
+        self.__team_nomination_event_manager = TeamNominationEventManager(db)
         self.__event_manager = EventManager(db)
         self.__validator = Validator(db)
         self.__token_manager = TokenManager(db)
         self.__nomination_event_manager = NominationEventManager(db)
-        self.__db = db
+        self.__user_manager = UserManager(db)
 
-    def get_list_events_list_nominations(self, response: Response, token: str):
+        self.__nominations_appended_message = "nomination appended"
+
+    def list(self, response: Response, token: str, offset: int, limit: int):
         decoded_token = self.__token_manager.decode_token(token, response)
         if decoded_token.role == UserRole.judge:
-            return self.__nomination_event_manager.get_list_events_list_nominations_by_owner(decoded_token.owner_id)
-        return self.__nomination_event_manager.get_list_events_list_nominations()
+            return self.__nomination_event_manager.list_by_owner(offset, limit, decoded_token.owner_di)
+        return self.__nomination_event_manager.list(offset, limit)
 
     def get_nomination_events_names(
             self,
@@ -29,11 +35,11 @@ class NominationEventService:
             token: str,
             offset: int,
             limit: int
-    ) -> list[NominationEventNameSchema]:
+    ) -> list:
         decoded_token = self.__token_manager.decode_token(token, response)
         if decoded_token.role != UserRole.judge:
-            return self.__nomination_event_manager.get_nominations_events_names(offset, limit)
-        return self.__nomination_event_manager.get_nominations_events_names_by_owner(
+            return self.__nomination_event_manager.list(offset, limit)
+        return self.__nomination_event_manager.list_by_owner(
             offset,
             limit,
             decoded_token.user_id
@@ -45,11 +51,11 @@ class NominationEventService:
             token: str,
             offset: int,
             limit: int
-    ) -> list[NominationEventSchema]:
+    ) -> list:
         decoded_token = self.__token_manager.decode_token(token, response)
         if decoded_token.role != UserRole.judge:
-            return self.__nomination_event_manager.get_nominations_events_full_info(offset, limit)
-        return self.__nomination_event_manager.get_nominations_events_full_info_by_owner(
+            return self.__nomination_event_manager.list_full_info(offset, limit)
+        return self.__nomination_event_manager.list_full_info_by_owner(
             offset,
             limit,
             decoded_token.user_id
@@ -61,11 +67,24 @@ class NominationEventService:
             token: str,
             nomination_name: str,
             event_name: str,
-    ) -> list[TeamSchema]:
+    ) -> list:
         decoded_token = self.__token_manager.decode_token(token, response)
 
         self.__validator.check_event_nomination__nomination_event_existence(nomination_name, event_name)
         if decoded_token.role == UserRole.judge:
-            self.__event_manager.raise_exception_if_event_owner_wrong(event_name, decoded_token.user_id)
+            self.__event_manager.raise_exception_if_owner_wrong(event_name, decoded_token.user_id)
 
-        return self.__nomination_event_manager.get_teams_of_nomination_event(nomination_name, event_name)
+        return self.__team_nomination_event_manager.list_teams_of_nomination_event(nomination_name, event_name)
+
+    def append_nominations_for_event(
+            self,
+            response: Response,
+            token: str,
+            event: EventSchema,
+            nominations: list
+    ):
+        decoded_token = self.__token_manager.decode_token(token, response)
+        self.__user_manager.raise_exception_if_user_specialist(decoded_token.role)
+        self.__event_manager.raise_exception_if_not_found(event.name)
+        self.__nomination_event_manager.append_many(event, nominations)
+        return {"message": self.__nominations_appended_message}

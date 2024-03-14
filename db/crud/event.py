@@ -4,8 +4,7 @@ from sqlalchemy.orm import Session
 
 from db.models.event import Event
 from db.crud.nominations import create_nominations_missing_in_db
-from db.schemas.event import EventSchema, EventCreateSchema, EventListSchema
-from db.schemas.nomination import NominationSchema
+from db.schemas.event import EventCreateSchema, EventListSchema, EventUpdateSchema
 
 
 def create_event_db(db: Session, event: EventCreateSchema, owner_id: int) -> type(Event):
@@ -16,7 +15,8 @@ def create_event_db(db: Session, event: EventCreateSchema, owner_id: int) -> typ
         date=event.date,
         owner_id=owner_id
     )
-    event_db.nominations.extend(nominations_db)
+    if nominations_db:
+        event_db.nominations.extend(nominations_db)
     db.add(event_db)
     db.commit()
     db.refresh(event_db)
@@ -53,24 +53,10 @@ def get_all_events_by_owner_db(db: Session, owner_id: int) -> list[type(Event)]:
     return events_db
 
 
-def append_event_nominations_db(
-        db: Session,
-        event: EventSchema,
-        nominations: list[NominationSchema]
-) -> type(Event):
-    nominations_db = create_nominations_missing_in_db(db, nominations)
-    event_db = get_event_by_name_db(db, event.name)
-    event_db.nominations.extend(set(nominations_db) - set(event_db.nominations))
-    db.add(event_db)
-    db.commit()
-    db.refresh(event_db)
-    return event_db
-
-
-def update_event_db(db: Session, old_event: EventCreateSchema, new_event: EventCreateSchema,) -> type(Event):
-    event_db = db.query(Event).filter(cast("ColumnElement[bool]", Event.name == old_event.name)).first()
-    event_db.name = new_event.name
-    event_db.date = new_event.date
+def update_event_db(db: Session, event_data: EventUpdateSchema) -> type(Event):
+    event_db = db.query(Event).filter(cast("ColumnElement[bool]", Event.name == event_data.old_name)).first()
+    event_db.name = event_data.new_name
+    event_db.date = event_data.new_date
     db.add(event_db)
     db.commit()
 

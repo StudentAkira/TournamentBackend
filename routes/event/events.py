@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 
-from db.schemas.event import EventSchema, EventCreateSchema
+from db.schemas.event import EventSchema, EventCreateSchema, EventUpdateSchema
 from dependencies import get_db, authorized_only
 from routes.event.events_service import EventsService
 
@@ -20,7 +20,7 @@ async def get_events_by_owner(
         db: Session = Depends(get_db)
 ) -> list[EventSchema]:
     service = EventsService(db)
-    return service.get_events_by_owner(response, token, offset, limit)
+    return service.list_by_owner(response, token, offset, limit)
 
 
 @events.post("/event")
@@ -31,16 +31,15 @@ async def create_event(
         db: Session = Depends(get_db)
 ) -> dict[str, str]:
     service = EventsService(db)
-    return service.create_event(response, token, event)
+    return service.create(response, token, event)
 
 
 @events.put("/event")
 async def update_event(
         response: Response,
-        old_event: EventCreateSchema,
-        new_event: EventCreateSchema,
+        event_data: EventUpdateSchema,
         token: str = Depends(authorized_only),
         db: Session = Depends(get_db)
-)   -> dict[str, str]:
+) -> dict[str, str]:
     service = EventsService(db)
-    return service.create_event(response, token, old_event, new_event)
+    return service.update(response, token, event_data)

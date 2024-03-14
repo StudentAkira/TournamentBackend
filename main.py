@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from db import database, models
+from db import database
+
 from routes.auth.auth import auth
 from routes.event.events import events
 from routes.nomination_event.nomination_event import nomination_event
@@ -14,6 +15,7 @@ from routes.user.users import users
 
 
 app = FastAPI()
+
 
 database.Base.metadata.create_all(bind=database.engine)
 

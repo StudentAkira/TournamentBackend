@@ -31,9 +31,9 @@ class Participant(Base):
 
     creator_id: int = Column(Integer, ForeignKey("user.id"), nullable=False)
 
-    creator: Mapped["User"] = relationship("User", back_populates="participant")
+    creator: Mapped["User"] = relationship("User", back_populates="participants")
 
     teams: Mapped[list["Team"]] = relationship(
-        back_populates="participant",
+        back_populates="participants",
         secondary="team_participant"
     )

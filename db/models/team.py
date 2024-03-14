@@ -22,6 +22,6 @@ class Team(Base):
     creator: Mapped["User"] = relationship(back_populates="created_teams")
 
     participants: Mapped[list["Participant"]] = relationship(
-        back_populates="team",
+        back_populates="teams",
         secondary="team_participant"
     )

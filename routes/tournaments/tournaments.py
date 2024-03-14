@@ -1,9 +1,8 @@
-from fastapi import APIRouter, Depends, Body
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from sqlalchemy.sql.annotation import Annotated
 from starlette.responses import Response
 
-from db.schemas.nomination_event import NominationEventNameSchema
+from db.schemas.nomination_event import NominationEventSchema
 from dependencies import authorized_only, get_db
 from routes.tournaments.tournaments_service import TournamentService
 
@@ -13,7 +12,7 @@ tournaments = APIRouter(prefix="/tournaments", tags=["tournaments"])
 @tournaments.post("/start_group_tournament")
 async def start_group_tournament(
         response: Response,
-        nomination_event: NominationEventNameSchema,
+        nomination_event: NominationEventSchema,
         token: str = Depends(authorized_only),
         db: Session = Depends(get_db)
 ):

@@ -3,15 +3,15 @@ from typing import cast
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
-from db import models
+from db.models.user import User
 from db.schemas.user import UserCreateSchema, EditUserSchema
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-def create_user_db(db: Session, user: UserCreateSchema) -> type(models.User):
+def create_user_db(db: Session, user: UserCreateSchema) -> type(User):
     hashed_password = pwd_context.hash(user.password)
-    user_db = models.User(
+    user_db = User(
         email=user.email,
         hashed_password=hashed_password,
         first_name=user.first_name,
@@ -27,24 +27,24 @@ def create_user_db(db: Session, user: UserCreateSchema) -> type(models.User):
     return user_db
 
 
-def get_user_by_email_db(db: Session, email: str) -> type(models.User) | None:
-    user_db = db.query(models.User).filter(
-        cast("ColumnElement[bool]", models.User.email == email)
+def get_user_by_email_db(db: Session, email: str) -> type(User) | None:
+    user_db = db.query(User).filter(
+        cast("ColumnElement[bool]", User.email == email)
     ).first()
     if user_db:
         return user_db
 
 
-def get_user_by_id_db(db: Session, user_id: int) -> type(models.User) | None:
-    user_db = db.query(models.User).filter(
-        cast("ColumnElement[bool]", models.User.id == user_id)
+def get_user_by_id_db(db: Session, user_id: int) -> type(User) | None:
+    user_db = db.query(User).filter(
+        cast("ColumnElement[bool]", User.id == user_id)
     ).first()
     if user_db:
         return user_db
 
 
 def edit_user_data_db(db: Session, user_data: EditUserSchema, user_id: int):
-    user_db = db.query(models.User).filter(cast("ColumnElement[bool]", models.User.id == user_id)).first()
+    user_db = db.query(User).filter(cast("ColumnElement[bool]", User.id == user_id)).first()
     user_db.first_name = user_data.first_name
     user_db.second_name = user_data.second_name
     user_db.third_name = user_data.third_name

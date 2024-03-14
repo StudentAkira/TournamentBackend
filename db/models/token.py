@@ -16,4 +16,3 @@ class Token(Base):
     owner_id: int = Column(Integer, ForeignKey("user.id"), nullable=False)
 
     owner: Mapped["User"] = relationship("User", back_populates="tokens")
-

@@ -9,12 +9,14 @@ class NominationEventType(str, Enum):
     criteria = "criteria"
 
 
-class NominationEventNameSchema(BaseModel):
+class NominationEventSchema(BaseModel):
     event_name: str
     nomination_name: str
 
 
-class NominationEventSchema(NominationEventNameSchema):
+class NominationEventFullInfoSchema(BaseModel):
+    event_name: str
+    nomination_name: str
 
     teams: list[TeamParticipantsSchema]
 

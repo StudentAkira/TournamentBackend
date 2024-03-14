@@ -1,14 +1,20 @@
+from typing import cast
+
 from fastapi import HTTPException
+from sqlalchemy import exists
 from sqlalchemy.orm import Session
 from starlette import status
 
-from db.crud.event import create_event_db, get_event_by_name_db, get_events_by_owner_db, append_event_nominations_db, \
+from db.crud.event import create_event_db, get_event_by_name_db, get_events_by_owner_db, \
     get_events_db, update_event_db
-from db.schemas.event import EventCreateSchema, EventSchema
-from db.schemas.nomination import NominationSchema
+from db.models.event import Event
+from db.schemas.event import EventCreateSchema, EventSchema, EventUpdateSchema
 
 
 class EventManager:
+
+    __db: Session
+
     def __init__(self, db: Session):
         self.__db = db
 
@@ -16,41 +22,39 @@ class EventManager:
         self.__event_does_not_exist_error = "event does not exist"
         self.__wrong_event_owner_error = "this event is not yours"
 
-    def create_event(self, event: EventCreateSchema, owner_id: int):
-        self.raise_exception_if_event_name_taken(event.name)
+    def create(self, event: EventCreateSchema, owner_id: int):
+        self.raise_exception_if_name_taken(event.name)
         create_event_db(self.__db, event, owner_id)
 
-    def get_events(self, offset: int, limit: int) -> list[EventSchema]:
+    def list(self, offset: int, limit: int) -> list[EventSchema]:
         events_db = get_events_db(self.__db, offset, limit)
         events = [EventSchema.from_orm(event_db) for event_db in events_db]
         return events
 
-    def get_event_by_name(self, name: str) -> EventSchema | None:
-        event_db = get_event_by_name_db(self.__db, name)
-        if event_db:
-            return EventSchema.from_orm(event_db)
-
-    def get_events_by_owner(self, offset: int, limit: int, owner_id: int) -> list[EventSchema]:
+    def list_by_owner(self, offset: int, limit: int, owner_id: int) -> list:
         events_db = get_events_by_owner_db(self.__db, offset, limit, owner_id)
         events = [EventSchema.from_orm(event_db) for event_db in events_db]
         return events
 
-    def append_nominations(self, event: EventSchema, nominations: list[NominationSchema]):
-        append_event_nominations_db(self.__db, event, nominations)
-
-    def update_event(self, old_event: EventCreateSchema, new_event: EventCreateSchema):
-        self.raise_exception_if_event_name_taken(new_event.name)
-        update_event_db(self.__db, old_event, new_event)
-
-    def raise_exception_if_event_name_taken(self, name):
-        event_db = self.get_event_by_name(name)
+    def read_by_name(self, name: str) -> EventSchema | None:
+        event_db = get_event_by_name_db(self.__db, name)
         if event_db:
+            return EventSchema.from_orm(event_db)
+
+    def update_event(self, event_data: EventUpdateSchema):
+        self.raise_exception_if_name_taken(event_data.new_name)
+        update_event_db(self.__db, event_data)
+
+    def raise_exception_if_name_taken(self, event_name: str):
+        entity_exists = self.__db.query(
+            exists().where(cast("ColumnElement[bool]", Event.name == event_name))).scalar()
+        if entity_exists:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail={"error": self.__event_name_taken_error}
             )
 
-    def raise_exception_if_event_owner_wrong(self, event_name: str, user_id: int):
+    def raise_exception_if_owner_wrong(self, event_name: str, user_id: int):
         event_db = get_event_by_name_db(self.__db, event_name)
         if event_db.owner_id != user_id:
             raise HTTPException(
@@ -58,10 +62,11 @@ class EventManager:
                 detail={"error": self.__wrong_event_owner_error}
             )
 
-    def raise_exception_if_event_not_found(self, name: str):
-        event = self.get_event_by_name(name)
-        if not event:
+    def raise_exception_if_not_found(self, event_name: str):
+        entity_exists = self.__db.query(
+            exists().where(cast("ColumnElement[bool]", Event.name == event_name))).scalar()
+        if not entity_exists:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail={"error": self.__event_does_not_exist_error}
+                status_code=status.HTTP_409_CONFLICT,
+                detail={"error": self.__event_name_taken_error}
             )

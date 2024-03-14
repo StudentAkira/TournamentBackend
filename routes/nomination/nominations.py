@@ -4,7 +4,6 @@ from fastapi import APIRouter, Depends, Query, Body
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 
-from db.schemas.event import EventSchema
 from db.schemas.nomination import NominationSchema
 from dependencies import get_db, authorized_only
 from routes.nomination.nominations_service import NominationsService
@@ -19,7 +18,7 @@ async def get_nominations(
         db: Session = Depends(get_db)
 ):
     service = NominationsService(db)
-    return service.get_nominations(offset, limit)
+    return service.list(offset, limit)
 
 
 @nominations.post("/nominations")
@@ -30,19 +29,7 @@ async def create_nominations(
         db: Session = Depends(get_db)
 ):
     service = NominationsService(db)
-    return service.create_nominations(response, token, nominations_)
-
-
-@nominations.post("/append_nominations_for_event")
-async def append_nominations_for_event(
-        response: Response,
-        event: EventSchema,
-        nominations_: list[NominationSchema],
-        token: str = Depends(authorized_only),
-        db: Session = Depends(get_db)
-):
-    service = NominationsService(db)
-    return service.append_nominations_for_event(response, token, event, nominations_)
+    return service.create_many(response, token, nominations_)
 
 
 @nominations.put("/nomination")
@@ -54,7 +41,7 @@ async def update_nomination(
         db: Session = Depends(get_db)
 ):
     service = NominationsService(db)
-    return service.update_nomination(response, token, old_nomination, new_nomination)
+    return service.update(response, token, old_nomination, new_nomination)
 
 
 @nominations.delete("/nomination")
@@ -65,4 +52,4 @@ async def delete_nomination(
         db: Session = Depends(get_db)
 ):
     service = NominationsService(db)
-    return service.delete_nomination(response, token, nomination_name)
+    return service.delete(response, token, nomination_name)

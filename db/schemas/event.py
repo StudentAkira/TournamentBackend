@@ -14,7 +14,16 @@ class EventSchema(BaseModel):
 
 
 class EventCreateSchema(EventSchema):
-    nominations: list[tuple[NominationSchema, NominationEventType]] | None
+    nominations: list[tuple[NominationSchema, NominationEventType]] | None = None
+
+
+class EventUpdateSchema(BaseModel):
+    old_name: str
+
+    new_name: str
+    new_date: datetime.date
+
+    nominations: list[tuple[NominationSchema, NominationEventType]] | None = None
 
 
 class EventListSchema(EventSchema):

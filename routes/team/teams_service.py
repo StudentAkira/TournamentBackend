@@ -24,7 +24,7 @@ class TeamsService:
 
     def create_team(self, response, token: str, team: TeamSchema, participants_emails: list[EmailStr]):
         decoded_token = self.__token_manager.decode_token(token, response)
-        self.__team_manager.create_team(
+        self.__team_manager.create(
             team,
             set(participants_emails),
             decoded_token.user_id)
@@ -33,8 +33,8 @@ class TeamsService:
     def get_teams_by_owner(self, response, token, offset: int, limit: int):
         decoded_token = self.__token_manager.decode_token(token, response)
         if decoded_token.role == UserRole.admin:
-            return self.__team_manager.get_teams(offset, limit)
-        return self.__team_manager.get_teams_by_owner(offset, limit, decoded_token.user_id)
+            return self.__team_manager.list(offset, limit)
+        return self.__team_manager.list_by_owner(offset, limit, decoded_token.user_id)
 
     def set_team_software_and_equipment_in_event_nomination(
             self,
@@ -63,13 +63,13 @@ class TeamsService:
             event_name
         )
 
-        self.__team_manager.raise_exception_if_team_owner_wrong(team_name, decoded_token.user_id)
-        self.__event_manager.raise_exception_if_event_owner_wrong(event_name, decoded_token.user_id)
-        self.__team_manager.set_team_software_and_equipment_in_event_nomination(
-            team_name,
-            nomination_name,
-            event_name,
-            software,
-            equipment
-        )
+        self.__team_manager.raise_exception_if_owner_wrong(team_name, decoded_token.user_id)
+        self.__event_manager.raise_exception_if_owner_wrong(event_name, decoded_token.user_id)
+        # self.__team_manager.set_team_software_and_equipment_in_event_nomination(
+        #     team_name,
+        #     nomination_name,
+        #     event_name,
+        #     software,
+        #     equipment
+        # )
         return {"message": self.__software_and_equipment_set_message}

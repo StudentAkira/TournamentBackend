@@ -29,4 +29,3 @@ class NominationEvent(Base):
 
     __table_args__ = (UniqueConstraint('event_id', 'nomination_id', name='_event_id__nomination_id'),)
 
-

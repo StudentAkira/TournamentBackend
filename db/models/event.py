@@ -19,8 +19,8 @@ class Event(Base):
     owner_id: int = Column(Integer, ForeignKey("user.id"), nullable=False)
     date: Date = Column(Date, nullable=False, default="2003-05-19")
 
-    owner: Mapped[list["User"]] = relationship(back_populates="event")
+    owner: Mapped[list["User"]] = relationship(back_populates="events")
     nominations: Mapped[list["Nomination"]] = relationship(
-        back_populates="event",
+        back_populates="events",
         secondary="nomination_event",
     )

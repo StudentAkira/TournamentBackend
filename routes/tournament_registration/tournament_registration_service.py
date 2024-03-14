@@ -1,14 +1,11 @@
-from pydantic import EmailStr
 from starlette.responses import Response
-
-from db.schemas.nomination_event import NominationEventSchema, NominationEventNameSchema
-from db.schemas.team import TeamSchema, TeamToEventNominationSchema
-from db.schemas.user import UserRole
+from db.schemas.team_nomination_event import AppendTeamToEventNominationSchema
 from managers.event import EventManager
 from managers.nomination_event import NominationEventManager
 from managers.nomination import NominationManager
 from managers.participant import ParticipantManager
 from managers.team import TeamManager
+from managers.team_nomination_event import TeamNominationEventManager
 from managers.token import TokenManager
 from validators.validator import Validator
 
@@ -23,6 +20,7 @@ class TournamentRegistrationService:
         self.__nomination_event_manager = NominationEventManager(db)
         self.__nomination_manager = NominationManager(db)
         self.__participant_manager = ParticipantManager(db)
+        self.__team_nomination_event_manager = TeamNominationEventManager(db)
 
         self.__validator = Validator(db)
 
@@ -32,7 +30,7 @@ class TournamentRegistrationService:
             self,
             response: Response,
             token: str,
-            team_nomination_event_data: TeamToEventNominationSchema
+            team_nomination_event_data: AppendTeamToEventNominationSchema
     ):
 
         team_name = self.get_team_name_from_team_name_or_participant_email(
@@ -53,7 +51,7 @@ class TournamentRegistrationService:
 
         self.__validator.raise_exception_if_participant_in_another_team(team_name, nomination_name, event_name)
 
-        self.__nomination_event_manager.append_team_to_event_nomination(
+        self.__team_nomination_event_manager.append_team_to_nomination_event(
             team_nomination_event_data
         )
 
@@ -61,5 +59,3 @@ class TournamentRegistrationService:
 
     def get_team_name_from_team_name_or_participant_email(self, team_name_or_participant_email):
         return self.__team_manager.get_team_name_from_team_name_or_participant_email(team_name_or_participant_email)
-
-

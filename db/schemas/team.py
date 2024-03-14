@@ -10,10 +10,4 @@ class TeamSchema(BaseModel):
         from_attributes = True
 
 
-class AppendTeamToEventNominationSchema(BaseModel):
-    team_name: str | EmailStr
-    participant_emails: list[EmailStr]
-    event_name: str
-    nomination_name: str
-    software: str | None
-    equipment: str | None
+
