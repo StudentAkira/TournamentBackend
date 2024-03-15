@@ -57,3 +57,4 @@ def update_nomination_db(db: Session, old_nomination: NominationSchema, new_nomi
 
 def delete_nomination_db(db: Session, nomination_name: str):
     pass
+

@@ -1,6 +1,7 @@
 from starlette.responses import Response
 
 from db.schemas.event import EventSchema
+from db.schemas.nomination_event import NominationEventDataSchema, NominationEventDeleteSchema
 from db.schemas.user import UserRole
 from managers.event import EventManager
 from managers.nomination_event import NominationEventManager
@@ -22,6 +23,7 @@ class NominationEventService:
         self.__user_manager = UserManager(db)
 
         self.__nominations_appended_message = "nomination appended"
+        self.__nomination_event_deleted_message = "nomination event deleted"
 
     def list(self, response: Response, token: str, offset: int, limit: int):
         decoded_token = self.__token_manager.decode_token(token, response)
@@ -88,3 +90,18 @@ class NominationEventService:
         self.__event_manager.raise_exception_if_not_found(event.name)
         self.__nomination_event_manager.append_many(event, nominations)
         return {"message": self.__nominations_appended_message}
+
+    def get_nomination_event_data(self, response: Response, token: str, event_name: str) -> NominationEventDataSchema:
+        decoded_token = self.__token_manager.decode_token(token, response)
+        self.__event_manager.raise_exception_if_not_found(event_name)
+        self.__nomination_event_manager.get_nomination_event_data(event_name)
+        return self.__nomination_event_manager.get_nomination_event_data(event_name)
+
+    def delete(self, response: Response, token: str, nomination_event_data: NominationEventDeleteSchema):
+        decoded_token = self.__token_manager.decode_token(token, response)
+        self.__nomination_event_manager.raise_exception_if_not_found(
+            nomination_event_data.nomination_name,
+            nomination_event_data.event_name
+        )
+        self.__nomination_event_manager.delete(nomination_event_data)
+        return {"message": self.__nomination_event_deleted_message}

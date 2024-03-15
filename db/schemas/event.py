@@ -17,8 +17,12 @@ class EventDeleteSchema(BaseModel):
     name: str
 
 
-class EventCreateSchema(EventSchema):
-    nominations: list[tuple[NominationSchema, NominationEventType]] | None = None
+class EventCreateSchema(BaseModel):
+    name: str = Field(min_length=5)
+    date: datetime.date
+
+    class Config:
+        from_attributes = True
 
 
 class EventUpdateSchema(BaseModel):

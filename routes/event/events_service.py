@@ -26,13 +26,22 @@ class EventsService:
         events = self.__event_manager.list(offset, limit)
         return events
 
-    def list_by_owner(self, response: Response, token: str, offset, limit) -> list:
+    def list_by_owner(self, response: Response, token: str, offset, limit: int) -> list:
         decoded_token = self.__token_manager.decode_token(token, response)
         events = []
         if decoded_token.role == UserRole.specialist or decoded_token.role == UserRole.admin:
             events = self.list(offset, limit)
         if decoded_token.role == UserRole.judge:
             events = self.__event_manager.list_by_owner(offset, limit, decoded_token.user_id)
+        return events
+
+    def list_with_nominations(self, response: Response, token: str, offset: int, limit: int):
+        decoded_token = self.__token_manager.decode_token(token, response)
+        events = []
+        if decoded_token.role == UserRole.specialist or decoded_token.role == UserRole.admin:
+            events = self.__event_manager.list_with_nominations(offset, limit)
+        if decoded_token.role == UserRole.judge:
+            events = self.__event_manager.list_with_nominations_by_owner(offset, limit, decoded_token.user_id)
         return events
 
     def create(

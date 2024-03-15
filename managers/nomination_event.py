@@ -6,9 +6,10 @@ from db.crud.event import get_event_by_name_db
 from db.crud.nomination_event import get_nomination_events_full_info_db, \
     get_nomination_events_all_names_by_owner_db, \
     get_nomination_events_full_info_by_owner_db, \
-    get_nomination_events_all_names_db, append_event_nominations_db
+    get_nomination_events_all_names_db, append_event_nominations_db, get_nominations_event_participant_count_db, \
+    delete_nomination_event_db
 from db.schemas.event import EventSchema
-from db.schemas.nomination_event import NominationEventSchema
+from db.schemas.nomination_event import NominationEventSchema, NominationEventDataSchema, NominationEventDeleteSchema
 from managers.event import EventManager
 from managers.nomination import NominationManager
 from managers.team import TeamManager
@@ -26,6 +27,9 @@ class NominationEventManager:
 
         self.__nomination_event_does_not_exist_error = "nomination event does not exist"
         self.__tournament_already_started_error = "tournament already started"
+
+    def get_nomination_event_data(self, event_name: str) -> NominationEventDataSchema:
+        return get_nominations_event_participant_count_db(self.__db, event_name)
 
     def list(self, offset: int, limit: int) -> list[NominationEventSchema]:
         nominations_events = get_nomination_events_all_names_db(self.__db, offset, limit)
@@ -47,6 +51,9 @@ class NominationEventManager:
 
     def append_many(self, event: EventSchema, nominations: list):
         append_event_nominations_db(self.__db, event, nominations)
+
+    def delete(self, nomination_event_data: NominationEventDeleteSchema):
+        delete_nomination_event_db(self.__db, nomination_event_data)
 
     def raise_exception_if_not_found(self, nomination_name: str, event_name: str):
 

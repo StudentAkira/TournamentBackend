@@ -1,5 +1,8 @@
+import datetime
 from enum import Enum
 from pydantic import BaseModel
+
+from db.schemas.nomination import NominationSchema, NominationParticipantCountSchema
 from db.schemas.team_participant import TeamParticipantsSchema
 
 
@@ -14,6 +17,13 @@ class NominationEventSchema(BaseModel):
     nomination_name: str
 
 
+class NominationEventDataSchema(BaseModel):
+    name: str
+    date: datetime.date
+
+    nominations: list[NominationParticipantCountSchema]
+
+
 class NominationEventFullInfoSchema(BaseModel):
     event_name: str
     nomination_name: str
@@ -24,3 +34,6 @@ class NominationEventFullInfoSchema(BaseModel):
         from_attributes = True
 
 
+class NominationEventDeleteSchema(BaseModel):
+    event_name: str
+    nomination_name: str

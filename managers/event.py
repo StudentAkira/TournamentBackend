@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from starlette import status
 
 from db.crud.event import create_event_db, get_event_by_name_db, get_events_by_owner_db, \
-    get_events_db, update_event_db
+    get_events_db, update_event_db, get_events_with_nominations_db, get_events_with_nominations_by_owner_db
 from db.models.event import Event
 from db.schemas.event import EventCreateSchema, EventSchema, EventUpdateSchema
 
@@ -35,6 +35,12 @@ class EventManager:
         events_db = get_events_by_owner_db(self.__db, offset, limit, owner_id)
         events = [EventSchema.from_orm(event_db) for event_db in events_db]
         return events
+
+    def list_with_nominations(self, offset, limit):
+        return get_events_with_nominations_db(self.__db, offset, limit)
+
+    def list_with_nominations_by_owner(self, offset, limit, owner_id):
+        return get_events_with_nominations_by_owner_db(self.__db, offset, limit, owner_id)
 
     def read_by_name(self, name: str) -> EventSchema | None:
         event_db = get_event_by_name_db(self.__db, name)

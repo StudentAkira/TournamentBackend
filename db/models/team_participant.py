@@ -19,6 +19,7 @@ class TeamParticipant(Base):
     participant_id: Mapped[int] = mapped_column(ForeignKey("participant.id"))
 
     nomination_events: Mapped[list["NominationEvent"]] = relationship(
+        "NominationEvent",
         back_populates="team_participants",
         secondary="team_participant_nomination_event"
     )

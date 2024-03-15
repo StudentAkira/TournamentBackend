@@ -1,8 +1,15 @@
 from db.database import *
-from db.models.component import Component
-from db.models.device import Device
+from sqlalchemy import and_
+from db.models.event import Event
+from db.models.nomination import Nomination
+from db.models.nomination_event import NominationEvent
+from db.models.participant import Participant
+from db.models.team import Team
+from db.models.team_participant import TeamParticipant
+from db.models.team_participant_nomination_event import TeamParticipantNominationEvent
+from db.models.token import Token
 from db.models.user import User
-
+from db.schemas.user import UserSchema
 
 db = SessionLocal()
 
@@ -16,3 +23,13 @@ def counting_sort(arr):
     for i in range(len(count)):
         sorted_arr.extend([i] * count[i])
     return sorted_arr
+
+
+test = UserSchema(
+    email="tes",
+    first_name="test",
+    second_name="test",
+    third_name="test",
+    phone="+375-2-768-94-62",
+    role="admin"
+)

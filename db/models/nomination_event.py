@@ -23,6 +23,7 @@ class NominationEvent(Base):
     type: NominationEventType = Column(String, nullable=False, default=NominationEventType.olympyc)
 
     team_participants: Mapped[list["TeamParticipant"]] = relationship(
+        "TeamParticipant",
         back_populates="nomination_events",
         secondary="team_participant_nomination_event"
     )

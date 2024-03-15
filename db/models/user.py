@@ -25,12 +25,11 @@ class User(Base):
     first_name: str = Column(String, nullable=False)
     second_name: str = Column(String, nullable=False)
     third_name: str = Column(String, nullable=False)
-    phone: PhoneNumber = Column(String, nullable=False)
+    phone: str = Column(String, nullable=False)
     educational_institution: str | None = Column(String, nullable=True)
     role: str = Column(String, nullable=False)
 
-    tokens: Mapped[list["Token"]] = relationship(back_populates="owner")
-    events: Mapped[list["Event"]] = relationship(back_populates="owner")
-    created_teams: Mapped[list["Team"]] = relationship(back_populates="creator")
-    participants: Mapped[list["Participant"]] = relationship(back_populates="creator")
-
+    tokens: Mapped[list["Token"]] = relationship("Token", back_populates="owner")
+    events: Mapped[list["Event"]] = relationship("Event", back_populates="owner")
+    created_teams: Mapped[list["Team"]] = relationship("Team", back_populates="creator")
+    participants: Mapped[list["Participant"]] = relationship("Participant", back_populates="creator")
