@@ -8,7 +8,7 @@ from db.models.nomination_event import NominationEvent
 from db.models.participant import Participant
 from db.models.team import Team
 from db.models.team_participant_nomination_event import TeamParticipantNominationEvent
-from db.schemas.team import TeamSchema
+from db.schemas.team import TeamSchema, TeamUpdateSchema
 
 from sqlalchemy import and_
 
@@ -57,6 +57,15 @@ def get_teams_by_owner_db(db: Session, offset: int, limit: int, owner_id: int) -
 def get_teams_db(db: Session, offset: int, limit: int) -> list[type(Team)]:
     teams_db = db.query(Team).offset(offset).limit(limit).all()
     return teams_db
+
+
+def update_team_db(db:Session, team_data: TeamUpdateSchema):
+    team_db = db.query(Team).filter(
+        cast("ColumnElement[bool]", Team.name == team_data.old_name
+             )).first()
+    team_db.name = team_data.new_name
+    db.add(team_db)
+    db.commit()
 
 
 def set_software_equipment_db(db, nomination_event_db: type(NominationEvent), software: str, equipment: str):

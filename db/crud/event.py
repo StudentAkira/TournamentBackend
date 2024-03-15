@@ -51,7 +51,6 @@ def get_events_with_nominations(events_db: list[type(Event)]):
                 ]
             )
         )
-    print(result)
     return result
 
 

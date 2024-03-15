@@ -5,9 +5,9 @@ from pydantic import EmailStr
 from sqlalchemy.orm import Session
 from starlette import status
 
-from db.crud.team import get_teams_by_owner_db, create_team_db, get_team_by_name_db, get_teams_db
+from db.crud.team import get_teams_by_owner_db, create_team_db, get_team_by_name_db, get_teams_db, update_team_db
 from db.models.team import Team
-from db.schemas.team import TeamSchema
+from db.schemas.team import TeamSchema, TeamUpdateSchema
 from db.schemas.team_participant import TeamParticipantsSchema
 from managers.participant import ParticipantManager
 
@@ -41,6 +41,9 @@ class TeamManager:
         self.check_entities_existence(team, participants_emails)
         self.raise_exception_if_name_invalid(team)
         create_team_db(self.__db, team, participants_emails, creator_id)
+
+    def update(self, team_data: TeamUpdateSchema):
+        update_team_db(self.__db, team_data)
 
     def check_entities_existence(self, team: TeamSchema, participant_emails: set[EmailStr]):
         self.raise_exception_if_name_taken(team.name)

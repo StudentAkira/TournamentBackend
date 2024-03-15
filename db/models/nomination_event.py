@@ -25,7 +25,7 @@ class NominationEvent(Base):
     team_participants: Mapped[list["TeamParticipant"]] = relationship(
         "TeamParticipant",
         back_populates="nomination_events",
-        secondary="team_participant_nomination_event"
+        secondary="team_participant_nomination_event",
     )
 
     __table_args__ = (UniqueConstraint('event_id', 'nomination_id', name='_event_id__nomination_id'),)

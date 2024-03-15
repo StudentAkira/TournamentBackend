@@ -44,17 +44,3 @@ async def update_participant(
     service = ParticipantsService(db)
     # return service.update(response, token, participant)
     return
-
-
-@participants.delete("/participant")
-async def delete_participant(
-        response: Response,
-        participant: ParticipantSchema,
-        token: str = Depends(authorized_only),
-        db: Session = Depends(get_db)
-):
-    service = ParticipantsService(db)
-    # return service.delete(response, token, participant)
-    return
-
-
