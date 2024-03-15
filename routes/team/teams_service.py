@@ -30,7 +30,7 @@ class TeamsService:
             decoded_token.user_id)
         return {"message": self.__team_created_message}
 
-    def get_teams_by_owner(self, response, token, offset: int, limit: int):
+    def list_by_owner(self, response, token, offset: int, limit: int):
         decoded_token = self.__token_manager.decode_token(token, response)
         if decoded_token.role == UserRole.admin:
             return self.__team_manager.list(offset, limit)

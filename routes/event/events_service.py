@@ -1,6 +1,6 @@
 from starlette.responses import Response
 
-from db.schemas.event import EventSchema, EventCreateSchema, EventUpdateSchema
+from db.schemas.event import EventSchema, EventCreateSchema, EventUpdateSchema, EventDeleteSchema
 from db.schemas.user import UserRole
 from managers.event import EventManager
 from managers.token import TokenManager
@@ -61,5 +61,6 @@ class EventsService:
             self,
             response: Response,
             token: str,
+            event_data: EventDeleteSchema
     ):
         pass

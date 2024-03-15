@@ -13,6 +13,10 @@ class EventSchema(BaseModel):
         from_attributes = True
 
 
+class EventDeleteSchema(BaseModel):
+    name: str
+
+
 class EventCreateSchema(EventSchema):
     nominations: list[tuple[NominationSchema, NominationEventType]] | None = None
 

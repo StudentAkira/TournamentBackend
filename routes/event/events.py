@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 
-from db.schemas.event import EventSchema, EventCreateSchema, EventUpdateSchema
+from db.schemas.event import EventSchema, EventCreateSchema, EventUpdateSchema, EventDeleteSchema
 from dependencies import get_db, authorized_only
 from routes.event.events_service import EventsService
 
@@ -43,3 +43,14 @@ async def update_event(
 ) -> dict[str, str]:
     service = EventsService(db)
     return service.update(response, token, event_data)
+
+
+@events.delete("/event")
+async def delete_event(
+        response: Response,
+        event_data: EventDeleteSchema,
+        token: str = Depends(authorized_only),
+        db: Session = Depends(get_db)
+) -> dict[str, str]:
+    service = EventsService(db)
+    return service.delete(response, token, event_data)

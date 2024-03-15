@@ -1,12 +1,10 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
-from pydantic import EmailStr
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 
 from db.schemas.participant import ParticipantSchema
-from db.schemas.team import TeamSchema
 from dependencies import get_db, authorized_only
 from routes.participant.participants_service import ParticipantsService
 
@@ -36,13 +34,27 @@ async def create_participant(
     return service.create_participant(response, token, participant)
 
 
-@participants.post("/participant_to_team")
-async def append_participant_to_team(
+@participants.put("/participant")
+async def update_participant(
         response: Response,
-        participant_email: EmailStr,
-        team_name: str,
+        participant: ParticipantSchema,
         token: str = Depends(authorized_only),
         db: Session = Depends(get_db)
 ):
     service = ParticipantsService(db)
-    return service.append_participant_to_team(response, token, participant_email, team_name)
+    # return service.update(response, token, participant)
+    return
+
+
+@participants.delete("/participant")
+async def delete_participant(
+        response: Response,
+        participant: ParticipantSchema,
+        token: str = Depends(authorized_only),
+        db: Session = Depends(get_db)
+):
+    service = ParticipantsService(db)
+    # return service.delete(response, token, participant)
+    return
+
+
