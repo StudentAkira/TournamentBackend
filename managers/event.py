@@ -78,5 +78,5 @@ class EventManager:
         if not entity_exists:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail={"error": self.__event_name_taken_error}
+                detail={"error": self.__event_does_not_exist_error}
             )
