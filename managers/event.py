@@ -6,9 +6,10 @@ from sqlalchemy.orm import Session
 from starlette import status
 
 from db.crud.event import create_event_db, get_event_by_name_db, get_events_by_owner_db, \
-    get_events_db, update_event_db, get_events_with_nominations_db, get_events_with_nominations_by_owner_db
+    get_events_db, update_event_db, get_events_with_nominations_db, get_events_with_nominations_by_owner_db, \
+    delete_event_db
 from db.models.event import Event
-from db.schemas.event import EventCreateSchema, EventSchema, EventUpdateSchema
+from db.schemas.event import EventCreateSchema, EventSchema, EventUpdateSchema, EventDeleteSchema
 
 
 class EventManager:
@@ -47,9 +48,12 @@ class EventManager:
         if event_db:
             return EventSchema.from_orm(event_db)
 
-    def update_event(self, event_data: EventUpdateSchema):
+    def update(self, event_data: EventUpdateSchema):
         self.raise_exception_if_name_taken(event_data.new_name)
         update_event_db(self.__db, event_data)
+
+    def delete(self, event_data: EventDeleteSchema):
+        delete_event_db(self.__db, event_data)
 
     def raise_exception_if_name_taken(self, event_name: str):
         entity_exists = self.__db.query(

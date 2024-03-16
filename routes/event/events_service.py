@@ -17,6 +17,7 @@ class EventsService:
 
         self.__event_created_message = "event created"
         self.__event_updated_message = "event updated"
+        self.__event_deleted_message = "event deleted"
 
     def list(
             self,
@@ -63,7 +64,7 @@ class EventsService:
     ) -> dict[str, str]:
         decoded_token = self.__token_manager.decode_token(token, response)
         self.__user_manager.raise_exception_if_user_specialist(decoded_token.role)
-        self.__event_manager.update_event(event_data)
+        self.__event_manager.update(event_data)
         return {"message": self.__event_updated_message}
 
     def delete(
@@ -72,4 +73,8 @@ class EventsService:
             token: str,
             event_data: EventDeleteSchema
     ):
-        pass
+        decoded_token = self.__token_manager.decode_token(token, response)
+        self.__event_manager.raise_exception_if_not_found(event_data.name)
+        self.__event_manager.raise_exception_if_owner_wrong(event_data.name, decoded_token.user_id)
+        self.__event_manager.delete(event_data)
+        return {"message": self.__event_deleted_message}

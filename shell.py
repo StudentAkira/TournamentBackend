@@ -26,10 +26,10 @@ def counting_sort(arr):
 
 
 test = UserSchema(
-    email="tes",
+    email="test@mail.ru",
     first_name="test",
     second_name="test",
     third_name="test",
-    phone="+375-2-768-94-62",
+    phone="+375-29-768-94-62",
     role="admin"
 )

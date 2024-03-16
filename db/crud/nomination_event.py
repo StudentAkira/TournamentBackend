@@ -191,30 +191,16 @@ def get_nomination_events_names_db(
 def delete_nomination_event_db(db: Session, nomination_event_data: NominationEventDeleteSchema):
     event_db = get_event_by_name_db(db, nomination_event_data.event_name)
     nomination_db = get_nomination_by_name_db(db, nomination_event_data.nomination_name)
-    nomination_event_db = db.query(NominationEvent).filter(
-        and_(
-            NominationEvent.event_id == event_db.id,
-            NominationEvent.nomination_id == nomination_db.id
-        )
-    ).first()
+    nomination_event_db = db.query(NominationEvent).\
+        filter(and_(NominationEvent.event_id == event_db.id, NominationEvent.nomination_id == nomination_db.id)).first()
+    db.query(TeamParticipantNominationEvent).\
+        filter(TeamParticipantNominationEvent.nomination_event_id == nomination_event_db.id).all()
+    team_participants_ids = set(team_participant_db.id for team_participant_db in nomination_event_db.team_participants)
 
-    for team_participant in nomination_event_db.team_participants:
-        db.query(TeamParticipantNominationEvent).filter(
-            and_(
-                TeamParticipantNominationEvent.nomination_event_id == nomination_event_db.id,
-                TeamParticipantNominationEvent.team_participant_id == team_participant.id
-            )
-        ).delete()
+    db.query(TeamParticipantNominationEvent).\
+        filter(TeamParticipantNominationEvent.nomination_event_id == nomination_event_db.id).delete()
+    db.query(NominationEvent).\
+        filter(
+        and_(NominationEvent.event_id == event_db.id, NominationEvent.nomination_id == nomination_db.id)).delete()
 
-    for team_participant in nomination_event_db.team_participants:
-        db.query(TeamParticipant).filter(
-            TeamParticipant.id == team_participant.id
-        ).delete()
-
-    db.query(NominationEvent).filter(
-        and_(
-            NominationEvent.event_id == event_db.id,
-            NominationEvent.nomination_id == nomination_db.id
-        )
-    ).delete()
-
+    db.commit()
