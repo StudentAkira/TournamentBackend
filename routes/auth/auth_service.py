@@ -22,7 +22,7 @@ class AuthService:
         self.__user_manager.check_user_password(user, user_login.password)
         user_id = self.__user_manager.get_user_id_associated_with_email(user)
         token = self.__token_manager.generate_token(user_id, user.role)
-        expires = datetime.utcnow() + timedelta(days=settings.jwt_token_expiration_time_days)
+        expires = datetime.utcnow() + timedelta(days=settings.jwt_token_expiration_time_days + 1)
         response.set_cookie(
             key="token",
             value=token,

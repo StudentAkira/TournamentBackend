@@ -7,9 +7,9 @@ from sqlalchemy.orm import Session
 from starlette import status
 
 from db.crud.participant import get_participants_by_owner_db, create_participant_db, get_participant_by_email_db, \
-    hide_participant_db
+    hide_participant_db, update_participant_db
 from db.models.participant import Participant
-from db.schemas.participant import ParticipantSchema, ParticipantHideSchema
+from db.schemas.participant import ParticipantSchema, ParticipantHideSchema, ParticipantUpdateSchema
 
 
 class ParticipantManager:
@@ -38,6 +38,9 @@ class ParticipantManager:
 
     def hide(self, participant_data: ParticipantHideSchema):
         hide_participant_db(self.__db, participant_data)
+
+    def update(self, participant_data: ParticipantUpdateSchema):
+        update_participant_db(self.__db, participant_data)
 
     def raise_exception_if_email_taken(self, email: EmailStr):
         entity_exists = self.__db.query(

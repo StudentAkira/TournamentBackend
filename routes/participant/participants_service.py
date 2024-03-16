@@ -1,7 +1,7 @@
 from pydantic import EmailStr
 from starlette.responses import Response
 
-from db.schemas.participant import ParticipantSchema, ParticipantHideSchema
+from db.schemas.participant import ParticipantSchema, ParticipantHideSchema, ParticipantUpdateSchema
 from db.schemas.token import TokenDecodedSchema
 from db.schemas.user import UserRole
 from managers.participant import ParticipantManager
@@ -49,3 +49,11 @@ class ParticipantsService:
         )
         self.__participant_manager.hide(participant_data)
         return {"message": self.__participant_hidden_message}
+
+    def update(self, response: Response, token: str, participant_data: ParticipantUpdateSchema):
+        decoded_token = self.__token_manager.decode_token(token, response)
+        self.__participant_manager.raise_exception_if_not_found(participant_data.old_email)
+        self.__participant_manager.raise_exception_if_email_taken(participant_data.new_email)
+        self.__participant_manager.raise_exception_if_owner_wrong(participant_data.old_email, decoded_token.user_id)
+        self.__participant_manager.update(participant_data)
+        return {"message": self.__participant_updated_message}
