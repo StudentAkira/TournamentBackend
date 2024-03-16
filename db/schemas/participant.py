@@ -7,7 +7,7 @@ class ParticipantSchema(BaseModel):
     email: EmailStr
     first_name: str
     second_name: str
-    third_name: str
+    third_name: str | None
     region: str
     birth_date: datetime.date
     educational_institution: str
@@ -16,7 +16,7 @@ class ParticipantSchema(BaseModel):
     supervisor_second_name: str
     supervisor_third_name: str
 
-    hidden: bool
+    hidden: bool = False
 
     class Config:
         from_attributes = True

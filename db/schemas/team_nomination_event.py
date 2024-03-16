@@ -10,6 +10,18 @@ class AppendTeamToEventNominationSchema(BaseModel):
     equipment: str | None
 
 
+class ListTeamsOfNominationEventSchema(BaseModel):
+    nomination_name: str
+    event_name: str
+
+
+class UpdateTeamOfNominationEventSchema(BaseModel):
+    team_name: str | EmailStr
+    participant_emails: list[EmailStr]
+    nomination_name: str
+    event_name: str
+
+
 class DeleteTeamFromNominationEvent(BaseModel):
     team_name: str
     event_name: str

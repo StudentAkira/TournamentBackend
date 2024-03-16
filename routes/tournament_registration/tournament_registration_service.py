@@ -1,5 +1,6 @@
 from starlette.responses import Response
-from db.schemas.team_nomination_event import AppendTeamToEventNominationSchema
+from db.schemas.team_nomination_event import AppendTeamToEventNominationSchema, ListTeamsOfNominationEventSchema, \
+    UpdateTeamOfNominationEventSchema, DeleteTeamFromNominationEvent
 from managers.event import EventManager
 from managers.nomination_event import NominationEventManager
 from managers.nomination import NominationManager
@@ -43,6 +44,8 @@ class TournamentRegistrationService:
         event_name = team_nomination_event_data.event_name
         participant_emails = team_nomination_event_data.participant_emails
 
+        #todo hidden emails
+
         self.__validator.check_team_event_nomination__nomination_event__existence(team_name, nomination_name,
                                                                                   event_name)
         self.__validator.validate_user_entity_ownership(decoded_token, team_name, event_name)
@@ -51,11 +54,38 @@ class TournamentRegistrationService:
 
         self.__validator.raise_exception_if_participant_in_another_team(team_name, nomination_name, event_name)
 
+        self.__validator.raise_exception_if_registration_finished(nomination_name, event_name)
         self.__team_nomination_event_manager.append_team_to_nomination_event(
             team_nomination_event_data
         )
 
         return {"message": self.__team_appended_message}
 
+    def list_teams_of_nomination_event(
+            self,
+            response: Response,
+            token: str,
+            nomination_name: str,
+            event_name: str
+    ):
+        return
+
+    def update_team_of_nomination_event(
+            self,
+            response: Response,
+            token: str,
+            team_nomination_event_data: UpdateTeamOfNominationEventSchema
+    ):
+        return
+
+    def delete_team_to_event_nomination(
+            self,
+            response: Response,
+            token: str,
+            team_nomination_event_data: DeleteTeamFromNominationEvent
+    ):
+        return
+
     def get_team_name_from_team_name_or_participant_email(self, team_name_or_participant_email):
         return self.__team_manager.get_team_name_from_team_name_or_participant_email(team_name_or_participant_email)
+
