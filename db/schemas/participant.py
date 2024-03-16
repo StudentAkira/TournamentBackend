@@ -19,3 +19,6 @@ class ParticipantSchema(BaseModel):
     class Config:
         from_attributes = True
 
+
+class ParticipantHideSchema(BaseModel):
+    participant_email: EmailStr

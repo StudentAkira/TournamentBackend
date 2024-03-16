@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 class User(Base):
-    __tablename__ = "user"
+    __tablename__ = "users"
 
     id: int = Column(Integer, primary_key=True, autoincrement=True)
 

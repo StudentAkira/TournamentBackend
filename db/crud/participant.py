@@ -1,11 +1,12 @@
 from typing import cast
 
 from pydantic import EmailStr
+from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
 from db.models.participant import Participant
 from db.models.team import Team
-from db.schemas.participant import ParticipantSchema
+from db.schemas.participant import ParticipantSchema, ParticipantHideSchema
 
 
 def create_participant_db(db: Session, participant: ParticipantSchema, creator_id: int) -> type(Participant):
@@ -32,15 +33,22 @@ def get_participants_by_owner_db(
         limit: int,
         owner_id: int
 ) -> list[type(Participant)] | None:
-    participants_db = db.query(Participant).filter(
-        cast("ColumnElement[bool]", Participant.creator_id == owner_id)
-    ).offset(offset).limit(limit)
+    participants_db = db.query(Participant).\
+        filter(cast("ColumnElement[bool]", Participant.creator_id == owner_id)).\
+        filter(cast("ColumnElement[bool]", Participant.hidden == "f")).\
+        offset(offset).limit(limit)
 
     participants = [ParticipantSchema.from_orm(participant_db) for participant_db in participants_db]
     return participants
 
 
-
+def hide_participant_db(db: Session, participant_data: ParticipantHideSchema):
+    participant_db = db.query(Participant).filter(
+        cast("ColumnElement[bool]", Participant.email == participant_data.participant_email)
+    ).first()
+    participant_db.hidden = True
+    db.add(participant_db)
+    db.commit()
 
 # def get_participants_of_team_db(db: Session, team_name: str):
 #     # team_db = db.query(Team).filter( cast("ColumnElement[bool]", Team.name == team_name)).first()

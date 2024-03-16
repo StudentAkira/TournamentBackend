@@ -13,6 +13,6 @@ class Token(Base):
     __tablename__ = "tokens"
 
     token: str = Column(String, unique=True, index=True, primary_key=True, nullable=False)
-    owner_id: int = Column(Integer, ForeignKey("user.id"), nullable=False)
+    owner_id: int = Column(Integer, ForeignKey("users.id"), nullable=False)
 
     owner: Mapped["User"] = relationship("User", back_populates="tokens")

@@ -16,7 +16,7 @@ class Event(Base):
     id: int = Column(Integer, primary_key=True, autoincrement=True)
     name: str = Column(String, unique=True)
 
-    owner_id: int = Column(Integer, ForeignKey("user.id"), nullable=False)
+    owner_id: int = Column(Integer, ForeignKey("users.id"), nullable=False)
     date: Date = Column(Date, nullable=False, default="2003-05-19")
 
     owner: Mapped[list["User"]] = relationship("User", back_populates="events")

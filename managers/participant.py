@@ -2,13 +2,14 @@ from typing import cast
 
 from fastapi import HTTPException
 from pydantic import EmailStr
-from sqlalchemy import exists
+from sqlalchemy import exists, and_
 from sqlalchemy.orm import Session
 from starlette import status
 
-from db.crud.participant import get_participants_by_owner_db, create_participant_db, get_participant_by_email_db
+from db.crud.participant import get_participants_by_owner_db, create_participant_db, get_participant_by_email_db, \
+    hide_participant_db
 from db.models.participant import Participant
-from db.schemas.participant import ParticipantSchema
+from db.schemas.participant import ParticipantSchema, ParticipantHideSchema
 
 
 class ParticipantManager:
@@ -35,6 +36,9 @@ class ParticipantManager:
         if participant_db:
             return ParticipantSchema.from_orm(participant_db)
 
+    def hide(self, participant_data: ParticipantHideSchema):
+        hide_participant_db(self.__db, participant_data)
+
     def raise_exception_if_email_taken(self, email: EmailStr):
         entity_exists = self.__db.query(
             exists().where(cast("ColumnElement[bool]", Participant.email == email))).scalar()
@@ -54,7 +58,12 @@ class ParticipantManager:
 
     def raise_exception_if_not_found(self, email: EmailStr):
         entity_exists = self.__db.query(
-            exists().where(cast("ColumnElement[bool]", Participant.email == email))).scalar()
+            exists().where(
+                cast("ColumnElement[bool]", Participant.email == email)
+            ).where(
+                cast("ColumnElement[bool]", Participant.hidden == "f")
+            )
+        ).scalar()
         if not entity_exists:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,

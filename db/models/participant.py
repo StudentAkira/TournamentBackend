@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 from pydantic import EmailStr
-from sqlalchemy import Column, Integer, String, Date, ForeignKey
+from sqlalchemy import Column, Integer, String, Date, ForeignKey, Boolean
 from sqlalchemy.orm import relationship, Mapped
 
 from db.database import Base
@@ -29,7 +29,9 @@ class Participant(Base):
     supervisor_second_name: str = Column(String, nullable=False)
     supervisor_third_name: str = Column(String, nullable=False)
 
-    creator_id: int = Column(Integer, ForeignKey("user.id"), nullable=False)
+    hidden: bool = Column(Boolean, nullable=False, default=False)
+
+    creator_id: int = Column(Integer, ForeignKey("users.id"), nullable=False)
 
     creator: Mapped["User"] = relationship("User", back_populates="participants")
 

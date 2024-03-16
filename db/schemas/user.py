@@ -26,8 +26,8 @@ class UserSchema(BaseModel):
     def validate_unique_phone_number(cls, value: str):
         pattern = re.compile(r'^\+\d{3}-\d{2}-\d{3}-\d{2}-\d{2}$')
         if pattern.match(value) is not None:
-            return True
-        raise ValueError("phone format is invalid")
+            return value
+        raise ValueError(f"phone format is invalid, {value}")
 
 class UserCreateSchema(UserSchema):
     password: str

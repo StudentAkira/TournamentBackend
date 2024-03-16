@@ -17,7 +17,7 @@ class Team(Base):
     id: int = Column(Integer, primary_key=True)
     name: str = Column(String, unique=True, nullable=True)
 
-    creator_id: int = Column(Integer, ForeignKey("user.id"), nullable=False)
+    creator_id: int = Column(Integer, ForeignKey("users.id"), nullable=False)
 
     creator: Mapped["User"] = relationship("User", back_populates="created_teams")
 
