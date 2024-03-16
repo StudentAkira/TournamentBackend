@@ -24,5 +24,4 @@ class Event(Base):
         "Nomination",
         back_populates="events",
         secondary="nomination_event",
-        cascade="all,delete"
     )

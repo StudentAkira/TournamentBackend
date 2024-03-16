@@ -195,7 +195,6 @@ def delete_nomination_event_db(db: Session, nomination_event_data: NominationEve
         filter(and_(NominationEvent.event_id == event_db.id, NominationEvent.nomination_id == nomination_db.id)).first()
     db.query(TeamParticipantNominationEvent).\
         filter(TeamParticipantNominationEvent.nomination_event_id == nomination_event_db.id).all()
-    team_participants_ids = set(team_participant_db.id for team_participant_db in nomination_event_db.team_participants)
 
     db.query(TeamParticipantNominationEvent).\
         filter(TeamParticipantNominationEvent.nomination_event_id == nomination_event_db.id).delete()
