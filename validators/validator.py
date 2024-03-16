@@ -27,8 +27,9 @@ class Validator:
         self.__team_manager = TeamManager(db)
         self.__db = db
 
-        self.__cant_append_participant_to_default_team_error = "you cant not append participant to default team"
+        self.__default_team_error = "default team is unchangeble"
         self.__participant_not_in_team_error = "participant not in team error"
+        self.__participants_already_in_team_error = "participants already in team"
         self.__team_already_in_nomination_event_error = "team already in nomination event"
         self.__participant_in_another_team_error = "participant in another team"
         self.__registration_finished_error = "Registration_finished"
@@ -75,7 +76,7 @@ class Validator:
         if "default_team" in team.name:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail={"error": self.__cant_append_participant_to_default_team_error}
+                detail={"error": self.__default_team_error}
             )
 
     def check_nomination_event__nomination_event_existence(self, nomination_name: str, event_name: str):
@@ -83,7 +84,7 @@ class Validator:
         self.__event_manager.raise_exception_if_not_found(event_name)
         self.__nomination_event_manager.raise_exception_if_not_found(nomination_name, event_name)
 
-    def raise_exception_if_participants_in_team(self, team_name: str, participant_emails: list[EmailStr]):
+    def raise_exception_if_participants_not_in_team(self, team_name: str, participant_emails: list[EmailStr]):
         team_participants_emails = set(get_team_participants_emails_db(self.__db, team_name))
         participant_emails = set(participant_emails)
         if not participant_emails.issubset(team_participants_emails):

@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, Query, Body
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 
-from db.schemas.event import EventSchema
+from db.schemas.event import EventSchema, EventGetNameSchema
 from db.schemas.nomination import NominationSchema
 from db.schemas.nomination_event import NominationEventDeleteSchema
 from dependencies import authorized_only, get_db
@@ -23,6 +23,7 @@ async def get_nomination_event_data(
 ):
     service = NominationEventService(db)
     return service.get_nomination_event_data(response, token, event_name)
+
 
 @nomination_event.get("/nomination_event_full_info")
 async def get_nominations_events_full_info(
@@ -51,13 +52,13 @@ async def get_teams_of_nomination_event(
 @nomination_event.post("/append_nominations_for_event")
 async def append_nominations_for_event(
         response: Response,
-        event: EventSchema,
-        nominations_: list[NominationSchema],
+        event_data: EventGetNameSchema,
+        nominations: list[NominationSchema],
         token: str = Depends(authorized_only),
         db: Session = Depends(get_db)
 ):
     service = NominationEventService(db)
-    return service.append_nominations_for_event(response, token, event, nominations_)
+    return service.append_nominations_for_event(response, token, event_data, nominations)
 
 
 @nomination_event.delete("/delete_nomination_from_event")

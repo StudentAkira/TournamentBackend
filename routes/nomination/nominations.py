@@ -42,14 +42,3 @@ async def update_nomination(
 ):
     service = NominationsService(db)
     return service.update(response, token, old_nomination, new_nomination)
-
-
-@nominations.delete("/nomination")
-async def delete_nomination(
-        response: Response,
-        nomination_name: Annotated[str, Body()],
-        token: str = Depends(authorized_only),
-        db: Session = Depends(get_db)
-):
-    service = NominationsService(db)
-    return service.delete(response, token, nomination_name)

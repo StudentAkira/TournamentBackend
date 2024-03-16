@@ -46,7 +46,7 @@ class TournamentRegistrationService:
         self.__validator.check_team_event_nomination__nomination_event__existence(team_name, nomination_name,
                                                                                   event_name)
         self.__validator.validate_user_entity_ownership(decoded_token, team_name, event_name)
-        self.__validator.raise_exception_if_participants_in_team(team_name, participant_emails)
+        self.__validator.raise_exception_if_participants_not_in_team(team_name, participant_emails)
         self.__validator.raise_exception_if_team_already_in_nomination_event(team_name, nomination_name, event_name)
 
         self.__validator.raise_exception_if_participant_in_another_team(team_name, nomination_name, event_name)

@@ -8,7 +8,7 @@ from db.crud.nomination_event import get_nomination_events_full_info_db, \
     get_nomination_events_full_info_by_owner_db, \
     get_nomination_events_all_names_db, append_event_nominations_db, get_nominations_event_participant_count_db, \
     delete_nomination_event_db
-from db.schemas.event import EventSchema
+from db.schemas.event import EventSchema, EventGetNameSchema
 from db.schemas.nomination_event import NominationEventSchema, NominationEventDataSchema, NominationEventDeleteSchema
 from managers.event import EventManager
 from managers.nomination import NominationManager
@@ -49,8 +49,8 @@ class NominationEventManager:
         nominations_events = get_nomination_events_full_info_by_owner_db(self.__db, offset, limit, owner_id)
         return nominations_events
 
-    def append_many(self, event: EventSchema, nominations: list):
-        append_event_nominations_db(self.__db, event, nominations)
+    def append_many(self, event_data: EventGetNameSchema, nominations: list):
+        append_event_nominations_db(self.__db, event_data, nominations)
 
     def delete(self, nomination_event_data: NominationEventDeleteSchema):
         delete_nomination_event_db(self.__db, nomination_event_data)

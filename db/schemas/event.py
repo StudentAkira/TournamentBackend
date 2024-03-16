@@ -13,6 +13,13 @@ class EventSchema(BaseModel):
         from_attributes = True
 
 
+class EventGetNameSchema(BaseModel):
+    name: str
+
+    class Config:
+        from_attributes = True
+
+
 class EventDeleteSchema(BaseModel):
     name: str
 

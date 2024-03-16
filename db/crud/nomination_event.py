@@ -10,7 +10,7 @@ from db.models.nomination_event import NominationEvent
 from db.models.team import Team
 from db.models.team_participant import TeamParticipant
 from db.models.team_participant_nomination_event import TeamParticipantNominationEvent
-from db.schemas.event import EventListSchema, EventSchema
+from db.schemas.event import EventListSchema, EventSchema, EventGetNameSchema
 from db.schemas.nomination import NominationSchema, NominationParticipantCountSchema
 from db.schemas.nomination_event import NominationEventSchema, NominationEventDataSchema, NominationEventDeleteSchema
 from sqlalchemy import and_
@@ -42,7 +42,7 @@ def get_nominations_event_participant_count_db(db: Session, event_name: str):
 
 def append_event_nominations_db(
         db: Session,
-        event: EventSchema,
+        event: EventGetNameSchema,
         nominations: list[NominationSchema]
 ) -> type(Event):
     nominations_db = create_nominations_missing_in_db(db, nominations)

@@ -22,3 +22,18 @@ async def append_team_to_nomination_event(
         token,
         team_nomination_event_data
     )
+
+
+@tournament_registration.delete("/nomination_event_team")
+async def delete_team_from_nomination_event(
+        response: Response,
+        team_nomination_event_data: AppendTeamToEventNominationSchema,
+        token: str = Depends(authorized_only),
+        db: Session = Depends(get_db)
+):
+    service = TournamentRegistrationService(db)
+    return service.append_team_to_event_nomination(
+        response,
+        token,
+        team_nomination_event_data
+    )

@@ -8,3 +8,9 @@ class AppendTeamToEventNominationSchema(BaseModel):
     nomination_name: str
     software: str | None
     equipment: str | None
+
+
+class DeleteTeamFromNominationEvent(BaseModel):
+    team_name: str
+    event_name: str
+    nomination_name: str

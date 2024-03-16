@@ -30,5 +30,4 @@ async def delete_participant_from_team(
         db: Session = Depends(get_db)
 ):
     service = TeamParticipantService(db)
-    # return service.delete_participant_from_team(response, token, participant_email, team_name)
-    return
+    return service.delete_participant_from_team(response, token, participant_email, team_name)
