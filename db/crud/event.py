@@ -107,3 +107,8 @@ def delete_event_db(db: Session, event_data: EventDeleteSchema):
     db.query(Event).filter(cast("ColumnElement[bool]", Event.name == event_data.name)).delete()
 
     db.commit()
+
+
+def get_event_pdf_db(db: Session, event_name: str):
+    event_db = db.query(Event).filter(cast("ColumnElement[bool]", Event.name == event_name)).first()
+

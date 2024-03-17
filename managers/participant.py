@@ -67,6 +67,7 @@ class ParticipantManager:
                 cast("ColumnElement[bool]", Participant.hidden == "f")
             )
         ).scalar()
+        print(entity_exists)
         if not entity_exists:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,

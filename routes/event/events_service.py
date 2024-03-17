@@ -19,6 +19,12 @@ class EventsService:
         self.__event_updated_message = "event updated"
         self.__event_deleted_message = "event deleted"
 
+    def get_event_pdf(self, response: Response, token: str, event_name: str):
+        decoded_token = self.__token_manager.decode_token(token, response)
+        self.__event_manager.raise_exception_if_not_found(event_name)
+        self.__event_manager.raise_exception_if_owner_wrong(event_name, decoded_token.user_id)
+        self.__event_manager.get_event_pdf(event_name)
+
     def list(
             self,
             offset,

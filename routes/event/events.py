@@ -35,6 +35,17 @@ async def get_events_with_nominations(
     return service.list_with_nominations(response, token, offset, limit)
 
 
+@events.get("/event_pdf")
+async def get_events_with_nominations(
+    response: Response,
+    event_name: str,
+    token: str = Depends(authorized_only),
+    db: Session = Depends(get_db)
+):
+    service = EventsService(db)
+    return service.get_event_pdf(response, token ,event_name)
+
+
 @events.post("/event")
 async def create_event(
         response: Response,

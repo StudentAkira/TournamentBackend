@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from starlette.responses import Response
 
 from db.schemas.team_nomination_event import AppendTeamParticipantNominationEventSchema, \
-    DeleteTeamParticipantNominationEventSchema
+    DeleteTeamParticipantNominationEventSchema, UpdateTeamParticipantNominationEventSchema
 from dependencies import get_db, authorized_only
 from routes.team_participant_nomination_event.team_participant_nomination_event_service import \
     TeamParticipantNominationEventService
@@ -23,6 +23,21 @@ async def append_team_participant_nomination_event(
 ):
     service = TeamParticipantNominationEventService(db)
     return service.append_team_participant_nomination_event(
+        response,
+        token,
+        team_participant_nomination_event_data
+    )
+
+
+@team_participant_nomination_event.put("/team_participant")
+async def update_team_participant_nomination_event(
+        response: Response,
+        team_participant_nomination_event_data: UpdateTeamParticipantNominationEventSchema,
+        token: str = Depends(authorized_only),
+        db: Session = Depends(get_db)
+):
+    service = TeamParticipantNominationEventService(db)
+    return service.update_team_participant_nomination_event(
         response,
         token,
         team_participant_nomination_event_data

@@ -12,7 +12,7 @@ from db.models.team import Team
 from db.models.team_participant import TeamParticipant
 from db.models.team_participant_nomination_event import TeamParticipantNominationEvent
 from db.schemas.team_nomination_event import AppendTeamParticipantNominationEventSchema, \
-    DeleteTeamParticipantNominationEventSchema
+    DeleteTeamParticipantNominationEventSchema, UpdateTeamParticipantNominationEventSchema
 
 
 def append_team_participant_nomination_event_db(
@@ -72,10 +72,11 @@ def delete_team_participant_nomination_event_db(
         db: Session,
         team_participant_nomination_event_data: DeleteTeamParticipantNominationEventSchema
 ):
-    team_name = team_participant_nomination_event_data.team_name
     participant_email = team_participant_nomination_event_data.participant_email
     nomination_name = team_participant_nomination_event_data.nomination_name
     event_name = team_participant_nomination_event_data.event_name
+
+    participant_db = db.query(Participant).filter(cast("ColumnElement[bool]", Participant.email == participant_email)).first()
 
     event_db = db.query(Event). \
         filter(cast("ColumnElement[bool]", Event.name == event_name)).first()
@@ -88,19 +89,54 @@ def delete_team_participant_nomination_event_db(
         )
     ).first()
 
-    team_db = db.query(Team). \
-        filter(cast("ColumnElement[bool]", Team.name == team_name)).first()
-    participant_db = db.query(Participant). \
-        filter(cast("ColumnElement[bool]", Participant.email == participant_email)).first()
-
-    team_participant_db = db.query(TeamParticipant).filter(
+    team_participant_id = [team_participant_db.id
+                            for team_participant_db in
+                            nomination_event_db.team_participants
+                            if team_participant_db.participant_id == participant_db.id
+                            ][0]
+    db.query(TeamParticipantNominationEvent).filter(
         and_(
-            TeamParticipant.team_id == team_db.id,
-            TeamParticipant.participant_id == participant_db.id
+            TeamParticipantNominationEvent.nomination_event_id == nomination_event_db.id,
+            TeamParticipantNominationEvent.team_participant_id == team_participant_id
+        )
+    ).delete()
+    db.commit()
+
+
+def update_team_participant_nomination_event_db(
+        db: Session,
+        team_participant_nomination_event_data: UpdateTeamParticipantNominationEventSchema
+):
+    participant_email = team_participant_nomination_event_data.participant_email
+    nomination_name = team_participant_nomination_event_data.nomination_name
+    event_name = team_participant_nomination_event_data.event_name
+
+    participant_db = db.query(Participant).filter(
+        cast("ColumnElement[bool]", Participant.email == participant_email)).first()
+
+    event_db = db.query(Event). \
+        filter(cast("ColumnElement[bool]", Event.name == event_name)).first()
+    nomination_db = db.query(Nomination). \
+        filter(cast("ColumnElement[bool]", Nomination.name == nomination_name)).first()
+    nomination_event_db = db.query(NominationEvent).filter(
+        and_(
+            NominationEvent.event_id == event_db.id,
+            NominationEvent.nomination_id == nomination_db.id
         )
     ).first()
 
-    nomination_event_db.team_participants.remove(team_participant_db)
-
-    db.add(nomination_event_db)
+    team_participant_id = [team_participant_db.id
+                           for team_participant_db in
+                           nomination_event_db.team_participants
+                           if team_participant_db.participant_id == participant_db.id
+                           ][0]
+    team_participant_nomination_event_db = db.query(TeamParticipantNominationEvent).filter(
+        and_(
+            TeamParticipantNominationEvent.nomination_event_id == nomination_event_db.id,
+            TeamParticipantNominationEvent.team_participant_id == team_participant_id
+        )
+    ).first()
+    team_participant_nomination_event_db.software = team_participant_nomination_event_data.software
+    team_participant_nomination_event_db.equipment = team_participant_nomination_event_data.equipment
+    db.add(team_participant_nomination_event_db)
     db.commit()
