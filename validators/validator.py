@@ -3,6 +3,7 @@ from pydantic import EmailStr
 from starlette import status
 
 from db.crud.nomination_event import get_nomination_event_db
+from db.crud.participant_nomination_event import get_participants_of_nomination_event_db
 from db.crud.team import get_team_participants_emails_db, get_team_by_name_db
 from db.crud.team_nomination_event import get_nomination_event_teams_db
 from db.crud.team_participant import get_emails_of_teams_participants_db
@@ -32,6 +33,7 @@ class Validator:
         self.__participants_already_in_team_error = "participants already in team"
         self.__team_already_in_nomination_event_error = "team already in nomination event"
         self.__participant_in_another_team_error = "participant in another team"
+        self.__participant_already_in_nomination_event = "participant already in nomination event"
         self.__registration_finished_error = "Registration_finished"
 
     def check_team_event_nomination__nomination_event__existence(self,
@@ -84,38 +86,24 @@ class Validator:
         self.__event_manager.raise_exception_if_not_found(event_name)
         self.__nomination_event_manager.raise_exception_if_not_found(nomination_name, event_name)
 
-    def raise_exception_if_participants_not_in_team(self, team_name: str, participant_emails: list[EmailStr]):
+    def raise_exception_if_participants_not_in_team(self, team_name: str, participant_email: EmailStr):
         team_participants_emails = set(get_team_participants_emails_db(self.__db, team_name))
-        participant_emails = set(participant_emails)
-        if not participant_emails.issubset(team_participants_emails):
+        if participant_email not in team_participants_emails:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail={"error": self.__participant_not_in_team_error}
             )
 
-    def raise_exception_if_team_already_in_nomination_event(self, team_name: str, nomination_name: str,
-                                                            event_name: str):
-        team_db = get_team_by_name_db(self.__db, team_name)
-        teams_db = get_nomination_event_teams_db(self.__db, nomination_name, event_name)
+    def raise_exception_if_participant_in_nomination_event(self, participant_email: EmailStr, nomination_name: str, event_name: str):
+        nomination_event_participant_emails = set(
+            participant_db.email for participant_db in
+            get_participants_of_nomination_event_db(self.__db, nomination_name, event_name)
+        )
 
-        if team_db in teams_db:
+        if participant_email in nomination_event_participant_emails:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail={"error": self.__team_already_in_nomination_event_error}
-            )
-
-    def raise_exception_if_participant_in_another_team(self, team_name: str, nomination_name: str, event_name: str):
-
-        team_db = get_team_by_name_db(self.__db, team_name)
-
-        teams_db = get_nomination_event_teams_db(self.__db, nomination_name, event_name)
-        participants_emails = set(get_emails_of_teams_participants_db(teams_db))
-        received_team_participant_emails = set(self.__team_manager.get_emails_of_team(team_db))
-
-        if participants_emails & received_team_participant_emails:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail={"error": self.__participant_in_another_team_error}
+                detail={"error": self.__participant_already_in_nomination_event}
             )
 
     def raise_exception_if_registration_finished(self, nomination_name: str, event_name: str):

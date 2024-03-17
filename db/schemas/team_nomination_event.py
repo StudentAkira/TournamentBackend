@@ -1,9 +1,9 @@
 from pydantic import BaseModel, EmailStr
 
 
-class AppendTeamToEventNominationSchema(BaseModel):
+class AppendTeamParticipantNominationEventSchema(BaseModel):
     team_name: str | EmailStr
-    participant_emails: list[EmailStr]
+    participant_email: EmailStr
     event_name: str
     nomination_name: str
     software: str | None
@@ -15,14 +15,9 @@ class ListTeamsOfNominationEventSchema(BaseModel):
     event_name: str
 
 
-class UpdateTeamOfNominationEventSchema(BaseModel):
+class DeleteTeamParticipantNominationEventSchema(BaseModel):
     team_name: str | EmailStr
-    participant_emails: list[EmailStr]
-    nomination_name: str
-    event_name: str
-
-
-class DeleteTeamFromNominationEvent(BaseModel):
-    team_name: str
+    participant_email: EmailStr
     event_name: str
     nomination_name: str
+

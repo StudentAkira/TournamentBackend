@@ -9,8 +9,9 @@ from routes.nomination_event.nomination_event import nomination_event
 from routes.nomination.nominations import nominations
 from routes.participant.participants import participants
 from routes.team.teams import teams
+from routes.team_nomination_event.team_nomination_event import team_nomination_event
 from routes.team_participant.team_participant import team_participant
-from routes.tournament_registration.tournament_registration import tournament_registration
+from routes.team_participant_nomination_event.team_participant_nomination_event import team_participant_nomination_event
 from routes.tournaments.tournaments import tournaments
 from routes.user.users import users
 
@@ -45,9 +46,9 @@ app.include_router(events)
 app.include_router(nominations)
 app.include_router(participants)
 app.include_router(teams)
+app.include_router(team_nomination_event)
 app.include_router(team_participant)
-app.include_router(tournament_registration)
+app.include_router(team_participant_nomination_event)
 app.include_router(users)
 app.include_router(tournaments)
 app.include_router(nomination_event)
-

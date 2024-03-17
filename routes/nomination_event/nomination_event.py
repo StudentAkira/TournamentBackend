@@ -37,18 +37,6 @@ async def get_nominations_events_full_info(
     return service.get_nomination_events_full_info(response, token, offset, limit)
 
 
-@nomination_event.get('/teams_of_nomination_event')
-async def get_teams_of_nomination_event(
-        response: Response,
-        nomination_name: Annotated[str, Query()],
-        event_name: Annotated[str, Query()],
-        token: str = Depends(authorized_only),
-        db: Session = Depends(get_db)
-):
-    service = NominationEventService(db)
-    return service.get_teams_of_nomination_event(response, token, nomination_name, event_name)
-
-
 @nomination_event.post("/append_nominations_for_event")
 async def append_nominations_for_event(
         response: Response,
