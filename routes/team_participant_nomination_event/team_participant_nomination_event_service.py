@@ -73,7 +73,7 @@ class TeamParticipantNominationEventService:
         event_name = team_participant_nomination_event_data.event_name
         participant_email = team_participant_nomination_event_data.participant_email
 
-        
+
 
         self.__validator.raise_exception_if_registration_finished(nomination_name, event_name)
         self.__participant_manager.raise_exception_if_not_found(participant_email)

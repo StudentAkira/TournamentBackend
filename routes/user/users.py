@@ -20,7 +20,7 @@ async def get_my_profile(
     return service.get_user_data(response, token)
 
 
-@users.put("/profile")
+@users.patch("/profile")
 async def edit_profile(
         response: Response,
         user_data: EditUserSchema,

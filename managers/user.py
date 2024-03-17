@@ -46,7 +46,7 @@ class UserManager:
     def edit_user_data(self, user_data: EditUserSchema, user_id: int):
         edit_user_data_db(self.__db, user_data, user_id)
 
-    def raise_exception_if_email_taken(self, user: UserSchema):
+    def raise_exception_if_email_taken(self, user: UserSchema | EditUserSchema):
         user_db = get_user_by_email_db(self.__db, user.email)
         if user_db:
             raise HTTPException(
