@@ -6,7 +6,7 @@ from starlette.responses import Response
 
 from db.schemas.event import EventSchema, EventGetNameSchema
 from db.schemas.nomination import NominationSchema
-from db.schemas.nomination_event import NominationEventDeleteSchema
+from db.schemas.nomination_event import NominationEventDeleteSchema, NominationEventSchema
 from dependencies import authorized_only, get_db
 from routes.nomination_event.nomination_event_service import NominationEventService
 
@@ -38,15 +38,14 @@ async def get_nominations_events_full_info(
 
 
 @nomination_event.post("/append_nominations_for_event")
-async def append_nominations_for_event(
+async def append_nomination_for_event(
         response: Response,
-        event_data: EventGetNameSchema,
-        nominations: list[NominationSchema],
+        nomination_event_data: NominationEventSchema,
         token: str = Depends(authorized_only),
         db: Session = Depends(get_db)
 ):
     service = NominationEventService(db)
-    return service.append_nominations_for_event(response, token, event_data, nominations)
+    return service.append_nomination_for_event(response, token, nomination_event_data)
 
 
 @nomination_event.delete("/delete_nomination_from_event")

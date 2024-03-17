@@ -40,6 +40,24 @@ def get_nominations_event_participant_count_db(db: Session, event_name: str):
     return result
 
 
+def append_nomination_for_event_db(
+        db: Session,
+        nomination_event_data: NominationEventSchema
+):
+    nomination_db = create_nominations_missing_in_db(db, [NominationSchema(name=nomination_event_data.nomination_name)])[0]
+    event_db = get_event_by_name_db(db, nomination_event_data.event_name)
+    event_db.nominations.append(nomination_db)
+    db.add(event_db)
+    db.commit()
+    nomination_event_db = db.query(NominationEvent).filter(and_(
+        NominationEvent.event_id == event_db.id,
+        NominationEvent.nomination_id == nomination_db.id
+    )).first()
+    nomination_event_db.type = nomination_event_data.type
+    db.add(nomination_event_db)
+    db.commit()
+
+
 def append_event_nominations_db(
         db: Session,
         event: EventGetNameSchema,

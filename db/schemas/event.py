@@ -27,7 +27,6 @@ class EventDeleteSchema(BaseModel):
 class EventCreateSchema(BaseModel):
     name: str = Field(min_length=5)
     date: datetime.date
-    type: NominationEventType
 
     class Config:
         from_attributes = True

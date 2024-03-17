@@ -1,7 +1,8 @@
 from starlette.responses import Response
 
 from db.schemas.event import EventSchema, EventGetNameSchema
-from db.schemas.nomination_event import NominationEventDataSchema, NominationEventDeleteSchema
+from db.schemas.nomination import NominationSchema
+from db.schemas.nomination_event import NominationEventDataSchema, NominationEventDeleteSchema, NominationEventSchema
 from db.schemas.user import UserRole
 from managers.event import EventManager
 from managers.nomination_event import NominationEventManager
@@ -63,17 +64,16 @@ class NominationEventService:
             decoded_token.user_id
         )
 
-    def append_nominations_for_event(
+    def append_nomination_for_event(
             self,
             response: Response,
             token: str,
-            event_data: EventGetNameSchema,
-            nominations: list
+            nomination_event_data: NominationEventSchema
     ):
         decoded_token = self.__token_manager.decode_token(token, response)
         self.__user_manager.raise_exception_if_user_specialist(decoded_token.role)
-        self.__event_manager.raise_exception_if_not_found(event_data.name)
-        self.__nomination_event_manager.append_many(event_data, nominations)
+        self.__event_manager.raise_exception_if_not_found(nomination_event_data.event_name)
+        self.__nomination_event_manager.append(nomination_event_data)
         return {"message": self.__nominations_appended_message}
 
     def get_nomination_event_data(self, response: Response, token: str, event_name: str) -> NominationEventDataSchema:

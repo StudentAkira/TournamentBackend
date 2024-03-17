@@ -15,11 +15,13 @@ class NominationEventType(str, Enum):
 class NominationEventSchema(BaseModel):
     event_name: str
     nomination_name: str
+    type: NominationEventType
 
 
 class NominationEventDataSchema(BaseModel):
     name: str
     date: datetime.date
+    type: NominationEventType
 
     nominations: list[NominationParticipantCountSchema]
 
@@ -27,6 +29,7 @@ class NominationEventDataSchema(BaseModel):
 class NominationEventFullInfoSchema(BaseModel):
     event_name: str
     nomination_name: str
+    type: NominationEventType
 
     teams: list[TeamParticipantsSchema]
 
