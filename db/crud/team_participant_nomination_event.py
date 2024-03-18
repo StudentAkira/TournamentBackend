@@ -23,6 +23,7 @@ def append_team_participant_nomination_event_db(
     participant_email = team_participant_nomination_event_data.participant_email
     nomination_name = team_participant_nomination_event_data.nomination_name
     event_name = team_participant_nomination_event_data.event_name
+    nomination_event_type = team_participant_nomination_event_data.nomination_event_type
     software = team_participant_nomination_event_data.software
     equipment = team_participant_nomination_event_data.equipment
 
@@ -33,7 +34,8 @@ def append_team_participant_nomination_event_db(
     nomination_event_db = db.query(NominationEvent).filter(
         and_(
             NominationEvent.event_id == event_db.id,
-            NominationEvent.nomination_id == nomination_db.id
+            NominationEvent.nomination_id == nomination_db.id,
+            NominationEvent.type == nomination_event_type
         )
     ).first()
 
@@ -72,21 +74,34 @@ def delete_team_participant_nomination_event_db(
         db: Session,
         team_participant_nomination_event_data: DeleteTeamParticipantNominationEventSchema
 ):
-    participant_email = team_participant_nomination_event_data.participant_email
-    nomination_name = team_participant_nomination_event_data.nomination_name
-    event_name = team_participant_nomination_event_data.event_name
+    participant_db = db.query(Participant).\
+        filter(
+            cast(
+                "ColumnElement[bool]", Participant.email == team_participant_nomination_event_data.participant_email
+            )
+    ).first()
 
-    participant_db = db.query(Participant).filter(cast("ColumnElement[bool]", Participant.email == participant_email)).first()
+    event_db = db.query(Event).\
+        filter(
+            cast(
+                "ColumnElement[bool]", Event.name == team_participant_nomination_event_data.event_name
+            )
+    ).first()
 
-    event_db = db.query(Event). \
-        filter(cast("ColumnElement[bool]", Event.name == event_name)).first()
     nomination_db = db.query(Nomination). \
-        filter(cast("ColumnElement[bool]", Nomination.name == nomination_name)).first()
-    nomination_event_db = db.query(NominationEvent).filter(
-        and_(
-            NominationEvent.event_id == event_db.id,
-            NominationEvent.nomination_id == nomination_db.id
-        )
+        filter(
+            cast(
+                "ColumnElement[bool]", Nomination.name == team_participant_nomination_event_data.nomination_name
+            )
+    ).first()
+
+    nomination_event_db = db.query(NominationEvent).\
+        filter(
+            and_(
+                NominationEvent.event_id == event_db.id,
+                NominationEvent.nomination_id == nomination_db.id,
+                NominationEvent.type == team_participant_nomination_event_data.nomination_event_type
+            )
     ).first()
 
     team_participant_id = [team_participant_db.id
@@ -107,21 +122,33 @@ def update_team_participant_nomination_event_db(
         db: Session,
         team_participant_nomination_event_data: UpdateTeamParticipantNominationEventSchema
 ):
-    participant_email = team_participant_nomination_event_data.participant_email
-    nomination_name = team_participant_nomination_event_data.nomination_name
-    event_name = team_participant_nomination_event_data.event_name
 
-    participant_db = db.query(Participant).filter(
-        cast("ColumnElement[bool]", Participant.email == participant_email)).first()
+    participant_db = db.query(Participant).\
+        filter(
+            cast(
+                "ColumnElement[bool]", Participant.email == team_participant_nomination_event_data.participant_email
+            )
+    ).first()
 
     event_db = db.query(Event). \
-        filter(cast("ColumnElement[bool]", Event.name == event_name)).first()
+        filter(
+            cast(
+                "ColumnElement[bool]", Event.name == team_participant_nomination_event_data.event_name
+            )
+    ).first()
+
     nomination_db = db.query(Nomination). \
-        filter(cast("ColumnElement[bool]", Nomination.name == nomination_name)).first()
+        filter(
+            cast(
+                "ColumnElement[bool]", Nomination.name == team_participant_nomination_event_data.nomination_name
+            )
+    ).first()
+
     nomination_event_db = db.query(NominationEvent).filter(
         and_(
             NominationEvent.event_id == event_db.id,
-            NominationEvent.nomination_id == nomination_db.id
+            NominationEvent.nomination_id == nomination_db.id,
+            NominationEvent.type == team_participant_nomination_event_data.nomination_event_type
         )
     ).first()
 

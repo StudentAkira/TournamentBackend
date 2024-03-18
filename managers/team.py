@@ -37,10 +37,10 @@ class TeamManager:
 
         return teams
 
-    def create(self, team: TeamSchema, participants_emails: set[EmailStr], creator_id: int):
-        self.check_entities_existence(team, participants_emails)
+    def create(self, team: TeamSchema, creator_id: int):
+        self.raise_exception_if_name_taken(team.name)
         self.raise_exception_if_name_invalid(team)
-        create_team_db(self.__db, team, participants_emails, creator_id)
+        create_team_db(self.__db, team, creator_id)
 
     def update(self, team_data: TeamUpdateSchema):
         update_team_db(self.__db, team_data)

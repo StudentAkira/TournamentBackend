@@ -24,7 +24,7 @@ database.Base.metadata.create_all(bind=database.engine)
 origins = ['http://localhost:3000', 'http://127.0.0.1:3000',
            'https://localhost:3000', 'https://127.0.0.1:3000',
             'http://localhost:3001', 'http://127.0.0.1:3001',
-           'http://127.0.0.1:9000'
+           'http://127.0.0.1:9000', "http://judgment.robin-zubronok.by"
            ]
 
 app.add_middleware(
@@ -50,5 +50,5 @@ app.include_router(team_nomination_event)
 app.include_router(team_participant)
 app.include_router(team_participant_nomination_event)
 app.include_router(users)
-app.include_router(tournaments)
+# app.include_router(tournaments)
 app.include_router(nomination_event)

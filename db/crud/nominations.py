@@ -8,6 +8,14 @@ from db.models.nomination import Nomination
 from db.schemas.nomination import NominationSchema
 
 
+def create_nomination_db(db: Session, nomination: NominationSchema):
+    nomination_db = Nomination(
+        name=nomination.name
+    )
+    db.add(nomination_db)
+    db.commit()
+
+
 def create_nominations_missing_in_db(db: Session, nominations: list[NominationSchema] | None) -> list[type(Nomination)]:
     nominations_db = create_missing_items(db, Nomination, nominations)
     return nominations_db

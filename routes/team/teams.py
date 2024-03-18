@@ -16,12 +16,11 @@ teams = APIRouter(prefix="/team", tags=["team"])
 async def create_team(
         response: Response,
         team: TeamSchema,
-        participants_emails: list[EmailStr],
         token: str = Depends(authorized_only),
         db: Session = Depends(get_db)
 ):
     service = TeamsService(db)
-    return service.create_team(response, token, team, participants_emails)
+    return service.create_team(response, token, team)
 
 
 @teams.get("/teams")
@@ -45,27 +44,3 @@ async def update_team(
 ):
     service = TeamsService(db)
     return service.update(response, token, team_data)
-
-
-
-# @team.post("/team_software_equipment")
-# async def set_team_software_and_equipment_in_event_nomination(
-#         response: Response,
-#         team_name: Annotated[str, Body()],
-#         event_name: Annotated[str, Body()],
-#         nomination_name: Annotated[str, Body()],
-#         software: Annotated[str, Body()],
-#         equipment: Annotated[str, Body()],
-#         token: str = Depends(authorized_only),
-#         db: Session = Depends(get_db)
-# ):
-#     service = TeamsService(db)
-#     return service.set_team_software_and_equipment_in_event_nomination(
-#         response,
-#         token,
-#         team_name,
-#         nomination_name,
-#         event_name,
-#         software,
-#         equipment
-#     )

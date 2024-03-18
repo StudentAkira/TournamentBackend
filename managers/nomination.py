@@ -5,10 +5,10 @@ from sqlalchemy import exists
 from sqlalchemy.orm import Session
 from starlette import status
 
-from db.crud.nominations import get_nominations_db,\
-    save_nominations_db,\
-    get_nomination_by_name_db,\
-    update_nomination_db
+from db.crud.nominations import get_nominations_db, \
+    save_nominations_db, \
+    get_nomination_by_name_db, \
+    update_nomination_db, create_nomination_db
 from db.models.nomination import Nomination
 from db.schemas.nomination import NominationSchema
 
@@ -21,6 +21,9 @@ class NominationManager:
 
         self.__nomination_does_not_exist_error = "nomination not found"
         self.__nomination_name_taken_error = "nomination name taken"
+
+    def create(self, nomination: NominationSchema):
+        create_nomination_db(self.__db, nomination)
 
     def create_many(self, nominations: list[NominationSchema]):
         save_nominations_db(self.__db, nominations)

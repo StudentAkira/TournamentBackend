@@ -5,6 +5,7 @@ from db.schemas.nomination import NominationSchema
 from db.schemas.nomination_event import NominationEventDataSchema, NominationEventDeleteSchema, NominationEventSchema
 from db.schemas.user import UserRole
 from managers.event import EventManager
+from managers.nomination import NominationManager
 from managers.nomination_event import NominationEventManager
 from managers.team_nomination_event import TeamNominationEventManager
 from managers.token import TokenManager
@@ -22,6 +23,7 @@ class NominationEventService:
         self.__token_manager = TokenManager(db)
         self.__nomination_event_manager = NominationEventManager(db)
         self.__user_manager = UserManager(db)
+        self.__nomination_manager = NominationManager(db)
 
         self.__nominations_appended_message = "nomination appended"
         self.__nomination_event_deleted_message = "nomination event deleted"
@@ -72,15 +74,19 @@ class NominationEventService:
     ):
         decoded_token = self.__token_manager.decode_token(token, response)
         self.__user_manager.raise_exception_if_user_specialist(decoded_token.role)
+
         self.__event_manager.raise_exception_if_not_found(nomination_event_data.event_name)
-        self.__nomination_event_manager.raise_exception_if_exists(nomination_event_data.nomination_name, nomination_event_data.event_name)
+        self.__nomination_manager.raise_exception_if_not_found(nomination_event_data.nomination_name)
+
+        self.__nomination_event_manager.raise_exception_if_exists(
+            nomination_event_data
+        )
         self.__nomination_event_manager.append(nomination_event_data)
         return {"message": self.__nominations_appended_message}
 
     def get_nomination_event_data(self, response: Response, token: str, event_name: str) -> NominationEventDataSchema:
         decoded_token = self.__token_manager.decode_token(token, response)
         self.__event_manager.raise_exception_if_not_found(event_name)
-        self.__nomination_event_manager.get_nomination_event_data(event_name)
         return self.__nomination_event_manager.get_nomination_event_data(event_name)
 
     def delete(self, response: Response, token: str, nomination_event_data: NominationEventDeleteSchema):

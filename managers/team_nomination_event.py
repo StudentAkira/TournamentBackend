@@ -15,8 +15,13 @@ class TeamNominationEventManager:
 
         self.__team_not_in_nomination_event_error = "team not in event nomination error"
 
-    def list_teams_of_nomination_event(self, nomination_name: str, event_name: str) -> list[TeamSchema]:
-        teams_db = get_nomination_event_teams_db(self.__db, nomination_name, event_name)
+    def list_teams_of_nomination_event(
+            self,
+            nomination_name: str,
+            event_name: str,
+            nomination_event_type: str
+        ) -> list[TeamSchema]:
+        teams_db = get_nomination_event_teams_db(self.__db, nomination_name, event_name, nomination_event_type)
         teams = [TeamSchema.from_orm(team_db) for team_db in teams_db]
         return teams
 

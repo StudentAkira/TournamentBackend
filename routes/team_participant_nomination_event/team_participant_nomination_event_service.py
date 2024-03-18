@@ -42,21 +42,47 @@ class TeamParticipantNominationEventService:
         )
         team_participant_nomination_event_data.team_name = team_name
         decoded_token = self.__token_manager.decode_token(token, response)
-        team_name = team_participant_nomination_event_data.team_name
-        nomination_name = team_participant_nomination_event_data.nomination_name
-        event_name = team_participant_nomination_event_data.event_name
-        participant_email = team_participant_nomination_event_data.participant_email
-        self.__validator.raise_exception_if_registration_finished(nomination_name, event_name)
-        self.__team_manager.raise_exception_if_not_found(team_name)
-        self.__participant_manager.raise_exception_if_not_found(participant_email)
-        self.__nomination_event_manager.raise_exception_if_not_found(nomination_name, event_name)
-        self.__validator.validate_user_entity_ownership(decoded_token, team_name, event_name)
-        self.__validator.raise_exception_if_participant_not_in_team(team_name, participant_email)
-        self.__validator.raise_exception_if_participant_in_nomination_event(
-            participant_email,
-            nomination_name,
-            event_name
+
+        self.__event_manager.raise_exception_if_not_found(
+            team_participant_nomination_event_data.event_name
         )
+        self.__nomination_manager.raise_exception_if_not_found(
+            team_participant_nomination_event_data.nomination_name
+        )
+        self.__team_manager.raise_exception_if_not_found(
+            team_participant_nomination_event_data.team_name
+        )
+        self.__participant_manager.raise_exception_if_not_found(
+            team_participant_nomination_event_data.participant_email
+        )
+        self.__nomination_event_manager.raise_exception_if_not_found(
+            team_participant_nomination_event_data.nomination_name,
+            team_participant_nomination_event_data.event_name,
+            team_participant_nomination_event_data.nomination_event_type
+        )
+        self.__validator.raise_exception_if_participant_not_in_team(
+            team_name,
+            team_participant_nomination_event_data.participant_email
+        )
+        self.__validator.validate_user_entity_ownership(
+            decoded_token,
+            team_name,
+            team_participant_nomination_event_data.event_name
+        )
+
+        self.__validator.raise_exception_if_registration_finished(
+            team_participant_nomination_event_data.nomination_name,
+            team_participant_nomination_event_data.event_name,
+            team_participant_nomination_event_data.nomination_event_type
+        )
+
+        self.__validator.raise_exception_if_participant_in_nomination_event(
+            team_participant_nomination_event_data.participant_email,
+            team_participant_nomination_event_data.nomination_name,
+            team_participant_nomination_event_data.event_name,
+            team_participant_nomination_event_data.nomination_event_type
+        )
+
         self.__team_participant_nomination_event_manager.append_team_participant_nomination_event(
             team_participant_nomination_event_data
         )
@@ -68,18 +94,39 @@ class TeamParticipantNominationEventService:
             token: str,
             team_participant_nomination_event_data: UpdateTeamParticipantNominationEventSchema
     ):
-        self.__token_manager.decode_token(token, response)
-        nomination_name = team_participant_nomination_event_data.nomination_name
-        event_name = team_participant_nomination_event_data.event_name
-        participant_email = team_participant_nomination_event_data.participant_email
+        decoded_token = self.__token_manager.decode_token(token, response)
 
-        self.__validator.raise_exception_if_registration_finished(nomination_name, event_name)
-        self.__participant_manager.raise_exception_if_not_found(participant_email)
-        self.__nomination_event_manager.raise_exception_if_not_found(nomination_name, event_name)
+        self.__participant_manager.raise_exception_if_not_found(
+            team_participant_nomination_event_data.participant_email
+        )
+
+        self.__event_manager.raise_exception_if_not_found(team_participant_nomination_event_data.event_name)
+        self.__nomination_manager.raise_exception_if_not_found(team_participant_nomination_event_data.nomination_name)
+        self.__nomination_event_manager.raise_exception_if_not_found(
+            team_participant_nomination_event_data.nomination_name,
+            team_participant_nomination_event_data.event_name,
+            team_participant_nomination_event_data.nomination_event_type
+        )
         self.__validator.raise_exception_if_participant_not_in_nomination_event(
-            participant_email,
-            nomination_name,
-            event_name
+            team_participant_nomination_event_data.participant_email,
+            team_participant_nomination_event_data.nomination_name,
+            team_participant_nomination_event_data.event_name,
+            team_participant_nomination_event_data.nomination_event_type
+        )
+
+        self.__validator.raise_exception_if_registration_finished(
+            team_participant_nomination_event_data.nomination_name,
+            team_participant_nomination_event_data.event_name,
+            team_participant_nomination_event_data.nomination_event_type
+        )
+
+        self.__event_manager.raise_exception_if_owner_wrong(
+            team_participant_nomination_event_data.event_name,
+            decoded_token.user_id
+        )
+        self.__participant_manager.raise_exception_if_owner_wrong(
+            team_participant_nomination_event_data.participant_email,
+            decoded_token.user_id
         )
 
         self.__team_participant_nomination_event_manager.update_team_participant_nomination_event(
@@ -93,18 +140,39 @@ class TeamParticipantNominationEventService:
             token: str,
             team_participant_nomination_event_data: DeleteTeamParticipantNominationEventSchema
     ):
-        self.__token_manager.decode_token(token, response)
-        nomination_name = team_participant_nomination_event_data.nomination_name
-        event_name = team_participant_nomination_event_data.event_name
-        participant_email = team_participant_nomination_event_data.participant_email
+        decoded_token = self.__token_manager.decode_token(token, response)
 
-        self.__validator.raise_exception_if_registration_finished(nomination_name, event_name)
-        self.__participant_manager.raise_exception_if_not_found(participant_email)
-        self.__nomination_event_manager.raise_exception_if_not_found(nomination_name, event_name)
+        self.__participant_manager.raise_exception_if_not_found(
+            team_participant_nomination_event_data.participant_email
+        )
+
+        self.__event_manager.raise_exception_if_not_found(team_participant_nomination_event_data.event_name)
+        self.__nomination_manager.raise_exception_if_not_found(team_participant_nomination_event_data.nomination_name)
+        self.__nomination_event_manager.raise_exception_if_not_found(
+            team_participant_nomination_event_data.nomination_name,
+            team_participant_nomination_event_data.event_name,
+            team_participant_nomination_event_data.nomination_event_type
+        )
         self.__validator.raise_exception_if_participant_not_in_nomination_event(
-            participant_email,
-            nomination_name,
-            event_name
+            team_participant_nomination_event_data.participant_email,
+            team_participant_nomination_event_data.nomination_name,
+            team_participant_nomination_event_data.event_name,
+            team_participant_nomination_event_data.nomination_event_type
+        )
+
+        self.__event_manager.raise_exception_if_owner_wrong(
+            team_participant_nomination_event_data.event_name,
+            decoded_token.user_id
+        )
+        self.__participant_manager.raise_exception_if_owner_wrong(
+            team_participant_nomination_event_data.participant_email,
+            decoded_token.user_id
+        )
+
+        self.__validator.raise_exception_if_registration_finished(
+            team_participant_nomination_event_data.nomination_name,
+            team_participant_nomination_event_data.event_name,
+            team_participant_nomination_event_data.nomination_event_type
         )
 
         self.__team_participant_nomination_event_manager.delete_team_participant_nomination_event(

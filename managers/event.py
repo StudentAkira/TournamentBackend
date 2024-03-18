@@ -77,7 +77,10 @@ class EventManager:
 
     def raise_exception_if_not_found(self, event_name: str):
         entity_exists = self.__db.query(
-            exists().where(cast("ColumnElement[bool]", Event.name == event_name))).scalar()
+            exists().where(
+                cast("ColumnElement[bool]", Event.name == event_name)
+            )
+        ).scalar()
         if not entity_exists:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,

@@ -40,18 +40,28 @@ class Validator:
     def check_team_event_nomination__nomination_event__existence(self,
                                                                  team_name: str,
                                                                  nomination_name: str,
-                                                                 event_name: str
+                                                                 event_name: str,
+                                                                 nomination_event_type: str
                                                                  ):
         self.__team_manager.raise_exception_if_not_found(team_name)
-        self.check_event_nomination__nomination_event_existence(nomination_name, event_name)
+        self.check_event_nomination__nomination_event_existence(
+            nomination_name,
+            event_name,
+            nomination_event_type
+        )
 
     def check_event_nomination__nomination_event_existence(self,
                                                            nomination_name: str,
-                                                           event_name: str
+                                                           event_name: str,
+                                                           nomination_event_type: str
                                                            ):
         self.__event_manager.raise_exception_if_not_found(event_name)
         self.__nomination_manager.raise_exception_if_not_found(nomination_name)
-        self.__nomination_event_manager.raise_exception_if_not_found(nomination_name, event_name)
+        self.__nomination_event_manager.raise_exception_if_not_found(
+            nomination_name,
+            event_name,
+            nomination_event_type
+        )
 
     def check_if_team_not_in_event_nomination(
             self,
@@ -95,10 +105,17 @@ class Validator:
                 detail={"error": self.__participant_not_in_team_error}
             )
 
-    def raise_exception_if_participant_in_nomination_event(self, participant_email: EmailStr, nomination_name: str, event_name: str):
-        nomination_event_participant_emails = set(
-            participant_db.email for participant_db in
-            get_participants_of_nomination_event_db(self.__db, nomination_name, event_name)
+    def raise_exception_if_participant_in_nomination_event(
+            self,
+            participant_email: EmailStr,
+            nomination_name: str,
+            event_name: str,
+            nomination_event_type: str
+    ):
+        nomination_event_participant_emails = self.get_nomination_event_participant_emails(
+            nomination_name,
+            event_name,
+            nomination_event_type
         )
 
         if participant_email in nomination_event_participant_emails:
@@ -107,10 +124,17 @@ class Validator:
                 detail={"error": self.__participant_already_in_nomination_event}
             )
 
-    def raise_exception_if_participant_not_in_nomination_event(self, participant_email: EmailStr, nomination_name: str, event_name: str):
-        nomination_event_participant_emails = set(
-            participant_db.email for participant_db in
-            get_participants_of_nomination_event_db(self.__db, nomination_name, event_name)
+    def raise_exception_if_participant_not_in_nomination_event(
+            self,
+            participant_email: EmailStr,
+            nomination_name: str,
+            event_name: str,
+            nomination_event_type: str
+    ):
+        nomination_event_participant_emails = self.get_nomination_event_participant_emails(
+            nomination_name,
+            event_name,
+            nomination_event_type
         )
 
         if participant_email not in nomination_event_participant_emails:
@@ -119,10 +143,31 @@ class Validator:
                 detail={"error": self.__participant_not_in_nomination_event}
             )
 
-    def raise_exception_if_registration_finished(self, nomination_name: str, event_name: str):
-        nomination_event_db = get_nomination_event_db(self.__db, nomination_name, event_name)
+    def raise_exception_if_registration_finished(
+            self,
+            nomination_name: str,
+            event_name: str,
+            nomination_event_type: str
+    ):
+        nomination_event_db = get_nomination_event_db(self.__db, nomination_name, event_name, nomination_event_type)
         if nomination_event_db.registration_finished:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail={"error", self.__registration_finished_error}
             )
+
+    def get_nomination_event_participant_emails(
+            self,
+            nomination_name: str,
+            event_name: str,
+            nomination_event_type: str
+    ):
+        return set(
+            participant_db.email for participant_db in
+            get_participants_of_nomination_event_db(
+                self.__db,
+                nomination_name,
+                event_name,
+                nomination_event_type
+            )
+        )

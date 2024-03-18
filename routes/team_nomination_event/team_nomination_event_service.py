@@ -25,11 +25,20 @@ class TeamNominationEventService:
             token: str,
             nomination_name: str,
             event_name: str,
+            nomination_event_type: str
     ) -> list:
         decoded_token = self.__token_manager.decode_token(token, response)
 
-        self.__validator.check_event_nomination__nomination_event_existence(nomination_name, event_name)
+        self.__validator.check_event_nomination__nomination_event_existence(
+            nomination_name,
+            event_name,
+            nomination_event_type
+        )
         if decoded_token.role == UserRole.judge:
             self.__event_manager.raise_exception_if_owner_wrong(event_name, decoded_token.user_id)
 
-        return self.__team_nomination_event_manager.list_teams_of_nomination_event(nomination_name, event_name)
+        return self.__team_nomination_event_manager.list_teams_of_nomination_event(
+            nomination_name,
+            event_name,
+            nomination_event_type
+        )

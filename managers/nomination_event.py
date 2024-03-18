@@ -1,4 +1,7 @@
+from typing import cast
+
 from fastapi import HTTPException
+from sqlalchemy import exists, and_
 from sqlalchemy.orm import Session
 from starlette import status
 
@@ -8,6 +11,9 @@ from db.crud.nomination_event import get_nomination_events_full_info_db, \
     get_nomination_events_full_info_by_owner_db, \
     get_nomination_events_all_names_db, append_event_nominations_db, get_nominations_event_participant_count_db, \
     delete_nomination_event_db, append_nomination_for_event_db
+from db.models.event import Event
+from db.models.nomination import Nomination
+from db.models.nomination_event import NominationEvent
 from db.schemas.event import EventGetNameSchema
 from db.schemas.nomination_event import NominationEventSchema, NominationEventDataSchema, NominationEventDeleteSchema
 from managers.event import EventManager
@@ -59,31 +65,65 @@ class NominationEventManager:
     def delete(self, nomination_event_data: NominationEventDeleteSchema):
         delete_nomination_event_db(self.__db, nomination_event_data)
 
-    def raise_exception_if_not_found(self, nomination_name: str, event_name: str):
+    def raise_exception_if_not_found(
+            self,
+            nomination_name: str,
+            event_name: str,
+            nomination_event_type: str
+    ):
+        entity_exists = self.check_nomination_event_exists(
+            nomination_name,
+            event_name,
+            nomination_event_type
+        )
 
-        self.__nomination_manager.raise_exception_if_not_found(nomination_name)
-        self.__event_manager.raise_exception_if_not_found(event_name)
-
-        event_nominations = set(nomination.name
-                                for nomination in get_event_by_name_db(self.__db, event_name).nominations)
-
-        if nomination_name not in event_nominations:
+        if not entity_exists:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail={"error": self.__nomination_event_does_not_exist_error}
             )
 
-    def raise_exception_if_exists(self, nomination_name: str, event_name: str):
+    def raise_exception_if_exists(self,  nomination_event_data: NominationEventSchema):
 
-        self.__nomination_manager.raise_exception_if_not_found(nomination_name)
-        self.__event_manager.raise_exception_if_not_found(event_name)
+        entity_exists = self.check_nomination_event_exists(
+            nomination_event_data.nomination_name,
+            nomination_event_data.event_name,
+            nomination_event_data.type
+        )
 
-        event_nominations = set(nomination.name
-                                for nomination in get_event_by_name_db(self.__db, event_name).nominations)
-
-        if nomination_name in event_nominations:
+        if entity_exists:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
+                status_code=status.HTTP_409_CONFLICT,
                 detail={"error": self.__nomination_event_already_exist_error}
             )
 
+    def check_nomination_event_exists(
+            self,
+            nomination_name: str,
+            event_name: str,
+            nomination_event_type: str
+    ) -> bool:
+        event_db = self.__db.query(Event).filter(
+            cast("ColumnElement[bool]",
+                 Event.name == event_name
+                 )
+        ).first()
+        nomination_db = self.__db.query(Nomination).filter(
+            cast("ColumnElement[bool]",
+                 Nomination.name == nomination_name,
+                 )
+        ).first()
+
+        entity_exists = self.__db.query(
+            exists(
+
+            ).where(
+                cast("ColumnElement[bool]", NominationEvent.event_id == event_db.id)
+            ).where(
+                cast("ColumnElement[bool]", NominationEvent.nomination_id == nomination_db.id)
+            ).where(
+                cast("ColumnElement[bool]", NominationEvent.type == nomination_event_type)
+            )
+        ).scalar()
+
+        return entity_exists

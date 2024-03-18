@@ -18,8 +18,15 @@ async def list_teams_nomination_event(
         response: Response,
         nomination_name: Annotated[str, Query()],
         event_name: Annotated[str, Query()],
+        nomination_event_type: Annotated[str, Query()],
         token: str = Depends(authorized_only),
         db: Session = Depends(get_db)
 ):
     service = TeamNominationEventService(db)
-    return service.list_teams_nomination_event(response, token, nomination_name, event_name)
+    return service.list_teams_nomination_event(
+        response,
+        token,
+        nomination_name,
+        event_name,
+        nomination_event_type
+    )

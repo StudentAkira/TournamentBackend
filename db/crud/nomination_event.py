@@ -12,8 +12,8 @@ from db.models.team_participant import TeamParticipant
 from db.models.team_participant_nomination_event import TeamParticipantNominationEvent
 from db.schemas.event import EventListSchema, EventSchema, EventGetNameSchema
 from db.schemas.nomination import NominationSchema
-from db.schemas.nomination_event import NominationEventSchema, NominationEventDataSchema, NominationEventDeleteSchema, \
-    NominationEventFullInfoSchema, NominationEventParticipantCountSchema
+from db.schemas.nomination_event import NominationEventSchema, NominationEventDeleteSchema, \
+    NominationEventFullInfoSchema
 from sqlalchemy import and_
 
 from db.schemas.team_participant import TeamParticipantsSchema
@@ -23,42 +23,34 @@ def get_nominations_event_participant_count_db(db: Session, event_name: str):
     event_db = db.query(Event).filter(
         cast("ColumnElement[bool]", Event.name == event_name)
     ).first()
-    result = NominationEventDataSchema(name=event_db.name, date=event_db.date, nominations=[])
-    for nomination_db in event_db.nominations:
-        nomination_event_db = db.query(NominationEvent). \
-            filter(and_(
-            NominationEvent.event_id == event_db.id, NominationEvent.nomination_id == nomination_db.id
-        )).first()
-        result.nominations.append(
-            NominationEventParticipantCountSchema(
-                name=nomination_db.name,
-                type=nomination_event_db.type,
-                participant_count=len(set(
-                    team_participant.team_id for team_participant in
-                    nomination_event_db.team_participants
-                ),
-                )
-            )
-        )
-    return result
+    nomination_events_db = db.query(NominationEvent).\
+        filter(
+        cast("ColumnElement[bool]", NominationEvent.event_id == event_db.id)
+    ).all()
+    for nomination_event_db in nomination_events_db:
+        print(nomination_event_db.event_id)
+        print(nomination_event_db.nomination_id)
+        print(nomination_event_db.type)
+        print(nomination_event_db.registration_finished)
+        print('---------------------------------------')
+
 
 
 def append_nomination_for_event_db(
         db: Session,
         nomination_event_data: NominationEventSchema
 ):
-    nomination_db = create_nominations_missing_in_db(db, [NominationSchema(name=nomination_event_data.nomination_name)])[0]
+    nomination_db = get_nomination_by_name_db(db, nomination_event_data.nomination_name)
     event_db = get_event_by_name_db(db, nomination_event_data.event_name)
-    event_db.nominations.append(nomination_db)
-    db.add(event_db)
-    db.commit()
-    nomination_event_db = db.query(NominationEvent).filter(and_(
-        NominationEvent.event_id == event_db.id,
-        NominationEvent.nomination_id == nomination_db.id
-    )).first()
-    nomination_event_db.type = nomination_event_data.type
+    nomination_event_db = NominationEvent(
+        event_id=event_db.id,
+        nomination_id=nomination_db.id,
+        registration_finished=False,
+        type=nomination_event_data.type
+    )
     db.add(nomination_event_db)
     db.commit()
+    db.refresh(event_db)
 
 
 def append_event_nominations_db(
@@ -89,6 +81,7 @@ def get_nomination_event_db(
         db: Session,
         nomination_name: str,
         event_name: str,
+        nomination_event_type: str
 ) -> type(NominationEvent) | None:
     event_db = db.query(Event).filter(
         cast("ColumnElement[bool]", Event.name == event_name)
@@ -98,8 +91,12 @@ def get_nomination_event_db(
     ).first()
 
     nomination_event_db = db.query(NominationEvent). \
-        filter(and_(NominationEvent.event_id == event_db.id,
-                    NominationEvent.nomination_id == nomination_db.id)).first()
+        filter(and_(
+            NominationEvent.event_id == event_db.id,
+            NominationEvent.nomination_id == nomination_db.id,
+            NominationEvent.type == nomination_event_type
+        )
+    ).first()
     return nomination_event_db
 
 

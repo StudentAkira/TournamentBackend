@@ -11,7 +11,7 @@ from routes.nomination.nominations_service import NominationsService
 nominations = APIRouter(prefix="/nomination", tags=["nomination"])
 
 
-@nominations.get("/nominations")
+@nominations.get("/nomination")
 async def get_nominations(
         offset: Annotated[int, Query(gte=0, lt=50)] = 0,
         limit: Annotated[int, Query(lt=50, gt=0)] = 10,
@@ -21,15 +21,15 @@ async def get_nominations(
     return service.list(offset, limit)
 
 
-@nominations.post("/nominations")
-async def create_nominations(
+@nominations.post("/nomination")
+async def create_nomination(
         response: Response,
-        nominations_: list[NominationSchema],
+        nomination: NominationSchema,
         token: str = Depends(authorized_only),
         db: Session = Depends(get_db)
 ):
     service = NominationsService(db)
-    return service.create_many(response, token, nominations_)
+    return service.create(response, token, nomination)
 
 
 @nominations.put("/nomination")

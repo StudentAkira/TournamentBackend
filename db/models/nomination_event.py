@@ -28,5 +28,5 @@ class NominationEvent(Base):
         secondary="team_participant_nomination_event",
     )
 
-    __table_args__ = (UniqueConstraint('event_id', 'nomination_id', name='_event_id__nomination_id'),)
+    __table_args__ = (UniqueConstraint('event_id', 'nomination_id', 'type', name='_event_id__nomination_id__type'),)
 

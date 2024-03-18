@@ -13,11 +13,9 @@ from db.schemas.team import TeamSchema, TeamUpdateSchema
 from sqlalchemy import and_
 
 
-def create_team_db(db: Session, team: TeamSchema, participants_emails: set[EmailStr], creator_id: int):
+def create_team_db(db: Session, team: TeamSchema, creator_id: int):
     team_db = Team(name=team.name)
     team_db.creator_id = creator_id
-    participants_db = db.query(Participant).filter(Participant.email.in_(participants_emails)).all()
-    team_db.participants.extend(participants_db)
     db.add(team_db)
     db.commit()
     return team_db

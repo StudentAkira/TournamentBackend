@@ -23,11 +23,10 @@ class TeamsService:
         self.__software_and_equipment_set_message = "software & equipment was set"
         self.__team_updated_message = "team updated"
 
-    def create_team(self, response, token: str, team: TeamSchema, participants_emails: list[EmailStr]):
+    def create_team(self, response, token: str, team: TeamSchema):
         decoded_token = self.__token_manager.decode_token(token, response)
         self.__team_manager.create(
             team,
-            set(participants_emails),
             decoded_token.user_id)
         return {"message": self.__team_created_message}
 
@@ -44,41 +43,3 @@ class TeamsService:
         self.__team_manager.raise_exception_if_owner_wrong(team_data.old_name, decoded_token.user_id)
         self.__team_manager.update(team_data)
         return {"message": self.__team_updated_message}
-
-    def set_team_software_and_equipment_in_event_nomination(
-            self,
-            response: Response,
-            token: str,
-            team_name_or_participant_email: str,
-            nomination_name: str,
-            event_name: str,
-            software: str,
-            equipment: str
-    ):
-        decoded_token = self.__token_manager.decode_token(token, response)
-
-        team_name = self.__team_manager.get_team_name_from_team_name_or_participant_email(
-            team_name_or_participant_email
-        )
-
-        self.__validator.check_team_event_nomination__nomination_event__existence(
-            team_name,
-            nomination_name,
-            event_name
-        )
-        self.__validator.check_if_team_not_in_event_nomination(
-            team_name,
-            nomination_name,
-            event_name
-        )
-
-        self.__team_manager.raise_exception_if_owner_wrong(team_name, decoded_token.user_id)
-        self.__event_manager.raise_exception_if_owner_wrong(event_name, decoded_token.user_id)
-        # self.__team_manager.set_team_software_and_equipment_in_event_nomination(
-        #     team_name,
-        #     nomination_name,
-        #     event_name,
-        #     software,
-        #     equipment
-        # )
-        return {"message": self.__software_and_equipment_set_message}

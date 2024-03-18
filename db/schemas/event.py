@@ -38,8 +38,6 @@ class EventUpdateSchema(BaseModel):
     new_name: str
     new_date: datetime.date
 
-    nominations: list[tuple[NominationSchema, NominationEventType]] | None = None
-
 
 class EventListSchema(EventSchema):
     nominations: list[NominationSchema]
