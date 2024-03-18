@@ -37,7 +37,7 @@ async def get_nominations_events_full_info(
     return service.get_nomination_events_full_info(response, token, offset, limit)
 
 
-@nomination_event.post("/append_nominations_for_event")
+@nomination_event.post("/append_nomination_for_event")
 async def append_nomination_for_event(
         response: Response,
         nomination_event_data: NominationEventSchema,

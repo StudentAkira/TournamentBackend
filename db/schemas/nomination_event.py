@@ -21,6 +21,7 @@ class NominationEventParticipantCountSchema(BaseModel):
 class NominationEventSchema(BaseModel):
     event_name: str
     nomination_name: str
+    type: NominationEventType
 
 
 class NominationEventDataSchema(BaseModel):

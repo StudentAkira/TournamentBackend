@@ -20,6 +20,15 @@ async def get_my_profile(
     return service.get_user_data(response, token)
 
 
+@users.get("/users")
+async def list_users(
+        response: Response,
+        token: str = Depends(authorized_only),
+        db: Session = Depends(get_db)
+):
+    service = UsersService(db)
+    return service.list(response, token)
+
 @users.patch("/profile")
 async def edit_profile(
         response: Response,

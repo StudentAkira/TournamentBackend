@@ -26,6 +26,7 @@ class NominationEventManager:
         self.__event_manager = EventManager(db)
 
         self.__nomination_event_does_not_exist_error = "nomination event does not exist"
+        self.__nomination_event_already_exist_error = "nomination event already exist"
         self.__tournament_already_started_error = "tournament already started"
 
     def get_nomination_event_data(self, event_name: str) -> NominationEventDataSchema:
@@ -71,3 +72,18 @@ class NominationEventManager:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail={"error": self.__nomination_event_does_not_exist_error}
             )
+
+    def raise_exception_if_exists(self, nomination_name: str, event_name: str):
+
+        self.__nomination_manager.raise_exception_if_not_found(nomination_name)
+        self.__event_manager.raise_exception_if_not_found(event_name)
+
+        event_nominations = set(nomination.name
+                                for nomination in get_event_by_name_db(self.__db, event_name).nominations)
+
+        if nomination_name in event_nominations:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={"error": self.__nomination_event_already_exist_error}
+            )
+
