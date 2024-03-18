@@ -11,8 +11,9 @@ from db.models.team import Team
 from db.models.team_participant import TeamParticipant
 from db.models.team_participant_nomination_event import TeamParticipantNominationEvent
 from db.schemas.event import EventListSchema, EventSchema, EventGetNameSchema
-from db.schemas.nomination import NominationSchema, NominationParticipantCountSchema
-from db.schemas.nomination_event import NominationEventSchema, NominationEventDataSchema, NominationEventDeleteSchema
+from db.schemas.nomination import NominationSchema
+from db.schemas.nomination_event import NominationEventSchema, NominationEventDataSchema, NominationEventDeleteSchema, \
+    NominationEventFullInfoSchema, NominationEventParticipantCountSchema
 from sqlalchemy import and_
 
 from db.schemas.team_participant import TeamParticipantsSchema
@@ -29,12 +30,14 @@ def get_nominations_event_participant_count_db(db: Session, event_name: str):
             NominationEvent.event_id == event_db.id, NominationEvent.nomination_id == nomination_db.id
         )).first()
         result.nominations.append(
-            NominationParticipantCountSchema(
+            NominationEventParticipantCountSchema(
                 name=nomination_db.name,
+                type=nomination_event_db.type,
                 participant_count=len(set(
                     team_participant.team_id for team_participant in
                     nomination_event_db.team_participants
-                ))
+                ),
+                )
             )
         )
     return result
@@ -110,9 +113,10 @@ def get_nomination_events_info_db(db: Session, events_db: list[type(Event)]):
 
             team_ids = set(team_participant.team_id for team_participant in nomination_event_db.team_participants)
             teams = db.query(Team).filter(Team.id.in_(team_ids)).all()
-            nomination_event_full_info = NominationEventSchema(
+            nomination_event_full_info = NominationEventFullInfoSchema(
                 event_name=event_db.name,
                 nomination_name=nomination_db.name,
+                type=nomination_event_db.type,
                 teams=[
                     TeamParticipantsSchema.from_orm(
                         team
@@ -128,7 +132,7 @@ def get_nomination_events_full_info_db(
         db: Session,
         offset: int,
         limit: int
-) -> list[NominationEventSchema]:
+) -> list[NominationEventFullInfoSchema]:
     events_db = db.query(Event).offset(offset).limit(limit).all()
     return get_nomination_events_info_db(db, events_db)
 
@@ -138,15 +142,11 @@ def get_nomination_events_full_info_by_owner_db(
         offset: int,
         limit: int,
         owner_id: int
-) -> list[NominationEventSchema]:
-
-    result = []
+) -> list[NominationEventFullInfoSchema]:
 
     events_db = db.query(Event). \
         filter(cast("ColumnElement[bool]", Event.owner_id == owner_id)). \
         offset(offset).limit(limit).all()
-
-
 
     return get_nomination_events_info_db(db, events_db)
 

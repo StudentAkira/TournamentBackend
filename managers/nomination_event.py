@@ -8,8 +8,7 @@ from db.crud.nomination_event import get_nomination_events_full_info_db, \
     get_nomination_events_full_info_by_owner_db, \
     get_nomination_events_all_names_db, append_event_nominations_db, get_nominations_event_participant_count_db, \
     delete_nomination_event_db, append_nomination_for_event_db
-from db.schemas.event import EventSchema, EventGetNameSchema
-from db.schemas.nomination import NominationSchema
+from db.schemas.event import EventGetNameSchema
 from db.schemas.nomination_event import NominationEventSchema, NominationEventDataSchema, NominationEventDeleteSchema
 from managers.event import EventManager
 from managers.nomination import NominationManager

@@ -45,12 +45,12 @@ def get_user_by_id_db(db: Session, user_id: int) -> type(User) | None:
 
 def edit_user_data_db(db: Session, user_data: EditUserSchema, user_id: int):
     user_db = db.query(User).filter(cast("ColumnElement[bool]", User.id == user_id)).first()
-    user_db.email = user_data.email
-    user_db.hashed_password = pwd_context.hash(user_data.password)
-    user_db.first_name = user_data.first_name
-    user_db.second_name = user_data.second_name
-    user_db.third_name = user_data.third_name
-    user_db.phone = user_data.phone
-    user_db.educational_institution = user_data.educational_institution
+    user_db.email = user_data.email if user_data.email else user_db.email
+    user_db.hashed_password = pwd_context.hash(user_data.password) if user_data.password else user_db.hashed_password
+    user_db.first_name = user_data.first_name if user_data.first_name else user_db.first_name
+    user_db.second_name = user_data.second_name if user_data.second_name else user_db.second_name
+    user_db.third_name = user_data.third_name if user_data.third_name else user_db.third_name
+    user_db.phone = user_data.phone if user_data.phone else user_db.phone
+    user_db.educational_institution = user_data.educational_institution if user_data.educational_institution else user_db.educational_institution
     db.add(user_db)
     db.commit()

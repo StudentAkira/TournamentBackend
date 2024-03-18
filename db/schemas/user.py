@@ -48,12 +48,12 @@ class UserDatabaseSchema(UserSchema):
 
 
 class EditUserSchema(BaseModel):
-    email: EmailStr
-    password: str = Field(min_length=7)
-    first_name: str
-    second_name: str
-    third_name: str
-    phone: str
+    email: EmailStr | None = None
+    password: str | None = Field(min_length=7, default=None)
+    first_name: str | None = None
+    second_name: str | None = None
+    third_name: str | None = None
+    phone: str | None = None
     educational_institution: str | None = None
 
     class Config:
@@ -61,6 +61,8 @@ class EditUserSchema(BaseModel):
 
     @validator('phone')
     def validate_unique_phone_number(cls, value: str):
+        if value is None:
+            return value
         pattern = re.compile(r'^\+\d{3}-\d{2}-\d{3}-\d{2}-\d{2}$')
         if pattern.match(value) is not None:
             return value

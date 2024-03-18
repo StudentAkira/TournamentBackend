@@ -44,6 +44,8 @@ class UserManager:
         self.raise_exception_if_password_incorrect(password_check)
 
     def edit_user_data(self, user_data: EditUserSchema, user_id: int):
+        if self.get_user_by_id(user_id).email != user_data.email:
+            self.raise_exception_if_email_taken(user_data)
         edit_user_data_db(self.__db, user_data, user_id)
 
     def raise_exception_if_email_taken(self, user: UserSchema | EditUserSchema):

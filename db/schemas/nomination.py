@@ -8,7 +8,5 @@ class NominationSchema(BaseModel):
         from_attributes = True
 
 
-class NominationParticipantCountSchema(BaseModel):
-    name: str
-    participant_count: int
+
 

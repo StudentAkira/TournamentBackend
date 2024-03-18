@@ -18,7 +18,6 @@ class UsersService:
 
     def edit_user_data(self, response: Response, token: str, user_data: EditUserSchema):
         decoded_token = self.__token_manager.decode_token(token, response)
-        self.__user_manager.raise_exception_if_email_taken(user_data)
         self.__user_manager.edit_user_data(user_data, decoded_token.user_id)
         return {"message": self.__user_data_updated_message}
 
