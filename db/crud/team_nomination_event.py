@@ -33,13 +33,13 @@ def get_nomination_event_teams_db(db: Session, nomination_name: str, event_name:
     for team_participant_id in team_participant_ids:
         set_team_participant_ids.add(team_participant_id[0])
 
-    team_ids = set(db.query(TeamParticipant.team_id).
-                   filter(TeamParticipant.id.in_(set_team_participant_ids)).all())
+    team_ids = set(
+        team_id[0]
+        for team_id in
+            db.query(TeamParticipant.team_id).
+                       filter(TeamParticipant.id.in_(set_team_participant_ids)).all()
+        )
 
-    set_team_ids = set()
-    for team_id in team_ids:
-        set_team_ids.add(team_id[0])
-
-    teams_db = db.query(Team).filter(Team.id.in_(set_team_ids))
+    teams_db = db.query(Team).filter(Team.id.in_(team_ids))
 
     return teams_db

@@ -12,10 +12,9 @@ class NominationEventType(str, Enum):
 
 
 class NominationEventParticipantCountSchema(BaseModel):
-    name: str
-    participant_count: int
-
+    nomination_name: str
     type: NominationEventType
+    participant_count: int
 
 
 class NominationEventSchema(BaseModel):
@@ -45,5 +44,5 @@ class NominationEventFullInfoSchema(BaseModel):
 class NominationEventDeleteSchema(BaseModel):
     event_name: str
     nomination_name: str
-
+    type: NominationEventType
 

@@ -15,7 +15,8 @@ from db.models.event import Event
 from db.models.nomination import Nomination
 from db.models.nomination_event import NominationEvent
 from db.schemas.event import EventGetNameSchema
-from db.schemas.nomination_event import NominationEventSchema, NominationEventDataSchema, NominationEventDeleteSchema
+from db.schemas.nomination_event import NominationEventSchema, NominationEventDataSchema, NominationEventDeleteSchema, \
+    NominationEventParticipantCountSchema
 from managers.event import EventManager
 from managers.nomination import NominationManager
 from managers.team import TeamManager
@@ -35,8 +36,11 @@ class NominationEventManager:
         self.__nomination_event_already_exist_error = "nomination event already exist"
         self.__tournament_already_started_error = "tournament already started"
 
-    def get_nomination_event_data(self, event_name: str) -> NominationEventDataSchema:
-        return get_nominations_event_participant_count_db(self.__db, event_name)
+    def get_nomination_event_data(self, event_name: str) -> list[NominationEventParticipantCountSchema]:
+        return get_nominations_event_participant_count_db(
+            self.__db,
+            event_name
+        )
 
     def list(self, offset: int, limit: int) -> list[NominationEventSchema]:
         nominations_events = get_nomination_events_all_names_db(self.__db, offset, limit)

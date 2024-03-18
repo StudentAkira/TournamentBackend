@@ -13,13 +13,16 @@ from db.models.team_participant_nomination_event import TeamParticipantNominatio
 from db.schemas.event import EventListSchema, EventSchema, EventGetNameSchema
 from db.schemas.nomination import NominationSchema
 from db.schemas.nomination_event import NominationEventSchema, NominationEventDeleteSchema, \
-    NominationEventFullInfoSchema
+    NominationEventFullInfoSchema, NominationEventParticipantCountSchema
 from sqlalchemy import and_
 
 from db.schemas.team_participant import TeamParticipantsSchema
 
 
-def get_nominations_event_participant_count_db(db: Session, event_name: str):
+def get_nominations_event_participant_count_db(
+        db: Session,
+        event_name: str
+) -> list[NominationEventParticipantCountSchema]:
     event_db = db.query(Event).filter(
         cast("ColumnElement[bool]", Event.name == event_name)
     ).first()
@@ -27,13 +30,24 @@ def get_nominations_event_participant_count_db(db: Session, event_name: str):
         filter(
         cast("ColumnElement[bool]", NominationEvent.event_id == event_db.id)
     ).all()
-    for nomination_event_db in nomination_events_db:
-        print(nomination_event_db.event_id)
-        print(nomination_event_db.nomination_id)
-        print(nomination_event_db.type)
-        print(nomination_event_db.registration_finished)
-        print('---------------------------------------')
 
+    result = []
+
+    for nomination_event_db in nomination_events_db:
+
+        nomination_db = db.query(Nomination).filter(
+            Nomination.id == nomination_event_db.nomination_id
+        ).first()
+
+        result.append(
+            NominationEventParticipantCountSchema(
+                nomination_name=nomination_db.name,
+                type=nomination_event_db.type,
+                participant_count=len(nomination_event_db.team_participants)
+            )
+        )
+
+    return result
 
 
 def append_nomination_for_event_db(
@@ -103,13 +117,17 @@ def get_nomination_event_db(
 def get_nomination_events_info_db(db: Session, events_db: list[type(Event)]):
     nomination_event_full_info_list = []
     for event_db in events_db:
-        for nomination_db in event_db.nominations:
-            nomination_event_db = db.query(NominationEvent). \
-                filter(and_(NominationEvent.nomination_id == nomination_db.id,
-                            NominationEvent.event_id == event_db.id)).first()
+        nominations_event_db = db.query(NominationEvent).filter(
+            NominationEvent.event_id == event_db.id
+        ).all()
+        for nomination_event_db in nominations_event_db:
 
             team_ids = set(team_participant.team_id for team_participant in nomination_event_db.team_participants)
             teams = db.query(Team).filter(Team.id.in_(team_ids)).all()
+
+            nomination_db = db.query(Nomination).filter(
+                Nomination.id == nomination_event_db.nomination_id
+            ).first()
             nomination_event_full_info = NominationEventFullInfoSchema(
                 event_name=event_db.name,
                 nomination_name=nomination_db.name,
@@ -207,14 +225,24 @@ def delete_nomination_event_db(db: Session, nomination_event_data: NominationEve
     event_db = get_event_by_name_db(db, nomination_event_data.event_name)
     nomination_db = get_nomination_by_name_db(db, nomination_event_data.nomination_name)
     nomination_event_db = db.query(NominationEvent).\
-        filter(and_(NominationEvent.event_id == event_db.id, NominationEvent.nomination_id == nomination_db.id)).first()
+        filter(
+            and_(
+                NominationEvent.event_id == event_db.id,
+                NominationEvent.nomination_id == nomination_db.id,
+                NominationEvent.type == nomination_event_data.type
+            )
+    ).first()
     db.query(TeamParticipantNominationEvent).\
         filter(TeamParticipantNominationEvent.nomination_event_id == nomination_event_db.id).all()
 
     db.query(TeamParticipantNominationEvent).\
         filter(TeamParticipantNominationEvent.nomination_event_id == nomination_event_db.id).delete()
-    db.query(NominationEvent).\
+    db.query(NominationEvent). \
         filter(
-        and_(NominationEvent.event_id == event_db.id, NominationEvent.nomination_id == nomination_db.id)).delete()
-
+        and_(
+            NominationEvent.event_id == event_db.id,
+            NominationEvent.nomination_id == nomination_db.id,
+            NominationEvent.type == nomination_event_data.type
+        )
+    ).delete()
     db.commit()

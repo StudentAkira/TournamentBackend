@@ -2,7 +2,8 @@ from starlette.responses import Response
 
 from db.schemas.event import EventSchema, EventGetNameSchema
 from db.schemas.nomination import NominationSchema
-from db.schemas.nomination_event import NominationEventDataSchema, NominationEventDeleteSchema, NominationEventSchema
+from db.schemas.nomination_event import NominationEventDataSchema, NominationEventDeleteSchema, NominationEventSchema, \
+    NominationEventParticipantCountSchema
 from db.schemas.user import UserRole
 from managers.event import EventManager
 from managers.nomination import NominationManager
@@ -84,16 +85,25 @@ class NominationEventService:
         self.__nomination_event_manager.append(nomination_event_data)
         return {"message": self.__nominations_appended_message}
 
-    def get_nomination_event_data(self, response: Response, token: str, event_name: str) -> NominationEventDataSchema:
+    def get_nomination_event_data(
+            self,
+            response: Response,
+            token: str,
+            event_name: str
+    ):
         decoded_token = self.__token_manager.decode_token(token, response)
         self.__event_manager.raise_exception_if_not_found(event_name)
         return self.__nomination_event_manager.get_nomination_event_data(event_name)
 
     def delete(self, response: Response, token: str, nomination_event_data: NominationEventDeleteSchema):
         decoded_token = self.__token_manager.decode_token(token, response)
+        self.__event_manager.raise_exception_if_not_found(nomination_event_data.event_name)
+        self.__nomination_manager.raise_exception_if_not_found(nomination_event_data.nomination_name)
         self.__nomination_event_manager.raise_exception_if_not_found(
             nomination_event_data.nomination_name,
-            nomination_event_data.event_name
+            nomination_event_data.event_name,
+            nomination_event_data.type
         )
+        self.__event_manager.raise_exception_if_owner_wrong(nomination_event_data.event_name, decoded_token.user_id)
         self.__nomination_event_manager.delete(nomination_event_data)
         return {"message": self.__nomination_event_deleted_message}
