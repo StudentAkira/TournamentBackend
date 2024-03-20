@@ -2,6 +2,7 @@ import datetime
 from enum import Enum
 from pydantic import BaseModel
 
+from db.schemas.participant import ParticipantPDFSchema
 from db.schemas.team_participant import TeamParticipantsSchema
 
 
@@ -46,3 +47,9 @@ class NominationEventDeleteSchema(BaseModel):
     nomination_name: str
     type: NominationEventType
 
+
+class NominationEventPDFSchema(BaseModel):
+    nomination_name: str
+    event_name: str
+    type: str
+    participants: list[ParticipantPDFSchema]

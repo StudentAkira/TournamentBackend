@@ -7,7 +7,7 @@ from starlette import status
 
 from db.crud.event import create_event_db, get_event_by_name_db, get_events_by_owner_db, \
     get_events_db, update_event_db, get_events_with_nominations_db, get_events_with_nominations_by_owner_db, \
-    delete_event_db, get_event_pdf_db
+    delete_event_db
 from db.models.event import Event
 from db.schemas.event import EventCreateSchema, EventSchema, EventUpdateSchema, EventDeleteSchema
 
@@ -27,8 +27,7 @@ class EventManager:
         self.raise_exception_if_name_taken(event.name)
         create_event_db(self.__db, event, owner_id)
 
-    def get_event_pdf(self, event_name: str):
-        get_event_pdf_db(self.__db, event_name)
+
 
     def list(self, offset: int, limit: int) -> list[EventSchema]:
         events_db = get_events_db(self.__db, offset, limit)

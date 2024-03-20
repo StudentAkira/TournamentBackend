@@ -29,6 +29,22 @@ class NominationEventService:
         self.__nominations_appended_message = "nomination appended"
         self.__nomination_event_deleted_message = "nomination event deleted"
 
+    def get_nomination_event_pdf(self, response: Response, token: str, data: list[NominationEventSchema]):
+        decoded_token = self.__token_manager.decode_token(token, response)
+
+        for item in data:
+            self.__event_manager.raise_exception_if_not_found(item.event_name)
+            self.__nomination_manager.raise_exception_if_not_found(item.nomination_name)
+            self.__nomination_event_manager.raise_exception_if_not_found(
+                item.nomination_name,
+                item.event_name,
+                item.type
+            )
+
+            self.__event_manager.raise_exception_if_owner_wrong(item.event_name, decoded_token.user_id)
+
+        return self.__nomination_event_manager.get_nomination_event_pdf(data)
+
     def list(self, response: Response, token: str, offset: int, limit: int):
         decoded_token = self.__token_manager.decode_token(token, response)
         if decoded_token.role == UserRole.judge:

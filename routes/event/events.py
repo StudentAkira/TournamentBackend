@@ -1,10 +1,12 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
+from fpdf import FPDF
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 
 from db.schemas.event import EventSchema, EventCreateSchema, EventUpdateSchema, EventDeleteSchema
+from db.schemas.nomination_event import NominationEventSchema
 from dependencies import get_db, authorized_only
 from routes.event.events_service import EventsService
 
@@ -35,15 +37,7 @@ async def get_events_with_nominations(
     return service.list_with_nominations(response, token, offset, limit)
 
 
-@events.get("/event_pdf")
-async def get_event_pdf(
-    response: Response,
-    event_name: str,
-    token: str = Depends(authorized_only),
-    db: Session = Depends(get_db)
-):
-    service = EventsService(db)
-    return service.get_event_pdf(response, token, event_name)
+
 
 
 @events.post("/event")

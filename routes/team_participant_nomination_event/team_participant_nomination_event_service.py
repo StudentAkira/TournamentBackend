@@ -83,6 +83,11 @@ class TeamParticipantNominationEventService:
             team_participant_nomination_event_data.nomination_event_type
         )
 
+        self.__participant_manager.raise_exception_if_owner_wrong(##may be changed
+            team_participant_nomination_event_data.participant_email,
+            decoded_token.user_id
+        )
+
         self.__team_participant_nomination_event_manager.append_team_participant_nomination_event(
             team_participant_nomination_event_data
         )

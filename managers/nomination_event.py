@@ -1,6 +1,7 @@
 from typing import cast
 
 from fastapi import HTTPException
+from fpdf import FPDF
 from sqlalchemy import exists, and_
 from sqlalchemy.orm import Session
 from starlette import status
@@ -10,7 +11,7 @@ from db.crud.nomination_event import get_nomination_events_full_info_db, \
     get_nomination_events_all_names_by_owner_db, \
     get_nomination_events_full_info_by_owner_db, \
     get_nomination_events_all_names_db, append_event_nominations_db, get_nominations_event_participant_count_db, \
-    delete_nomination_event_db, append_nomination_for_event_db
+    delete_nomination_event_db, append_nomination_for_event_db, get_nomination_event_pdf_data_db
 from db.models.event import Event
 from db.models.nomination import Nomination
 from db.models.nomination_event import NominationEvent
@@ -35,6 +36,39 @@ class NominationEventManager:
         self.__nomination_event_does_not_exist_error = "nomination event does not exist"
         self.__nomination_event_already_exist_error = "nomination event already exist"
         self.__tournament_already_started_error = "tournament already started"
+
+    def get_nomination_event_pdf(self, data: list[NominationEventSchema]):
+        pdf_data = get_nomination_event_pdf_data_db(self.__db, data)
+
+        pdf = FPDF()
+        pdf.add_page(orientation="landscape", format="A4")
+        pdf.set_font('Times', size=12)
+        pdf.core_fonts_encoding = 'utf-8'
+        with pdf.table() as table:
+            row = table.row()
+            # row.cell("Фамилия \nИмя \nОтчество")
+            # row.cell("Обла\nсть")
+            # row.cell("Число\n, месяц,\n год\n рождения,\n количество\n полных\n лет на\n начало\n проведения\n мероприятия")
+            # row.cell("Компет\nенция")
+            # row.cell("Прогр\nаммное\n обесп\nечение")
+            # row.cell("Приво\nзимое \nоборудов\nание")
+            # row.cell("Учреж\nдение об\nразован\nия (назван\nие полн\nостью), кла\nсс.")
+            # row.cell(
+            #     "Учреждение дополнительного образования детей и молодежи (или иное) и объединение по интересам, в котором занимается участник")
+            # row.cell("Фамилия, имя, отчество, место работы педагога, контакты")
+            row.cell("test1")
+            row.cell("test2")
+            row.cell("test3")
+            row.cell("test4")
+            row.cell("test5")
+            row.cell("test6")
+            row.cell("test7")
+            row.cell("test8")
+            row.cell("test9")
+            for item in pdf_data:
+                for participant in item.participants:
+                    print(participant.first_name, participant.software)
+        return pdf.output()
 
     def get_nomination_event_data(self, event_name: str) -> list[NominationEventParticipantCountSchema]:
         return get_nominations_event_participant_count_db(

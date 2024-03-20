@@ -8,9 +8,7 @@ from db.models.nomination_event import NominationEvent
 from db.models.team_participant_nomination_event import TeamParticipantNominationEvent
 from db.schemas.event import EventCreateSchema, EventListSchema, EventUpdateSchema, EventDeleteSchema
 from db.schemas.nomination import NominationSchema
-
-
-
+from db.schemas.nomination_event import NominationEventSchema
 
 
 def get_all_events_db(db: Session):
@@ -108,7 +106,4 @@ def delete_event_db(db: Session, event_data: EventDeleteSchema):
 
     db.commit()
 
-
-def get_event_pdf_db(db: Session, event_name: str):
-    event_db = db.query(Event).filter(cast("ColumnElement[bool]", Event.name == event_name)).first()
 

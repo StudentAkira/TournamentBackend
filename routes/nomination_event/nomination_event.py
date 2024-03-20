@@ -1,6 +1,7 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query, Body
+from fpdf import FPDF
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 
@@ -12,6 +13,19 @@ from routes.nomination_event.nomination_event_service import NominationEventServ
 
 
 nomination_event = APIRouter(prefix="/nomination_event", tags=["nomination_event"])
+
+
+@nomination_event.post("/nomination_event_pdf")
+async def get_event_pdf(
+    response: Response,
+    data: list[NominationEventSchema],
+    token: str = Depends(authorized_only),
+    db: Session = Depends(get_db)
+):
+    service = NominationEventService(db)
+    out = service.get_nomination_event_pdf(response, token, data)
+    headers = {'Content-Disposition': 'inline; filename="out.pdf"'}
+    return Response(bytes(out), headers=headers, media_type='application/pdf')
 
 
 @nomination_event.get("/nomination_event_data")
@@ -34,6 +48,7 @@ async def get_nominations_events_full_info(
         db: Session = Depends(get_db)
 ):
     service = NominationEventService(db)
+
     return service.get_nomination_events_full_info(response, token, offset, limit)
 
 

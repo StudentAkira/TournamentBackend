@@ -7,15 +7,17 @@ from db.crud.nominations import get_all_nominations_db, create_nominations_missi
 from db.models.event import Event
 from db.models.nomination import Nomination
 from db.models.nomination_event import NominationEvent
+from db.models.participant import Participant
 from db.models.team import Team
 from db.models.team_participant import TeamParticipant
 from db.models.team_participant_nomination_event import TeamParticipantNominationEvent
 from db.schemas.event import EventListSchema, EventSchema, EventGetNameSchema
 from db.schemas.nomination import NominationSchema
 from db.schemas.nomination_event import NominationEventSchema, NominationEventDeleteSchema, \
-    NominationEventFullInfoSchema, NominationEventParticipantCountSchema
+    NominationEventFullInfoSchema, NominationEventParticipantCountSchema, NominationEventPDFSchema
 from sqlalchemy import and_
 
+from db.schemas.participant import ParticipantPDFSchema
 from db.schemas.team_participant import TeamParticipantsSchema
 
 
@@ -246,3 +248,73 @@ def delete_nomination_event_db(db: Session, nomination_event_data: NominationEve
         )
     ).delete()
     db.commit()
+
+
+def get_nomination_event_pdf_data_db(db: Session, data: list[NominationEventSchema]):
+
+    pdf_data = []
+
+    for i, item in enumerate(data):
+        pdf_data.append(NominationEventPDFSchema(
+                nomination_name=item.nomination_name,
+                event_name=item.event_name,
+                type=item.type,
+                participants=[]
+            )
+        )
+
+        event_db = db.query(Event).filter(Event.name == item.event_name).first()
+        nomination_db = db.query(Nomination).filter(Nomination.name == item.nomination_name).first()
+        nomination_event_db = db.query(NominationEvent).filter(
+            and_(
+               NominationEvent.event_id == event_db.id,
+               NominationEvent.nomination_id == nomination_db.id,
+               NominationEvent.type == item.type
+            )
+        ).first()
+        team_participants_nominations_event_db = db.query(TeamParticipantNominationEvent).filter(
+            TeamParticipantNominationEvent.nomination_event_id == nomination_event_db.id
+        ).all()
+
+        team_participant_id_software = {}
+        team_participant_id_equipment = {}
+
+        team_participant_ids = set()
+        for team_participant_nomination_event_db in team_participants_nominations_event_db:
+            team_participant_ids.add(team_participant_nomination_event_db.team_participant_id)
+            team_participant_id_software[team_participant_nomination_event_db.team_participant_id] = team_participant_nomination_event_db.software
+            team_participant_id_equipment[team_participant_nomination_event_db.team_participant_id] = team_participant_nomination_event_db.equipment
+
+        participant_ids = set()
+        participant_id_software = {}
+        participant_id_equipment = {}
+        for team_participant in db.query(TeamParticipant).filter(TeamParticipant.id.in_(team_participant_ids)).all():
+            participant_ids.add(team_participant.participant_id)
+            participant_id_software[team_participant.participant_id] = team_participant_id_software[team_participant.id]
+            participant_id_equipment[team_participant.participant_id] = team_participant_id_equipment[team_participant.id]
+
+        participants_db = [
+            participant_db for participant_db  in
+            db.query(Participant).filter(Participant.id.in_(participant_ids)).all()
+                           ]
+
+        [
+            pdf_data[i].participants.append(
+                ParticipantPDFSchema(
+                    first_name=participant_db.first_name,
+                    second_name=participant_db.second_name,
+                    third_name=participant_db.third_name,
+                    region=participant_db.region,
+                    birth_date=participant_db.birth_date,
+                    educational_institution=participant_db.educational_institution,
+                    additional_educational_institution=participant_db.additional_educational_institution,
+                    supervisor_first_name=participant_db.supervisor_first_name,
+                    supervisor_second_name=participant_db.supervisor_second_name,
+                    supervisor_third_name=participant_db.supervisor_third_name,
+                    software=participant_id_software[participant_db.id],
+                    equipment=participant_id_equipment[participant_db.id]
+                )
+            )
+            for participant_db in participants_db
+        ]
+    return pdf_data
