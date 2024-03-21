@@ -1,3 +1,10 @@
+import os
+from io import BytesIO
+
+from fpdf import FPDF
+from fpdf.enums import PageMode
+from reportlab.pdfgen import canvas
+
 from db.database import *
 from sqlalchemy import and_
 from db.models.event import Event
@@ -33,3 +40,39 @@ test = UserSchema(
     phone="+375-29-768-94-62",
     role="admin"
 )
+
+pdf = FPDF(orientation='L')
+pdf.add_page()
+pdf.add_font('fontF', 'B', os.path.join(".", 'Roman.ttf'))
+pdf.set_font('fontF', 'B', 14)
+c = 1
+
+
+with pdf.table() as table:
+    table._first_row_as_headings = False
+    table._num_heading_rows = 0
+    print(table.__dir__())
+    print(table._first_row_as_headings)
+    print(table._padding)
+    print(table._outer_border_margin)
+    print(table._fpdf)
+    print(table._headings_style)
+    print(table._gutter_height)
+    print(table._gutter_width)
+    print(table._wrapmode)
+    row = table.row()
+    row.cell("0"*10)
+    row.cell("1"*10)
+    row.cell("2"*10)
+    row.cell("3"*10)
+    row.cell("4"*10)
+    row.cell("5"*10)
+    row.cell("6"*10)
+    row.cell("7"*10)
+    row.cell("8"*10)
+    row.cell("9"*10)
+    for j in range(30):
+        row = table.row([f"test" for k in range(10)])
+
+with open("tmp.pdf", "wb") as f:
+    f.write(pdf.output())
