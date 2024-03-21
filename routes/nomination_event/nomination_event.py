@@ -68,3 +68,25 @@ async def delete_nomination_from_event(
 ):
     service = NominationEventService(db)
     return service.delete(response, token, nomination_event_data)
+
+
+@nomination_event.post("/close_registration")
+async def close_registration(
+        response: Response,
+        nomination_event_data: NominationEventSchema,
+        token: str = Depends(authorized_only),
+        db: Session = Depends(get_db)
+):
+    service = NominationEventService(db)
+    return service.close_registration(response, token, nomination_event_data)
+
+
+@nomination_event.post("/open_registration")
+async def open_registration(
+        response: Response,
+        nomination_event_data: NominationEventSchema,
+        token: str = Depends(authorized_only),
+        db: Session = Depends(get_db)
+):
+    service = NominationEventService(db)
+    return service.open_registration(response, token, nomination_event_data)

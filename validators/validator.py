@@ -153,7 +153,7 @@ class Validator:
         if nomination_event_db.registration_finished:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail={"error", self.__registration_finished_error}
+                detail={"error": self.__registration_finished_error}
             )
 
     def get_nomination_event_participant_emails(

@@ -12,7 +12,8 @@ from db.crud.nomination_event import get_nomination_events_full_info_db, \
     get_nomination_events_all_names_by_owner_db, \
     get_nomination_events_full_info_by_owner_db, \
     get_nomination_events_all_names_db, append_event_nominations_db, get_nominations_event_participant_count_db, \
-    delete_nomination_event_db, append_nomination_for_event_db, get_nomination_event_pdf_data_db
+    delete_nomination_event_db, append_nomination_for_event_db, get_nomination_event_pdf_data_db, \
+    close_registration_nomination_event_db, open_registration_nomination_event_db, is_tournament_started_db
 from db.models.event import Event
 from db.models.nomination import Nomination
 from db.models.nomination_event import NominationEvent
@@ -37,6 +38,7 @@ class NominationEventManager:
         self.__nomination_event_does_not_exist_error = "nomination event does not exist"
         self.__nomination_event_already_exist_error = "nomination event already exist"
         self.__tournament_already_started_error = "tournament already started"
+        self.__tournament_started_error = "tournament started"
 
     def get_nomination_event_pdf(self, data: list[NominationEventSchema]):
         pdf_data = get_nomination_event_pdf_data_db(self.__db, data)
@@ -111,6 +113,16 @@ class NominationEventManager:
     def delete(self, nomination_event_data: NominationEventDeleteSchema):
         delete_nomination_event_db(self.__db, nomination_event_data)
 
+    def close_registration(self, nomination_event_data: NominationEventSchema):
+        close_registration_nomination_event_db(self.__db, nomination_event_data)
+
+    def open_registration(self, nomination_event_data: NominationEventSchema):
+        open_registration_nomination_event_db(self.__db, nomination_event_data)
+
+    def create_group_tournament(self, nomination_event: NominationEventSchema):
+        close_registration_nomination_event_db(self.__db, nomination_event)
+        create_group_tournament_db(self.__db, nomination_event)
+
     def raise_exception_if_not_found(
             self,
             nomination_name: str,
@@ -173,3 +185,11 @@ class NominationEventManager:
         ).scalar()
 
         return entity_exists
+
+    def raise_exception_if_tournament_started(self, nomination_name: str, event_name: str, nomination_event_type: str):
+        started = is_tournament_started_db(self.__db, nomination_name, event_name, nomination_event_type)
+        if started:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail={"message": self.__tournament_started_error}
+            )

@@ -267,8 +267,8 @@ def get_nomination_event_pdf_data_db(db: Session, data: list[NominationEventSche
             )
         )
 
-        event_db = db.query(Event).filter(Event.name == item.event_name).first()
-        nomination_db = db.query(Nomination).filter(Nomination.name == item.nomination_name).first()
+        event_db = db.query(Event).filter(cast("ColumnElement[bool]", Event.name == item.event_name)).first()
+        nomination_db = db.query(Nomination).filter(cast("ColumnElement[bool]", Nomination.name == item.nomination_name)).first()
         nomination_event_db = db.query(NominationEvent).filter(
             and_(
                NominationEvent.event_id == event_db.id,
@@ -322,3 +322,50 @@ def get_nomination_event_pdf_data_db(db: Session, data: list[NominationEventSche
             for participant_db in participants_db
         ]
     return pdf_data
+
+
+def close_registration_nomination_event_db(db: Session, nomination_event_data: NominationEventSchema):
+    event_db = db.query(Event).filter(cast("ColumnElement[bool]", Event.name == nomination_event_data.event_name)).first()
+    nomination_db = db.query(Nomination).filter(cast("ColumnElement[bool]", Nomination.name == nomination_event_data.nomination_name)).first()
+    nomination_event_db = db.query(NominationEvent).filter(
+        and_(
+            NominationEvent.event_id == event_db.id,
+            NominationEvent.nomination_id == nomination_db.id,
+            NominationEvent.type == nomination_event_data.type
+        )
+    ).first()
+
+    nomination_event_db.registration_finished = True
+    db.add(nomination_event_db)
+    db.commit()
+
+
+def open_registration_nomination_event_db(db: Session, nomination_event_data: NominationEventSchema):
+    event_db = db.query(Event).filter(cast("ColumnElement[bool]", Event.name == nomination_event_data.event_name)).first()
+    nomination_db = db.query(Nomination).filter(cast("ColumnElement[bool]", Nomination.name == nomination_event_data.nomination_name)).first()
+    nomination_event_db = db.query(NominationEvent).filter(
+        and_(
+            NominationEvent.event_id == event_db.id,
+            NominationEvent.nomination_id == nomination_db.id,
+            NominationEvent.type == nomination_event_data.type
+        )
+    ).first()
+
+    nomination_event_db.registration_finished = False
+    db.add(nomination_event_db)
+    db.commit()
+
+
+def is_tournament_started_db(db: Session, nomination_name: str, event_name: str, nomination_event_type: str):
+    event_db = db.query(Event).filter(
+        cast("ColumnElement[bool]", Event.name == event_name)).first()
+    nomination_db = db.query(Nomination).filter(
+        cast("ColumnElement[bool]", Nomination.name == nomination_name)).first()
+    nomination_event_db = db.query(NominationEvent).filter(
+        and_(
+            NominationEvent.event_id == event_db.id,
+            NominationEvent.nomination_id == nomination_db.id,
+            NominationEvent.type == nomination_event_type
+        )
+    ).first()
+    return nomination_event_db.tournament_started

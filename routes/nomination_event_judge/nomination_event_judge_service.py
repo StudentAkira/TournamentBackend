@@ -50,6 +50,11 @@ class NominationEventJudgeService:
         self.__user_manager.raise_exception_if_user_specialist(nomination_event_judge_data.email)
         judge = self.__user_manager.get_user_by_email(nomination_event_judge_data.email)
         self.__user_manager.raise_exception_if_user_specialist(judge.role)
+        self.__validator.raise_exception_if_registration_finished(
+            nomination_event_judge_data.nomination_name,
+            nomination_event_judge_data.event_name,
+            nomination_event_judge_data.nomination_event_type
+        )
         self.__nomination_event_judge_manager.create(nomination_event_judge_data)
         return {"message": self.__judge_appended_message}
 
@@ -88,6 +93,11 @@ class NominationEventJudgeService:
         self.__event_manager.raise_exception_if_owner_wrong(
             nomination_event_judge_data.event_name,
             decoded_token.user_id
+        )
+        self.__validator.raise_exception_if_registration_finished(
+            nomination_event_judge_data.nomination_name,
+            nomination_event_judge_data.event_name,
+            nomination_event_judge_data.nomination_event_type
         )
         self.__user_manager.raise_exception_if_user_not_found(nomination_event_judge_data)
         self.__nomination_event_judge_manager.delete(nomination_event_judge_data)

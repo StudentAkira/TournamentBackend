@@ -21,6 +21,7 @@ class NominationEvent(Base):
     nomination_id: Mapped[int] = mapped_column(ForeignKey("nomination.id"))
 
     registration_finished: bool = Column(Boolean, nullable=False, default=False)
+    tournament_started: bool = Column(Boolean, nullable=False, default=False)
     type: NominationEventType = Column(String, nullable=False, default=NominationEventType.olympyc)
 
     judges: Mapped[list["User"]] = relationship(

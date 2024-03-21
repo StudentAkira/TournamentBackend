@@ -1,9 +1,5 @@
 from starlette.responses import Response
-
-from db.schemas.event import EventSchema, EventGetNameSchema
-from db.schemas.nomination import NominationSchema
-from db.schemas.nomination_event import NominationEventDataSchema, NominationEventDeleteSchema, NominationEventSchema, \
-    NominationEventParticipantCountSchema
+from db.schemas.nomination_event import NominationEventDeleteSchema, NominationEventSchema
 from db.schemas.user import UserRole
 from managers.event import EventManager
 from managers.nomination import NominationManager
@@ -28,6 +24,8 @@ class NominationEventService:
 
         self.__nominations_appended_message = "nomination appended"
         self.__nomination_event_deleted_message = "nomination event deleted"
+        self.__registration_closed_message = "registration closed"
+        self.__registration_opened_message = "registration opened"
 
     def get_nomination_event_pdf(self, response: Response, token: str, data: list[NominationEventSchema]):
         decoded_token = self.__token_manager.decode_token(token, response)
@@ -123,3 +121,45 @@ class NominationEventService:
         self.__event_manager.raise_exception_if_owner_wrong(nomination_event_data.event_name, decoded_token.user_id)
         self.__nomination_event_manager.delete(nomination_event_data)
         return {"message": self.__nomination_event_deleted_message}
+
+    def close_registration(
+            self,
+            response: Response,
+            token: str,
+            nomination_event_data: NominationEventSchema
+    ):
+        decoded_token = self.__token_manager.decode_token(token, response)
+        self.__validator.check_event_nomination__nomination_event_existence(
+            nomination_event_data.nomination_name,
+            nomination_event_data.event_name,
+            nomination_event_data.type
+        )
+        self.__event_manager.raise_exception_if_owner_wrong(nomination_event_data.event_name, decoded_token.user_id)
+        self.__nomination_event_manager.close_registration(nomination_event_data)
+        self.__nomination_event_manager.raise_exception_if_tournament_started(
+            nomination_event_data.nomination_name,
+            nomination_event_data.event_name,
+            nomination_event_data.type
+        )
+        return {"message": self.__registration_closed_message}
+
+    def open_registration(
+            self,
+            response: Response,
+            token: str,
+            nomination_event_data: NominationEventSchema
+    ):
+        decoded_token = self.__token_manager.decode_token(token, response)
+        self.__validator.check_event_nomination__nomination_event_existence(
+            nomination_event_data.nomination_name,
+            nomination_event_data.event_name,
+            nomination_event_data.type
+        )
+        self.__event_manager.raise_exception_if_owner_wrong(nomination_event_data.event_name, decoded_token.user_id)
+        self.__nomination_event_manager.raise_exception_if_tournament_started(
+            nomination_event_data.nomination_name,
+            nomination_event_data.event_name,
+            nomination_event_data.type
+        )
+        self.__nomination_event_manager.open_registration(nomination_event_data)
+        return {"message": self.__registration_opened_message}

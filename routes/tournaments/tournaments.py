@@ -17,7 +17,7 @@ async def start_group_tournament(
         db: Session = Depends(get_db)
 ):
     service = TournamentService(db)
-    return service.start_group_tournament(response, token, nomination_event)
+    return service.create_group_tournament(response, token, nomination_event)
 
 
 @tournaments.post("/start_play_off_tournament")
