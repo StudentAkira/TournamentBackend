@@ -9,6 +9,7 @@ from db.schemas.nomination_event import NominationEventType
 
 if TYPE_CHECKING:
     from db.models.team_participant import TeamParticipant
+    from db.models.user import User
 
 
 class NominationEvent(Base):
@@ -21,6 +22,12 @@ class NominationEvent(Base):
 
     registration_finished: bool = Column(Boolean, nullable=False, default=False)
     type: NominationEventType = Column(String, nullable=False, default=NominationEventType.olympyc)
+
+    judges: Mapped[list["User"]] = relationship(
+        "User",
+        back_populates="judged_events",
+        secondary="nomination_event_judge"
+    )
 
     team_participants: Mapped[list["TeamParticipant"]] = relationship(
         "TeamParticipant",

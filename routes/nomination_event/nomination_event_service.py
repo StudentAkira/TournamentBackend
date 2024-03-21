@@ -98,7 +98,7 @@ class NominationEventService:
         self.__nomination_event_manager.raise_exception_if_exists(
             nomination_event_data
         )
-        self.__nomination_event_manager.append(nomination_event_data)
+        self.__nomination_event_manager.append(nomination_event_data, decoded_token.user_id)
         return {"message": self.__nominations_appended_message}
 
     def get_nomination_event_data(

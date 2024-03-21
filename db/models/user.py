@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from db.models.event import Event
     from db.models.team import Team
     from db.models.participant import Participant
+    from db.models.nomination_event import NominationEvent
 
 
 class User(Base):
@@ -33,3 +34,8 @@ class User(Base):
     events: Mapped[list["Event"]] = relationship("Event", back_populates="owner")
     created_teams: Mapped[list["Team"]] = relationship("Team", back_populates="creator")
     participants: Mapped[list["Participant"]] = relationship("Participant", back_populates="creator")
+    judged_events: Mapped[list["NominationEvent"]] = relationship(
+        "NominationEvent",
+        back_populates="judges",
+        secondary="nomination_event_judge"
+    )

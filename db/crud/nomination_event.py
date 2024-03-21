@@ -11,6 +11,7 @@ from db.models.participant import Participant
 from db.models.team import Team
 from db.models.team_participant import TeamParticipant
 from db.models.team_participant_nomination_event import TeamParticipantNominationEvent
+from db.models.user import User
 from db.schemas.event import EventListSchema, EventSchema, EventGetNameSchema
 from db.schemas.nomination import NominationSchema
 from db.schemas.nomination_event import NominationEventSchema, NominationEventDeleteSchema, \
@@ -54,8 +55,10 @@ def get_nominations_event_participant_count_db(
 
 def append_nomination_for_event_db(
         db: Session,
-        nomination_event_data: NominationEventSchema
+        nomination_event_data: NominationEventSchema,
+        owner_id: int
 ):
+    user_db = db.query(User).filter(cast("ColumnElement[bool]", User.id == owner_id)).first()
     nomination_db = get_nomination_by_name_db(db, nomination_event_data.nomination_name)
     event_db = get_event_by_name_db(db, nomination_event_data.event_name)
     nomination_event_db = NominationEvent(
@@ -64,6 +67,7 @@ def append_nomination_for_event_db(
         registration_finished=False,
         type=nomination_event_data.type
     )
+    nomination_event_db.judges.append(user_db)
     db.add(nomination_event_db)
     db.commit()
     db.refresh(event_db)

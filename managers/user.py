@@ -1,8 +1,14 @@
+from typing import cast
+
 from fastapi import HTTPException
+from sqlalchemy import exists
 from sqlalchemy.orm import Session
 from starlette import status
 
-from db.crud.user import get_user_by_id_db, get_user_by_email_db, create_user_db, pwd_context, edit_user_data_db
+from db.crud.user import get_user_by_id_db, get_user_by_email_db, create_user_db, pwd_context, edit_user_data_db, \
+    get_users_db
+from db.models.user import User
+from db.schemas.nomination_event_judge import NominationEventJudgeDataSchema
 from db.schemas.user import UserCreateSchema, UserRole, UserSchema, EditUserSchema
 
 
@@ -19,6 +25,11 @@ class UserManager:
         self.__user_not_found_error = "user not found"
         self.__access_denied_error = "you are not allowed to perform this action"
         self.__educational_institution_is_none_error = "educational institution cannot be none for non judge user"
+
+    def list(self):
+        users_db = get_users_db(self.__db)
+        users = [UserSchema.from_orm(user_db) for user_db in users_db]
+        return users
 
     def get_user_by_id(self, user_id: int) -> UserSchema | None:
         user_db = get_user_by_id_db(self.__db, user_id)
@@ -63,10 +74,22 @@ class UserManager:
                 detail={"error": self.__invalid_password_error}
             )
 
-    def raise_exception_if_user_not_found(self, user: UserSchema):
-        if not user:
+    def raise_exception_if_user_not_found(
+            self,
+            user:
+                UserSchema |
+                NominationEventJudgeDataSchema
+    ):
+        user_exists = self.__db.query(
+            exists(
+
+            ).where(
+                cast("ColumnElement[bool]", User.email == user.email)
+            )
+        ).scalar()
+        if not user_exists:
             raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
+                status_code=status.HTTP_404_NOT_FOUND,
                 detail={"error": self.__user_not_found_error}
             )
 

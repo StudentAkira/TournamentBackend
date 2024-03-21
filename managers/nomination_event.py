@@ -102,8 +102,8 @@ class NominationEventManager:
         nominations_events = get_nomination_events_full_info_by_owner_db(self.__db, offset, limit, owner_id)
         return nominations_events
 
-    def append(self, nomination_event_data: NominationEventSchema):
-        append_nomination_for_event_db(self.__db, nomination_event_data)
+    def append(self, nomination_event_data: NominationEventSchema, owner_id: int):
+        append_nomination_for_event_db(self.__db, nomination_event_data, owner_id)
 
     def append_many(self, event_data: EventGetNameSchema, nominations: list):
         append_event_nominations_db(self.__db, event_data, nominations)

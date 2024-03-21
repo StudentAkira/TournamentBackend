@@ -27,6 +27,11 @@ def create_user_db(db: Session, user: UserCreateSchema) -> type(User):
     return user_db
 
 
+def get_users_db(db: Session):
+    users_db = db.query(User).all()
+    return users_db
+
+
 def get_user_by_email_db(db: Session, email: str) -> type(User) | None:
     user_db = db.query(User).filter(
         cast("ColumnElement[bool]", User.email == email)

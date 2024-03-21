@@ -7,6 +7,7 @@ from routes.auth.auth import auth
 from routes.event.events import events
 from routes.nomination_event.nomination_event import nomination_event
 from routes.nomination.nominations import nominations
+from routes.nomination_event_judge.nomination_event_judge import nomination_event_judge
 from routes.participant.participants import participants
 from routes.team.teams import teams
 from routes.team_nomination_event.team_nomination_event import team_nomination_event
@@ -18,7 +19,7 @@ from routes.user.users import users
 
 app = FastAPI()
 
-
+from db.models.nominatuin_event_judge import NominationEventJudge
 database.Base.metadata.create_all(bind=database.engine)
 
 origins = ['http://localhost:3000', 'http://127.0.0.1:3000',
@@ -50,5 +51,6 @@ app.include_router(team_nomination_event)
 app.include_router(team_participant)
 app.include_router(team_participant_nomination_event)
 app.include_router(users)
+app.include_router(nomination_event_judge)
 # app.include_router(tournaments)
 app.include_router(nomination_event)
