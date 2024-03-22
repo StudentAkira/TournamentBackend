@@ -10,6 +10,8 @@ from db.schemas.nomination_event import NominationEventType
 if TYPE_CHECKING:
     from db.models.team_participant import TeamParticipant
     from db.models.user import User
+    from db.models.group import Group
+    from db.models.bracket import Bracket
 
 
 class NominationEvent(Base):
@@ -23,6 +25,9 @@ class NominationEvent(Base):
     registration_finished: bool = Column(Boolean, nullable=False, default=False)
     tournament_started: bool = Column(Boolean, nullable=False, default=False)
     type: NominationEventType = Column(String, nullable=False, default=NominationEventType.olympyc)
+
+    groups: Mapped[list["Group"]] = relationship("Group", back_populates="nomination_event")
+    bracket: Mapped["Bracket"] = relationship("Bracket", back_populates="nomination_event")
 
     judges: Mapped[list["User"]] = relationship(
         "User",

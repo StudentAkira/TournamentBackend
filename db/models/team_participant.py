@@ -8,6 +8,7 @@ from db.database import Base
 
 if TYPE_CHECKING:
     from db.models.nomination_event import NominationEvent
+    from db.models.match import Match
 
 
 class TeamParticipant(Base):
@@ -24,4 +25,4 @@ class TeamParticipant(Base):
         secondary="team_participant_nomination_event"
     )
 
-    __table_args__ = (UniqueConstraint('team_id', 'participant_id', name='_team_id__particiapant_id'),)
+    __table_args__ = (UniqueConstraint('team_id', 'participant_id', name='_team_id__participant_id'),)
