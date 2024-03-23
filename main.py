@@ -5,6 +5,7 @@ from db import database
 
 from routes.auth.auth import auth
 from routes.event.events import events
+from routes.match.match import match
 from routes.nomination_event.nomination_event import nomination_event
 from routes.nomination.nominations import nominations
 from routes.nomination_event_judge.nomination_event_judge import nomination_event_judge
@@ -61,3 +62,4 @@ app.include_router(users)
 app.include_router(nomination_event_judge)
 app.include_router(tournaments)
 app.include_router(nomination_event)
+app.include_router(match)

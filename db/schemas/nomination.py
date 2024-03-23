@@ -6,7 +6,3 @@ class NominationSchema(BaseModel):
 
     class Config:
         from_attributes = True
-
-
-
-

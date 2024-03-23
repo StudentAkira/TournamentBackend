@@ -369,3 +369,19 @@ def is_tournament_started_db(db: Session, nomination_name: str, event_name: str,
         )
     ).first()
     return nomination_event_db.tournament_started
+
+
+def get_judge_command_ids_db(db: Session, nomination_name: str, event_name: str, nomination_event_type: str):
+    event_db = db.query(Event).filter(
+        cast("ColumnElement[bool]", Event.name == event_name)).first()
+    nomination_db = db.query(Nomination).filter(
+        cast("ColumnElement[bool]", Nomination.name == nomination_name)).first()
+    nomination_event_db = db.query(NominationEvent).filter(
+        and_(
+            NominationEvent.event_id == event_db.id,
+            NominationEvent.nomination_id == nomination_db.id,
+            NominationEvent.type == nomination_event_type
+        )
+    ).first()
+
+    return set(judge_db.id for judge_db in nomination_event_db.judges)

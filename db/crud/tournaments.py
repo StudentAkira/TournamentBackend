@@ -3,13 +3,17 @@ from typing import cast
 from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
+from db.crud.general import round_robin
 from db.models.event import Event
 from db.models.group import Group
+from db.models.match import Match
 from db.models.nomination import Nomination
 from db.models.nomination_event import NominationEvent
 from db.models.team import Team
 from db.schemas.group_tournament import StartGroupTournamentSchema, GetGroupsOfTournamentSchema, GroupSchema
 from db.schemas.nomination_event import NominationEventSchema
+from db.schemas.participant import ParticipantSchema
+from db.schemas.team_participant import TeamParticipantsSchema
 
 
 def create_group_tournament_db(db: Session, nomination_event: StartGroupTournamentSchema):
@@ -36,13 +40,24 @@ def create_group_tournament_db(db: Session, nomination_event: StartGroupTourname
         index += 1
 
     for group in groups:
+        matches_data = round_robin(group.teams.copy())
+        for i, match_data in enumerate(matches_data):
+            match_db = Match(
+                match_queue_number=i+1,
+                team1=match_data[0],
+                team2=match_data[1],
+                winner=None
+            )
+
+            group.matches.append(match_db)
+            db.add(match_db)
         db.add(group)
     nomination_event_db.groups.extend(groups)
     db.add(nomination_event_db)
     db.commit()
 
 
-def get_participants_of_tournament_count_db(
+def get_count_of_participants_of_tournament_db(
         db: Session,
         nomination_name: str,
         event_name: str,
@@ -72,10 +87,24 @@ def get_groups_of_tournament_db(db: Session, nomination_event: NominationEventSc
         and_(
             NominationEvent.event_id == event_db.id,
             NominationEvent.nomination_id == nomination_db.id,
-            NominationEvent.type == nomination_event.nomination_event_type
+            NominationEvent.type == nomination_event.type
         )
     ).first()
 
     result = GetGroupsOfTournamentSchema(
-        groups=[GroupSchema.from_orm(group_db) ]
+        groups=[
+            GroupSchema(
+                id=group_db.id,
+                teams=[
+                    TeamParticipantsSchema(
+                        name=team_db.name,
+                        participants=[
+                            ParticipantSchema.from_orm(participant_db)
+                            for participant_db in team_db.participants
+                        ]
+                    ) for team_db in group_db.teams
+                ]
+            ) for group_db in nomination_event_db.groups
+        ]
     )
+    return result

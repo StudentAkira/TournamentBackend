@@ -1,5 +1,7 @@
 from pydantic import BaseModel, Field
 
+from db.models.match import Match
+from db.schemas.match import MatchSchema
 from db.schemas.nomination_event import NominationEventType
 from db.schemas.team import TeamSchema
 from db.schemas.team_participant import TeamParticipantsSchema
@@ -28,3 +30,11 @@ class GetGroupsOfTournamentSchema(BaseModel):
     class Config:
         from_attributes = True
 
+
+class GroupMatchSchema(BaseModel):
+    group_id: int
+
+    matches: list[MatchSchema]
+
+    class Config:
+        from_attributes = True

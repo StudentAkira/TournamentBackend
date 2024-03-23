@@ -3,8 +3,8 @@ from sqlalchemy.orm import Session
 from starlette import status
 
 from db.crud.nomination_event import close_registration_nomination_event_db
-from db.crud.tournaments import create_group_tournament_db, get_participants_of_tournament_count_db, \
-    get_groups_of_tournament_db
+from db.crud.tournaments import create_group_tournament_db, \
+    get_groups_of_tournament_db, get_count_of_participants_of_tournament_db
 from db.schemas.group_tournament import StartGroupTournamentSchema
 from db.schemas.nomination_event import NominationEventSchema
 
@@ -32,14 +32,22 @@ class TournamentManager:
         return get_groups_of_tournament_db(self.__db, nomination_event)
 
     def validate_group_count(self, group_count: int, nomination_name: str, event_name: str, nomination_event_type: str):
-        count = get_participants_of_tournament_count_db(
+        team_count = get_count_of_participants_of_tournament_db(
             self.__db,
             nomination_name,
             event_name,
             nomination_event_type
         )
-        if group_count > count:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail={"error", self.__invalid_group_count_error}
-            )
+        max_group_amount = int(team_count / 2)
+        if team_count <= 3 and group_count >= 2:
+            self.raise_exception_if_group_count_wrong()
+        if group_count > team_count:
+            self.raise_exception_if_group_count_wrong()
+        if group_count > max_group_amount:
+            self.raise_exception_if_group_count_wrong()
+
+    def raise_exception_if_group_count_wrong(self):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={"error": self.__invalid_group_count_error}
+        )

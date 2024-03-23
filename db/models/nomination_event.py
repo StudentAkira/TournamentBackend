@@ -26,8 +26,14 @@ class NominationEvent(Base):
     tournament_started: bool = Column(Boolean, nullable=False, default=False)
     type: NominationEventType = Column(String, nullable=False, default=NominationEventType.olympyc)
 
-    groups: Mapped[list["Group"]] = relationship("Group", back_populates="nomination_event")
-    bracket: Mapped["Bracket"] = relationship("Bracket", back_populates="nomination_event")
+    groups: Mapped[list["Group"]] = relationship(
+        "Group",
+        back_populates="nomination_event"
+    )
+    bracket: Mapped["Bracket"] = relationship(
+        "Bracket",
+        back_populates="nomination_event"
+    )
 
     judges: Mapped[list["User"]] = relationship(
         "User",

@@ -7,18 +7,22 @@ from db.database import Base
 
 
 if TYPE_CHECKING:
-    from db.models.team import Team
     from db.models.nomination_event import NominationEvent
+    from db.models.team import Team
     from db.models.match import Match
 
 
 class Bracket(Base):
-    __tablename__ = "bracket"
+    __tablename__ = "tournament_bracket"
 
     id: int = Column(Integer, primary_key=True, autoincrement=True)
 
     nomination_event_id: int = Column(Integer, ForeignKey("nomination_event.id"), nullable=False)
-    nomination_event: Mapped["NominationEvent"] = relationship("NominationEvent", back_populates="bracket")
+    nomination_event: Mapped["NominationEvent"] = relationship(
+        "NominationEvent",
+        back_populates="bracket",
+        foreign_keys="[Bracket.nomination_event_id]"
+    )
 
     teams: Mapped[list["Team"]] = relationship(
         "Team",

@@ -32,7 +32,12 @@ class TournamentService:
             nomination_event.type
         )
 
-        self.__event_manager.raise_exception_if_owner_wrong(nomination_event.event_name, decoded_token.user_id)
+        self.__event_manager.raise_exception_if_user_not_in_judge_command(
+            nomination_event.nomination_name,
+            nomination_event.event_name,
+            nomination_event.type,
+            decoded_token.user_id
+        )
         self.__nomination_event_manager.raise_exception_if_tournament_started(
             nomination_event.nomination_name,
             nomination_event.event_name,
@@ -50,5 +55,10 @@ class TournamentService:
             nomination_event.event_name,
             nomination_event.type
         )
-        self.__event_manager.raise_exception_if_owner_wrong(nomination_event.event_name, decoded_token.user_id)
+        self.__event_manager.raise_exception_if_user_not_in_judge_command(
+            nomination_event.nomination_name,
+            nomination_event.event_name,
+            nomination_event.type,
+            decoded_token.user_id
+        )
         return self.__tournament_manager.get_groups_of_tournament(nomination_event)

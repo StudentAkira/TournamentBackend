@@ -24,12 +24,13 @@ async def start_group_tournament(
 @tournaments.get("/get_groups_of_tournament")
 async def get_groups_of_tournament(
         response: Response,
-        nomination_event:NominationEventSchema,
+        nomination_event: NominationEventSchema = Depends(),
         token: str = Depends(authorized_only),
         db: Session = Depends(get_db)
 ):
     service = TournamentService(db)
     return service.get_groups_of_tournament(response, token, nomination_event)
+
 
 @tournaments.post("/start_play_off_tournament")
 async def start_play_off_tournament():
