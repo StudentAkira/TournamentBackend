@@ -17,11 +17,14 @@ class Match(Base):
 
     id: int = Column(Integer, primary_key=True, autoincrement=True)
 
-    team1_id: int = Column(Integer, ForeignKey("team.id"), nullable=False)
-    team1: Mapped["Team"] = relationship("Team", back_populates="match_team1")
+    team1_id: int = Column(Integer, ForeignKey("team.id"))
+    team1: Mapped["Team"] = relationship("Team", foreign_keys="[Match.team1_id]")
 
-    team2_id: int = Column(Integer, ForeignKey("team.id"), nullable=False)
-    team2: Mapped["Team"] = relationship("Team", back_populates="match_team2")
+    team2_id: int = Column(Integer, ForeignKey("team.id"))
+    team2: Mapped["Team"] = relationship("Team", foreign_keys="[Match.team2_id]")
+
+    winner_id: int = Column(Integer, ForeignKey("team.id"))
+    winner: Mapped["Team"] = relationship("Team", foreign_keys="[Match.winner_id]")
 
     group_id: int = Column(Integer, ForeignKey("group.id"), nullable=True)
     group: Mapped["Group"] = relationship("Group", back_populates="matches")

@@ -24,12 +24,6 @@ class Team(Base):
 
     creator: Mapped["User"] = relationship("User", back_populates="created_teams")
 
-    match_team1_id: int = Column(Integer, ForeignKey("match.id"), nullable=False)
-    match_team1: Mapped[list["Match"]] = relationship("Match", back_populates="team1")
-
-    match_team2_id: int = Column(Integer, ForeignKey("match.id"), nullable=False)
-    match_team2: Mapped[list["Match"]] = relationship("Match", back_populates="team2")
-
     participants: Mapped[list["Participant"]] = relationship(
         "Participant",
         back_populates="teams",

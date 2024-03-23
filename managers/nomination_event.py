@@ -19,6 +19,7 @@ from db.models.event import Event
 from db.models.nomination import Nomination
 from db.models.nomination_event import NominationEvent
 from db.schemas.event import EventGetNameSchema
+from db.schemas.group_tournament import StartGroupTournamentSchema
 from db.schemas.nomination_event import NominationEventSchema, NominationEventDataSchema, NominationEventDeleteSchema, \
     NominationEventParticipantCountSchema
 from managers.event import EventManager
@@ -120,8 +121,10 @@ class NominationEventManager:
     def open_registration(self, nomination_event_data: NominationEventSchema):
         open_registration_nomination_event_db(self.__db, nomination_event_data)
 
-    def create_group_tournament(self, nomination_event: NominationEventSchema):
-        close_registration_nomination_event_db(self.__db, nomination_event)
+    def create_group_tournament(self, nomination_event: StartGroupTournamentSchema):
+        close_registration_nomination_event_db(self.__db, NominationEventSchema(
+            **nomination_event.model_dump()
+        ))
         create_group_tournament_db(self.__db, nomination_event)
 
     def raise_exception_if_not_found(

@@ -16,6 +16,8 @@ from db.models.team_participant import TeamParticipant
 from db.models.team_participant_nomination_event import TeamParticipantNominationEvent
 from db.models.token import Token
 from db.models.user import User
+from db.schemas.group_tournament import StartGroupTournamentSchema
+from db.schemas.nomination_event import NominationEventType, NominationEventSchema
 from db.schemas.user import UserSchema
 
 
@@ -38,3 +40,12 @@ def counting_sort(arr):
     for i in range(len(count)):
         sorted_arr.extend([i] * count[i])
     return sorted_arr
+
+test = StartGroupTournamentSchema(
+    event_name="test",
+    nomination_name="test",
+    type=NominationEventType.time,
+    group_count=5
+)
+
+test2 = NominationEventSchema(**test.model_dump())
