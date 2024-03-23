@@ -5,8 +5,12 @@ from sqlalchemy.orm import Session
 from db.crud.event import get_all_events_db, get_all_events_by_owner_db, get_events_data, get_event_by_name_db
 from db.crud.nominations import get_all_nominations_db, create_nominations_missing_in_db, get_nomination_by_name_db
 from db.models.event import Event
+from db.models.group import Group
+from db.models.group_team import GroupTeam
+from db.models.match import Match
 from db.models.nomination import Nomination
 from db.models.nomination_event import NominationEvent
+from db.models.nominatuin_event_judge import NominationEventJudge
 from db.models.participant import Participant
 from db.models.team import Team
 from db.models.team_participant import TeamParticipant
@@ -238,6 +242,21 @@ def delete_nomination_event_db(db: Session, nomination_event_data: NominationEve
                 NominationEvent.type == nomination_event_data.type
             )
     ).first()
+
+    judges_ids = set(judge_db.id for judge_db in nomination_event_db.judges)
+
+    db.query(NominationEventJudge).filter(NominationEventJudge.judge_id.in_(judges_ids)).delete()
+
+    for group in nomination_event_db.groups:
+        for team in group.teams:
+            db.query(GroupTeam).filter(and_(
+                GroupTeam.tournament_group_id == group.id,
+                GroupTeam.team_id == team.id
+            )).delete()
+        for match in group.matches:
+            db.query(Match).filter(Match.id == match.id).delete()
+        db.query(Group).filter(Group.id == group.id).delete()
+
     db.query(TeamParticipantNominationEvent).\
         filter(TeamParticipantNominationEvent.nomination_event_id == nomination_event_db.id).all()
 

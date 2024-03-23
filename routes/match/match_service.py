@@ -37,5 +37,6 @@ class MatchService:
         )
 
         self.__event_manager.raise_exception_if_owner_wrong(nomination_event.event_name, decoded_token.user_id)
+        self.__nomination_event_manager.raise_exception_if_nomination_event_not_olympyc(nomination_event.type)
 
         return self.__match_manager.get_group_matches_of_tournament(nomination_event)

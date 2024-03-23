@@ -21,7 +21,7 @@ from db.models.nomination_event import NominationEvent
 from db.schemas.event import EventGetNameSchema
 from db.schemas.group_tournament import StartGroupTournamentSchema
 from db.schemas.nomination_event import NominationEventSchema, NominationEventDataSchema, NominationEventDeleteSchema, \
-    NominationEventParticipantCountSchema
+    NominationEventParticipantCountSchema, NominationEventType
 from managers.event import EventManager
 from managers.nomination import NominationManager
 from managers.team import TeamManager
@@ -41,6 +41,7 @@ class NominationEventManager:
         self.__nomination_event_already_exist_error = "nomination event already exist"
         self.__tournament_already_started_error = "tournament already started"
         self.__tournament_started_error = "tournament started"
+        self.__wrong_nomination_event_type_error = "wrong nomination event type error"
 
     def get_nomination_event_pdf(self, data: list[NominationEventSchema]):
         pdf_data = get_nomination_event_pdf_data_db(self.__db, data)
@@ -190,4 +191,11 @@ class NominationEventManager:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail={"message": self.__tournament_started_error}
+            )
+
+    def raise_exception_if_nomination_event_not_olympyc(self, nomination_event_type: str):
+        if nomination_event_type != NominationEventType.olympyc:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail={"error": self.__wrong_nomination_event_type_error}
             )

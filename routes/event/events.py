@@ -37,9 +37,6 @@ async def get_events_with_nominations(
     return service.list_with_nominations(response, token, offset, limit)
 
 
-
-
-
 @events.post("/event")
 async def create_event(
         response: Response,

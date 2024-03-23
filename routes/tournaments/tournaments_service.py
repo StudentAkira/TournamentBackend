@@ -43,6 +43,7 @@ class TournamentService:
             nomination_event.event_name,
             nomination_event.type
         )
+        self.__nomination_event_manager.raise_exception_if_nomination_event_not_olympyc(nomination_event.type)
         self.__tournament_manager.create_group_tournament(nomination_event)
         return {"message": self.__groups_created_message}
 
@@ -61,4 +62,5 @@ class TournamentService:
             nomination_event.type,
             decoded_token.user_id
         )
+        self.__nomination_event_manager.raise_exception_if_nomination_event_not_olympyc(nomination_event.type)
         return self.__tournament_manager.get_groups_of_tournament(nomination_event)
