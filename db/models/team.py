@@ -11,7 +11,6 @@ if TYPE_CHECKING:
     from db.models.participant import Participant
     from db.models.group import Group
     from db.models.bracket import Bracket
-    from db.models.match import Match
 
 
 class Team(Base):

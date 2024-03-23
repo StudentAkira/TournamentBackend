@@ -20,11 +20,12 @@ from routes.user.users import users
 app = FastAPI()
 
 from db.models.nominatuin_event_judge import NominationEventJudge
-from db.models.match import Match
 from db.models.group import Group
 from db.models.bracket import Bracket
 from db.models.group_team import GroupTeam
 from db.models.bracket_team import BracketTeam
+from db.models.match import Match
+
 
 database.Base.metadata.create_all(bind=database.engine)
 

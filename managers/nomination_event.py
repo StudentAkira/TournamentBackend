@@ -121,12 +121,6 @@ class NominationEventManager:
     def open_registration(self, nomination_event_data: NominationEventSchema):
         open_registration_nomination_event_db(self.__db, nomination_event_data)
 
-    def create_group_tournament(self, nomination_event: StartGroupTournamentSchema):
-        close_registration_nomination_event_db(self.__db, NominationEventSchema(
-            **nomination_event.model_dump()
-        ))
-        create_group_tournament_db(self.__db, nomination_event)
-
     def raise_exception_if_not_found(
             self,
             nomination_name: str,
