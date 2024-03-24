@@ -1,3 +1,5 @@
+import datetime
+
 from sqlalchemy.orm import Session
 
 from db.models.nomination import Nomination
@@ -53,3 +55,9 @@ def round_robin(teams: list[Team | None]):
 
     return matches
 
+
+def get_person_age(birth_date: datetime.datetime):
+    year, month, day = map(int, str(birth_date).split('-'))
+    today = datetime.date.today()
+    age = today.year - year - ((today.month, today.day) < (month, day))
+    return age

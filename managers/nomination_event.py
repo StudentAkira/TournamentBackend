@@ -2,12 +2,13 @@ import os
 from typing import cast
 
 from fastapi import HTTPException
-from fpdf import FPDF
+from fpdf import FPDF, fpdf
 from sqlalchemy import exists, and_
 from sqlalchemy.orm import Session
 from starlette import status
 
 from db.crud.event import get_event_by_name_db
+from db.crud.general import get_person_age
 from db.crud.nomination_event import get_nomination_events_full_info_db, \
     get_nomination_events_all_names_by_owner_db, \
     get_nomination_events_full_info_by_owner_db, \
@@ -19,6 +20,7 @@ from db.crud.tournaments import create_group_tournament_db
 from db.models.event import Event
 from db.models.nomination import Nomination
 from db.models.nomination_event import NominationEvent
+from db.models.user import User
 from db.schemas.event import EventGetNameSchema
 from db.schemas.group_tournament import StartGroupTournamentSchema
 from db.schemas.nomination_event import NominationEventSchema, NominationEventDataSchema, NominationEventDeleteSchema, \
@@ -45,43 +47,61 @@ class NominationEventManager:
         self.__wrong_nomination_event_type_error = "wrong nomination event type"
 
     def get_nomination_event_pdf(self, data: list[NominationEventSchema]):
+
         pdf_data = get_nomination_event_pdf_data_db(self.__db, data)
 
-        pdf = FPDF(orientation = 'L')
+        pdf = FPDF(orientation='L')
         pdf.add_page()
         pdf.add_font('fontF', 'B', os.path.join(".", 'Roman.ttf'))
-        pdf.set_font('fontF', 'B', 14)
+        pdf.set_font('fontF', 'B', 12)
+        pdf.write(text='''
+                                                                                                                        
+                                ЗАЯВКА ________________________________________________________________________области
+                                на участие в открытом республиканском IT-чемпионате «РобИн-2024». 
+        \n''')
+
         with pdf.table() as table:
             table._first_row_as_headings = False
             table._num_heading_rows = 0
             row = table.row()
-            text = "Фамилия Имя Отчество"
-            row.cell(text)
-            row.cell("Область")
-            row.cell("Число, месяц, год рождения, количество полных лет на начало проведения мероприятия")
-            row.cell("Компетенция")
-            row.cell("Программное обеспечение")
-            row.cell("Привозимое оборудование")
-            row.cell("Учреждение образования (название полностью), класс.")
+            row.cell("№\nп/п", align=fpdf.Align.C)
+            text = "Фамилия Имя Отчество участника"
+            row.cell(text, align=fpdf.Align.C)
+            row.cell("Область", align=fpdf.Align.C)
+            row.cell("Число, месяц, год рождения, количество полных лет на начало проведения мероприятия", align=fpdf.Align.C)
+            row.cell("Компетенция", align=fpdf.Align.C)
+            row.cell("Программное обеспечение", align=fpdf.Align.C)
+            row.cell("Привозимое оборудование", align=fpdf.Align.C)
+            row.cell("Учреждение образования (название полностью), класс.", align=fpdf.Align.C)
             row.cell(
-                 "Учреждение дополнительного образования детей и молодежи (или иное) и объединение по интересам, в котором занимается участник")
-            row.cell("Фамилия, имя, отчество, место работы педагога, контакты")
+                 "Учреждение дополнительного образования детей и молодежи (или иное) и объединение по интересам, в котором занимается участник", align=fpdf.Align.C)
+            row.cell("Фамилия, имя, отчество, место работы педагога, контакты", align=fpdf.Align.C)
             for item in pdf_data:
                 for i, participant in enumerate(item.participants):
                     row = table.row()
+                    row.cell()
                     row.cell(
                         f"{participant.first_name} "
                         f"{participant.second_name} "
-                        f"{participant.third_name}"
+                        f"{participant.third_name}", align=fpdf.Align.C
                     )
                     row.cell(f"{participant.region}")
-                    row.cell(f"{participant.birth_date}")
-                    row.cell(f"{item.nomination_name}")
-                    row.cell(f"{participant.software}")
-                    row.cell(f"{participant.equipment}")
-                    row.cell(f"{participant.educational_institution}")
-                    row.cell(f"{participant.additional_educational_institution}")
-                    row.cell(f"{participant.supervisor_first_name} {participant.supervisor_second_name} {participant.supervisor_third_name}")
+                    row.cell(f"{participant.birth_date.strftime('%d-%m-%y')}, \n {get_person_age(participant.birth_date)} лет", align=fpdf.Align.C)
+                    row.cell(f"{item.nomination_name}", align=fpdf.Align.C)
+                    row.cell(f"{participant.software}", align=fpdf.Align.C)
+                    row.cell(f"{participant.equipment}", align=fpdf.Align.C)
+                    row.cell(f"{participant.educational_institution}", align=fpdf.Align.C)
+                    row.cell(f"{participant.additional_educational_institution}", align=fpdf.Align.C)
+                    row.cell(f"{participant.supervisor_first_name} {participant.supervisor_second_name} {participant.supervisor_third_name}", align=fpdf.Align.C)
+        pdf.write(text='''
+                                            Приложение: согласие на обработку и хранение персональных данных участников. 
+                                    
+                                    Начальник главного управления                          подпись                                                                                                   И.О.Ф.
+                                    по образованию                                                      м.п.
+                                    
+                                    
+                                    * заполняется, если участника отправляет учреждение дополнительного образования детей и молодежи (или иное)
+''')
         return pdf.output()
 
     def get_nomination_event_data(self, event_name: str) -> list[NominationEventParticipantCountSchema]:
