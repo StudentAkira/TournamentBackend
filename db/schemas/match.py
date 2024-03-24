@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, Field, EmailStr, validator
 
 from db.schemas.nomination_event import NominationEventSchema
 from db.schemas.team import TeamSchema
@@ -13,7 +13,6 @@ class MatchSchema(BaseModel):
 
     last_result_creator_email: EmailStr | None
     match_queue_number: int
-    draw: bool
 
     class Config:
         from_attributes = True
@@ -24,4 +23,11 @@ class SetMatchResultSchema(BaseModel):
 
     match_id: int
     winner_team_name: str | None = None
-    draw: bool
+
+    @validator('winner_team_name')
+    def validate_winner_team_name(cls, value: str | None):
+        if value is None:
+            return value
+        if len(value) <= 3:
+            raise ValueError(f"team name should be at least 3 characters length, {value}")
+        return value

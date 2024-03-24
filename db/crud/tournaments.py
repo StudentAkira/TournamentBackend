@@ -126,7 +126,7 @@ def is_all_matches_finished_db(db: Session, nomination_event: NominationEventSch
 
     for group in nomination_event_db.groups:
         for match in group.matches:
-            if match.winner is None and not match.draw:
+            if match.last_result_creator is None and match.team1 is not None and match.team2 is not None:
                 return False
     return True
 
@@ -149,7 +149,7 @@ def finish_group_stage_db(db: Session, nomination_event: NominationEventSchema):
     db.commit()
 
 
-def start_play_off_tournament_db(db: Session, nomination_event: NominationEventSchema, top_count: int):
+def start_play_off_tournament_db(db: Session, nomination_event: NominationEventSchema):
     event_db = db.query(Event).filter(
         cast("ColumnElement[bool]", Event.name == nomination_event.event_name)).first()
     nomination_db = db.query(Nomination).filter(
@@ -165,6 +165,7 @@ def start_play_off_tournament_db(db: Session, nomination_event: NominationEventS
     for group in nomination_event_db.groups:
         team_score = {}
         for match in group.matches:
+
             if match.team1:
                 team_score[match.team1.id] = team_score.get(match.team1.id, 0)\
                                              + (1 if match.winner.id == match.team1.id else 0)
@@ -173,25 +174,3 @@ def start_play_off_tournament_db(db: Session, nomination_event: NominationEventS
                                              + (1 if match.winner.id == match.team2.id else 0)
         print(group.id)
         print(team_score)
-
-
-def is_top_count_wrong_db(db: Session, nomination_event: NominationEventSchema, top_count: int):
-    event_db = db.query(Event).filter(
-        cast("ColumnElement[bool]", Event.name == nomination_event.event_name)).first()
-    nomination_db = db.query(Nomination).filter(
-        cast("ColumnElement[bool]", Nomination.name == nomination_event.nomination_name)).first()
-    nomination_event_db = db.query(NominationEvent).filter(
-        and_(
-            NominationEvent.event_id == event_db.id,
-            NominationEvent.nomination_id == nomination_db.id,
-            NominationEvent.type == nomination_event.type
-        )
-    ).first()
-
-    min_group_size = 65000
-    for group in nomination_event_db.groups:
-        min_group_size = min(min_group_size, len(group.teams))
-
-    if top_count > min_group_size:
-        return True
-    return False

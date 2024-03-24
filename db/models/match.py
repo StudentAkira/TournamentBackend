@@ -35,7 +35,5 @@ class Match(Base):
 
     last_result_creator: Mapped["User"] = relationship("User", back_populates="condemned_matches")
 
-    draw: bool = Column(Boolean, nullable=False, default=False)
-
     bracket_id: int = Column(Integer, ForeignKey("tournament_bracket.id"), nullable=True)
     bracket: Mapped["Bracket"] = relationship("Bracket", back_populates="matches")

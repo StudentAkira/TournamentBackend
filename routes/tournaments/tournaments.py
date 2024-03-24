@@ -49,9 +49,8 @@ async def finish_group_stage(
 async def start_play_off_tournament(
         response: Response,
         nomination_event: NominationEventSchema,
-        top_count: Annotated[int, Body(gt=0)],
         token: str = Depends(authorized_only),
         db: Session = Depends(get_db)
 ):
     service = TournamentService(db)
-    return service.start_play_off_tournament(response, token, nomination_event, top_count)
+    return service.start_play_off_tournament(response, token, nomination_event)

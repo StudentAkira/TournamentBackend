@@ -1,6 +1,4 @@
 from starlette.responses import Response
-
-from db.crud.tournaments import is_top_count_wrong_db
 from db.schemas.group_tournament import StartGroupTournamentSchema
 from db.schemas.nomination_event import NominationEventSchema
 from managers.event import EventManager
@@ -51,12 +49,10 @@ class TournamentService:
             response: Response,
             token: str,
             nomination_event: NominationEventSchema,
-            top_count: int
     ):
         self.actions_validation(response, token, nomination_event)
         self.__tournament_manager.raise_exception_if_group_stage_not_finished(nomination_event)
-        self.__tournament_manager.raise_exception_if_top_count_wrong(nomination_event, top_count)
-        self.__tournament_manager.start_play_off_tournament(nomination_event, top_count)
+        self.__tournament_manager.start_play_off_tournament(nomination_event)
         return {"message": self.__play_off_tournament_started}
 
     def actions_validation(
