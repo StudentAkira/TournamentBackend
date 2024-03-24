@@ -27,34 +27,48 @@ from db.schemas.team_participant import TeamParticipantsSchema
 db = SessionLocal()
 
 
-def counting_sort(arr):
-    max_val = max(arr)
-    count = [0] * (max_val + 1)
-    for num in arr:
-        count[num] += 1
-    sorted_arr = []
-    for i in range(len(count)):
-        sorted_arr.extend([i] * count[i])
-    return sorted_arr
+def quick_sort(arr):
+    if len(arr) <= 1:
+        return arr
+    pivot = arr[len(arr) // 2]
+
+    left = [x for x in arr if x < pivot]
+    middle = [x for x in arr if x == pivot]
+    right = [x for x in arr if x > pivot]
+
+    return quick_sort(left) + middle + quick_sort(right)
 
 
-nomination_name = "string"
-event_name = "string"
-nomination_event_type = "olympyc"
-group_count = 2
+print(quick_sort([7,6,5,4,3,2,1]))
 
-
-event_db = db.query(Event).filter(
-cast("ColumnElement[bool]", Event.name == event_name)).first()
-nomination_db = db.query(Nomination).filter(
-cast("ColumnElement[bool]", Nomination.name == nomination_name)).first()
-nomination_event_db = db.query(NominationEvent).filter(
-and_(
-    NominationEvent.event_id == event_db.id,
-    NominationEvent.nomination_id == nomination_db.id,
-    NominationEvent.type == nomination_event_type
-)
-).first()
+# def counting_sort(arr):
+#     max_val = max(arr)
+#     count = [0] * (max_val + 1)
+#     for num in arr:
+#         count[num] += 1
+#     sorted_arr = []
+#     for i in range(len(count)):
+#         sorted_arr.extend([i] * count[i])
+#     return sorted_arr
+#
+#
+# nomination_name = "string"
+# event_name = "string"
+# nomination_event_type = "olympyc"
+# group_count = 2
+#
+#
+# event_db = db.query(Event).filter(
+# cast("ColumnElement[bool]", Event.name == event_name)).first()
+# nomination_db = db.query(Nomination).filter(
+# cast("ColumnElement[bool]", Nomination.name == nomination_name)).first()
+# nomination_event_db = db.query(NominationEvent).filter(
+# and_(
+#     NominationEvent.event_id == event_db.id,
+#     NominationEvent.nomination_id == nomination_db.id,
+#     NominationEvent.type == nomination_event_type
+# )
+# ).first()
 
 
 # for group in nomination_event_db.groups:
@@ -63,19 +77,19 @@ and_(
 #         print(f"\t{match.match_queue_number} {match.team1.id if match.team1 else None} {match.team2.id if match.team2 else None}")
 
 
-for group in nomination_event_db.groups:
-    for team in group.teams:
-        db.query(GroupTeam).filter(and_(
-            GroupTeam.tournament_group_id == group.id,
-            GroupTeam.team_id == team.id
-        )).delete()
-    for match in group.matches:
-        db.query(Match).filter(Match.id == match.id).delete()
-    db.query(Group).filter(Group.id == group.id).delete()
-db.refresh(nomination_event_db)
-nomination_event_db.tournament_started = False
-print(nomination_event_db.groups)
-db.commit()
+# for group in nomination_event_db.groups:
+#     for team in group.teams:
+#         db.query(GroupTeam).filter(and_(
+#             GroupTeam.tournament_group_id == group.id,
+#             GroupTeam.team_id == team.id
+#         )).delete()
+#     for match in group.matches:
+#         db.query(Match).filter(Match.id == match.id).delete()
+#     db.query(Group).filter(Group.id == group.id).delete()
+# db.refresh(nomination_event_db)
+# nomination_event_db.tournament_started = False
+# print(nomination_event_db.groups)
+# db.commit()
 
 #
 # nomination_event_db.tournament_started = True

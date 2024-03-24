@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from db.models.team import Team
     from db.models.participant import Participant
     from db.models.nomination_event import NominationEvent
+    from db.models.match import Match
 
 
 class User(Base):
@@ -30,6 +31,7 @@ class User(Base):
     educational_institution: str | None = Column(String, nullable=True)
     role: str = Column(String, nullable=False)
 
+    condemned_matches: Mapped[list["Match"]] = relationship("Match", back_populates="last_result_creator")
     tokens: Mapped[list["Token"]] = relationship("Token", back_populates="owner")
     events: Mapped[list["Event"]] = relationship("Event", back_populates="owner")
     created_teams: Mapped[list["Team"]] = relationship("Team", back_populates="creator")

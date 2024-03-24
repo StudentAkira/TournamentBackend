@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from db.models.group import Group
     from db.models.bracket import Bracket
     from db.models.team import Team
+    from db.models.user import User
 
 
 class Match(Base):
@@ -30,6 +31,9 @@ class Match(Base):
     group: Mapped["Group"] = relationship("Group", back_populates="matches")
 
     match_queue_number: int = Column(Integer)
+    last_result_creator_id: int = Column(Integer, ForeignKey("users.id"), nullable=True, default=None)
+
+    last_result_creator: Mapped["User"] = relationship("User", back_populates="condemned_matches")
 
     bracket_id: int = Column(Integer, ForeignKey("tournament_bracket.id"), nullable=True)
     bracket: Mapped["Bracket"] = relationship("Bracket", back_populates="matches")
