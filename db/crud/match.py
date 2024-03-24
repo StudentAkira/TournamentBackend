@@ -41,6 +41,7 @@ def get_group_matches_of_tournament_db(db: Session, nomination_event: Nomination
                     last_result_creator_email=
                         match_db.last_result_creator.email
                         if match_db.last_result_creator else None,
+                    draw=match_db.draw,
                     match_queue_number=match_db.match_queue_number
                 ) for match_db in group_db.matches
             ]
@@ -50,10 +51,12 @@ def get_group_matches_of_tournament_db(db: Session, nomination_event: Nomination
 
 
 def set_match_result_db(db: Session, judge_id: int, data: SetMatchResultSchema):
+
     winner_team_db = db.query(Team).filter(cast("ColumnElement[bool]", Team.name == data.winner_team_name)).first()
     match_db = db.query(Match).filter(cast("ColumnElement[bool]", Match.id == data.match_id)).first()
-    match_db.winner = winner_team_db
+    match_db.winner = winner_team_db if winner_team_db else None
     match_db.last_result_creator = db.query(User).filter(cast("ColumnElement[bool]", User.id == judge_id)).first()
+    match_db.draw = data.draw
     db.add(match_db)
     db.commit()
 

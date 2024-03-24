@@ -13,6 +13,7 @@ from db.models.team import Team
 from db.schemas.group_tournament import StartGroupTournamentSchema, GetGroupsOfTournamentSchema, GroupSchema
 from db.schemas.nomination_event import NominationEventSchema
 from db.schemas.participant import ParticipantSchema
+from db.schemas.team import TeamSchema
 from db.schemas.team_participant import TeamParticipantsSchema
 
 
@@ -42,13 +43,17 @@ def create_group_tournament_db(db: Session, nomination_event: StartGroupTourname
     for group in groups:
         matches_data = round_robin(group.teams.copy())
         for i, match_data in enumerate(matches_data):
+            winner = None
+            if match_data[0] is None and match_data[1] is not None:
+                winner = match_data[1]
+            if match_data[1] is None and match_data[0] is not None:
+                winner = match_data[0]
             match_db = Match(
                 match_queue_number=i+1,
                 team1=match_data[0],
                 team2=match_data[1],
-                winner=None
+                winner=winner
             )
-
             group.matches.append(match_db)
             db.add(match_db)
         db.add(group)
@@ -96,15 +101,97 @@ def get_groups_of_tournament_db(db: Session, nomination_event: NominationEventSc
             GroupSchema(
                 id=group_db.id,
                 teams=[
-                    TeamParticipantsSchema(
+                    TeamSchema(
                         name=team_db.name,
-                        participants=[
-                            ParticipantSchema.from_orm(participant_db)
-                            for participant_db in team_db.participants
-                        ]
                     ) for team_db in group_db.teams
                 ]
             ) for group_db in nomination_event_db.groups
         ]
     )
     return result
+
+
+def is_all_matches_finished_db(db: Session, nomination_event: NominationEventSchema):
+    event_db = db.query(Event).filter(
+        cast("ColumnElement[bool]", Event.name == nomination_event.event_name)).first()
+    nomination_db = db.query(Nomination).filter(
+        cast("ColumnElement[bool]", Nomination.name == nomination_event.nomination_name)).first()
+    nomination_event_db = db.query(NominationEvent).filter(
+        and_(
+            NominationEvent.event_id == event_db.id,
+            NominationEvent.nomination_id == nomination_db.id,
+            NominationEvent.type == nomination_event.type
+        )
+    ).first()
+
+    for group in nomination_event_db.groups:
+        for match in group.matches:
+            if match.winner is None and not match.draw:
+                return False
+    return True
+
+
+def finish_group_stage_db(db: Session, nomination_event: NominationEventSchema):
+    event_db = db.query(Event).filter(
+        cast("ColumnElement[bool]", Event.name == nomination_event.event_name)).first()
+    nomination_db = db.query(Nomination).filter(
+        cast("ColumnElement[bool]", Nomination.name == nomination_event.nomination_name)).first()
+    nomination_event_db = db.query(NominationEvent).filter(
+        and_(
+            NominationEvent.event_id == event_db.id,
+            NominationEvent.nomination_id == nomination_db.id,
+            NominationEvent.type == nomination_event.type
+        )
+    ).first()
+
+    nomination_event_db.group_stage_finished = True
+    db.add(nomination_event_db)
+    db.commit()
+
+
+def start_play_off_tournament_db(db: Session, nomination_event: NominationEventSchema, top_count: int):
+    event_db = db.query(Event).filter(
+        cast("ColumnElement[bool]", Event.name == nomination_event.event_name)).first()
+    nomination_db = db.query(Nomination).filter(
+        cast("ColumnElement[bool]", Nomination.name == nomination_event.nomination_name)).first()
+    nomination_event_db = db.query(NominationEvent).filter(
+        and_(
+            NominationEvent.event_id == event_db.id,
+            NominationEvent.nomination_id == nomination_db.id,
+            NominationEvent.type == nomination_event.type
+        )
+    ).first()
+
+    for group in nomination_event_db.groups:
+        team_score = {}
+        for match in group.matches:
+            if match.team1:
+                team_score[match.team1.id] = team_score.get(match.team1.id, 0)\
+                                             + (1 if match.winner.id == match.team1.id else 0)
+            if match.team2:
+                team_score[match.team2.id] = team_score.get(match.team2.id, 0)\
+                                             + (1 if match.winner.id == match.team2.id else 0)
+        print(group.id)
+        print(team_score)
+
+
+def is_top_count_wrong_db(db: Session, nomination_event: NominationEventSchema, top_count: int):
+    event_db = db.query(Event).filter(
+        cast("ColumnElement[bool]", Event.name == nomination_event.event_name)).first()
+    nomination_db = db.query(Nomination).filter(
+        cast("ColumnElement[bool]", Nomination.name == nomination_event.nomination_name)).first()
+    nomination_event_db = db.query(NominationEvent).filter(
+        and_(
+            NominationEvent.event_id == event_db.id,
+            NominationEvent.nomination_id == nomination_db.id,
+            NominationEvent.type == nomination_event.type
+        )
+    ).first()
+
+    min_group_size = 65000
+    for group in nomination_event_db.groups:
+        min_group_size = min(min_group_size, len(group.teams))
+
+    if top_count > min_group_size:
+        return True
+    return False

@@ -13,7 +13,8 @@ from db.crud.nomination_event import get_nomination_events_full_info_db, \
     get_nomination_events_full_info_by_owner_db, \
     get_nomination_events_all_names_db, append_event_nominations_db, get_nominations_event_participant_count_db, \
     delete_nomination_event_db, append_nomination_for_event_db, get_nomination_event_pdf_data_db, \
-    close_registration_nomination_event_db, open_registration_nomination_event_db, is_tournament_started_db
+    close_registration_nomination_event_db, open_registration_nomination_event_db, is_tournament_started_db, \
+    is_group_stage_finished_db
 from db.crud.tournaments import create_group_tournament_db
 from db.models.event import Event
 from db.models.nomination import Nomination
@@ -41,7 +42,7 @@ class NominationEventManager:
         self.__nomination_event_already_exist_error = "nomination event already exist"
         self.__tournament_already_started_error = "tournament already started"
         self.__tournament_started_error = "tournament started"
-        self.__wrong_nomination_event_type_error = "wrong nomination event type error"
+        self.__wrong_nomination_event_type_error = "wrong nomination event type"
 
     def get_nomination_event_pdf(self, data: list[NominationEventSchema]):
         pdf_data = get_nomination_event_pdf_data_db(self.__db, data)
@@ -199,3 +200,4 @@ class NominationEventManager:
                 status_code=status.HTTP_409_CONFLICT,
                 detail={"error": self.__wrong_nomination_event_type_error}
             )
+

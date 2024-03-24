@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Column, Integer, ForeignKey
+from sqlalchemy import Column, Integer, ForeignKey, Boolean
 from sqlalchemy.orm import relationship, Mapped
 
 from db.database import Base
@@ -34,6 +34,8 @@ class Match(Base):
     last_result_creator_id: int = Column(Integer, ForeignKey("users.id"), nullable=True, default=None)
 
     last_result_creator: Mapped["User"] = relationship("User", back_populates="condemned_matches")
+
+    draw: bool = Column(Boolean, nullable=False, default=False)
 
     bracket_id: int = Column(Integer, ForeignKey("tournament_bracket.id"), nullable=True)
     bracket: Mapped["Bracket"] = relationship("Bracket", back_populates="matches")

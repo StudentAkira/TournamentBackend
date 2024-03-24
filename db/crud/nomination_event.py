@@ -404,3 +404,18 @@ def get_judge_command_ids_db(db: Session, nomination_name: str, event_name: str,
     ).first()
 
     return set(judge_db.id for judge_db in nomination_event_db.judges)
+
+
+def is_group_stage_finished_db(db: Session, nomination_event: NominationEventSchema):
+    event_db = db.query(Event).filter(
+        cast("ColumnElement[bool]", Event.name == nomination_event.event_name)).first()
+    nomination_db = db.query(Nomination).filter(
+        cast("ColumnElement[bool]", Nomination.name == nomination_event.nomination_name)).first()
+    nomination_event_db = db.query(NominationEvent).filter(
+        and_(
+            NominationEvent.event_id == event_db.id,
+            NominationEvent.nomination_id == nomination_db.id,
+            NominationEvent.type == nomination_event.type
+        )
+    ).first()
+    return nomination_event_db.group_stage_finished

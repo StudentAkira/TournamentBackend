@@ -2,9 +2,10 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from starlette import status
 
-from db.crud.nomination_event import close_registration_nomination_event_db
+from db.crud.nomination_event import close_registration_nomination_event_db, is_group_stage_finished_db
 from db.crud.tournaments import create_group_tournament_db, \
-    get_groups_of_tournament_db, get_count_of_participants_of_tournament_db
+    get_groups_of_tournament_db, get_count_of_participants_of_tournament_db, is_all_matches_finished_db, \
+    finish_group_stage_db, start_play_off_tournament_db, is_top_count_wrong_db
 from db.schemas.group_tournament import StartGroupTournamentSchema
 from db.schemas.nomination_event import NominationEventSchema
 
@@ -14,7 +15,11 @@ class TournamentManager:
 
     def __init__(self, db):
         self.__db = db
+
         self.__invalid_group_count_error = "invalid group count"
+        self.__not_all_matches_finished_error = "not all matches are finished"
+        self.__group_stage_not_finished_error = "group stage is not finished"
+        self.__top_count_wrong_error = "top count parameter is wrong"
 
     def create_group_tournament(self, nomination_event: StartGroupTournamentSchema):
         close_registration_nomination_event_db(self.__db, NominationEventSchema(
@@ -30,6 +35,12 @@ class TournamentManager:
 
     def get_groups_of_tournament(self, nomination_event: NominationEventSchema):
         return get_groups_of_tournament_db(self.__db, nomination_event)
+
+    def finish_group_stage(self, nomination_event):
+        finish_group_stage_db(self.__db, nomination_event)
+
+    def start_play_off_tournament(self, nomination_event: NominationEventSchema, top_count: int):
+        start_play_off_tournament_db(self.__db, nomination_event, top_count)
 
     def validate_group_count(self, group_count: int, nomination_name: str, event_name: str, nomination_event_type: str):
         team_count = get_count_of_participants_of_tournament_db(
@@ -51,3 +62,26 @@ class TournamentManager:
             status_code=status.HTTP_409_CONFLICT,
             detail={"error": self.__invalid_group_count_error}
         )
+
+    def raise_exception_if_not_all_matches_finished(self, nomination_event: NominationEventSchema):
+        all_matches_finished = is_all_matches_finished_db(self.__db, nomination_event)
+        if not all_matches_finished:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail={"error": self.__not_all_matches_finished_error}
+            )
+
+    def raise_exception_if_group_stage_not_finished(self, nomination_event: NominationEventSchema):
+        if not is_group_stage_finished_db(self.__db, nomination_event):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail={"error": self.__group_stage_not_finished_error}
+            )
+
+    def raise_exception_if_top_count_wrong(self, nomination_event: NominationEventSchema, top_count: int):
+        is_wrong = is_top_count_wrong_db(self.__db, nomination_event, top_count)
+        if is_wrong:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail={"error": self.__top_count_wrong_error}
+            )

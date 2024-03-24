@@ -26,6 +26,8 @@ class NominationEvent(Base):
     tournament_started: bool = Column(Boolean, nullable=False, default=False)
     type: NominationEventType = Column(String, nullable=False, default=NominationEventType.olympyc)
 
+    group_stage_finished: bool = Column(Boolean, nullable=False, default=False)
+
     groups: Mapped[list["Group"]] = relationship(
         "Group",
         back_populates="nomination_event"

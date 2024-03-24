@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, Body
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 
@@ -32,6 +34,24 @@ async def get_groups_of_tournament(
     return service.get_groups_of_tournament(response, token, nomination_event)
 
 
+@tournaments.post("/finish_group_stage")
+async def finish_group_stage(
+    response: Response,
+    nomination_event: NominationEventSchema,
+    token: str = Depends(authorized_only),
+    db: Session = Depends(get_db)
+):
+    service = TournamentService(db)
+    return service.finish_group_stage(response, token, nomination_event)
+
+
 @tournaments.post("/start_play_off_tournament")
-async def start_play_off_tournament():
-    pass
+async def start_play_off_tournament(
+        response: Response,
+        nomination_event: NominationEventSchema,
+        top_count: Annotated[int, Body(gt=0)],
+        token: str = Depends(authorized_only),
+        db: Session = Depends(get_db)
+):
+    service = TournamentService(db)
+    return service.start_play_off_tournament(response, token, nomination_event, top_count)

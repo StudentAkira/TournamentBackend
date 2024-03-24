@@ -35,9 +35,7 @@ class MatchService:
             data.nomination_event.event_name,
             data.nomination_event.type
         )
-        data.winner_team_name = self.__team_manager.get_team_name_from_team_name_or_participant_email(
-            data.winner_team_name
-        )
+        self.__match_manager.raise_exception_if_match_data_is_wrong(data)
         self.__event_manager.raise_exception_if_user_not_in_judge_command(
             data.nomination_event.nomination_name,
             data.nomination_event.event_name,
@@ -47,7 +45,6 @@ class MatchService:
         self.__match_manager.raise_exception_if_not_found(data.match_id)
         self.__match_manager.raise_exception_if_match_not_related_to_nomination_event(data)
         self.__match_manager.raise_exception_if_winner_not_in_match(data.match_id, data.winner_team_name)
-
         self.__match_manager.set_match_result(decoded_token.user_id, data)
         return {"message": self.__match_result_set_message}
 

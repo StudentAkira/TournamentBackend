@@ -26,6 +26,8 @@ class MatchManager:
         self.__match_not_related_to_group_error = "match not related to group"
         self.__match_not_found_error = "match not found error"
         self.__team_not_related_to_match_error = "team not related to match error"
+        self.__wrong_match_data_error = "wrong match data error"
+
 
     def get_group_matches_of_tournament(self, nomination_event: NominationEventSchema):
         data = get_group_matches_of_tournament_db(self.__db, nomination_event)
@@ -76,4 +78,16 @@ class MatchManager:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail={"error": self.__team_not_related_to_match_error}
+            )
+
+    def raise_exception_if_match_data_is_wrong(self, data: SetMatchResultSchema):
+        if data.winner_team_name is not None and data.draw:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail={"error": self.__wrong_match_data_error}
+            )
+        if data.winner_team_name is None and data.draw is False:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail={"error": self.__wrong_match_data_error}
             )

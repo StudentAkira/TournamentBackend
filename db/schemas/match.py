@@ -13,6 +13,7 @@ class MatchSchema(BaseModel):
 
     last_result_creator_email: EmailStr | None
     match_queue_number: int
+    draw: bool
 
     class Config:
         from_attributes = True
@@ -22,4 +23,5 @@ class SetMatchResultSchema(BaseModel):
     nomination_event: NominationEventSchema
 
     match_id: int
-    winner_team_name: str = Field(min_length=3)
+    winner_team_name: str | None = None
+    draw: bool

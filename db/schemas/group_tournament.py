@@ -10,7 +10,7 @@ from db.schemas.team_participant import TeamParticipantsSchema
 class GroupSchema(BaseModel):
     id: int
 
-    teams: list[TeamParticipantsSchema]
+    teams: list[TeamSchema]
 
     class Config:
         from_attributes = True
