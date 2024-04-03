@@ -9,7 +9,7 @@ from db.schemas.team import TeamSchema, TeamUpdateSchema
 from dependencies import get_db, authorized_only
 from routes.team.teams_service import TeamsService
 
-teams = APIRouter(prefix="/team", tags=["team"])
+teams = APIRouter(prefix="/api/team", tags=["team"])
 
 
 @teams.post("/teams")

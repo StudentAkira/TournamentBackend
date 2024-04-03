@@ -8,7 +8,7 @@ from dependencies import authorized_only, get_db
 from routes.nomination_event.nomination_event_service import NominationEventService
 
 
-nomination_event = APIRouter(prefix="/nomination_event", tags=["nomination_event"])
+nomination_event = APIRouter(prefix="/api/nomination_event", tags=["nomination_event"])
 
 
 @nomination_event.post("/nomination_event_pdf")

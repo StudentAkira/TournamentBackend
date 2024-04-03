@@ -8,7 +8,7 @@ from db.schemas.nomination import NominationSchema
 from dependencies import get_db, authorized_only
 from routes.nomination.nominations_service import NominationsService
 
-nominations = APIRouter(prefix="/nomination", tags=["nomination"])
+nominations = APIRouter(prefix="/api/nomination", tags=["nomination"])
 
 
 @nominations.get("/nomination")

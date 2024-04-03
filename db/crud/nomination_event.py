@@ -283,6 +283,7 @@ def get_nomination_event_pdf_data_db(db: Session, data: list[NominationEventSche
                 event_name=item.event_name,
                 type=item.type,
                 participants=[]
+
             )
         )
 

@@ -8,7 +8,7 @@ from db.schemas.participant import ParticipantSchema, ParticipantHideSchema, Par
 from dependencies import get_db, authorized_only
 from routes.participant.participants_service import ParticipantsService
 
-participants = APIRouter(prefix="/participant", tags=["participant"])
+participants = APIRouter(prefix="/api/participant", tags=["participant"])
 
 
 @participants.get("/participant")

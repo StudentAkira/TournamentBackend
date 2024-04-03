@@ -17,8 +17,8 @@ class AuthService:
         self.__logged_out_message = "logged out"
 
     def login(self, response: Response, user_login: UserLoginSchema) -> dict[str, str]:
+        self.__user_manager.raise_exception_if_user_not_found(user_login)
         user = self.__user_manager.get_user_by_email(user_login.email)
-        self.__user_manager.raise_exception_if_user_not_found(user)
         self.__user_manager.check_user_password(user, user_login.password)
         user_id = self.__user_manager.get_user_id_associated_with_email(user)
         token = self.__token_manager.generate_token(user_id, user.role)
@@ -30,7 +30,7 @@ class AuthService:
             samesite="lax",
             secure=True,
             expires=expires.strftime("%a, %d %b %Y %H:%M:%S GMT"),
-            domain="127.0.0.1"
+            domain=settings.cookie_domain
         )
         return {"message": self.__logged_in_message}
 

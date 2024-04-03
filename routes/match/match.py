@@ -8,7 +8,7 @@ from db.schemas.nomination_event import NominationEventSchema
 from dependencies import authorized_only, get_db
 from routes.match.match_service import MatchService
 
-match = APIRouter(prefix="/match", tags=["match"])
+match = APIRouter(prefix="/api/match", tags=["match"])
 
 
 @match.get("/get_matches_of_tournament")

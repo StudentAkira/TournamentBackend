@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "supersecret"
     jwt_token_expiration_time_days: int = 2
 
+    cookie_domain: str = "127.0.0.1"
+
     db: str = "supersecret"
     db_name: str = "supersecret"
     db_user: str = "supersecret"
@@ -20,5 +22,3 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
-
-

@@ -8,7 +8,7 @@ from dependencies import authorized_only, get_db
 from routes.team_nomination_event.team_nomination_event_service import TeamNominationEventService
 
 team_nomination_event = APIRouter(
-    prefix="/team_nomination_event",
+    prefix="/api/team_nomination_event",
     tags=["team_nomination_event"]
 )
 

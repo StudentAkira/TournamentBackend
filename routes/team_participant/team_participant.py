@@ -6,7 +6,7 @@ from starlette.responses import Response
 from dependencies import authorized_only, get_db
 from routes.team_participant.team_participant_service import TeamParticipantService
 
-team_participant = APIRouter(prefix="/team_participant", tags=["team_participant"])
+team_participant = APIRouter(prefix="/api/team_participant", tags=["team_participant"])
 
 
 @team_participant.post("/team_participant")

@@ -9,7 +9,7 @@ from db.schemas.nomination_event import NominationEventSchema
 from dependencies import authorized_only, get_db
 from routes.tournaments.tournaments_service import TournamentService
 
-tournaments = APIRouter(prefix="/tournaments", tags=["tournaments"])
+tournaments = APIRouter(prefix="/api/tournaments", tags=["tournaments"])
 
 
 @tournaments.post("/start_group_tournament")

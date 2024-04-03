@@ -6,7 +6,7 @@ from db.schemas.user import UserLoginSchema
 from dependencies import get_db, authorized_only
 from routes.auth.auth_service import AuthService
 
-auth = APIRouter(prefix="/auth", tags=["auth"])
+auth = APIRouter(prefix="/api/auth", tags=["auth"])
 
 
 @auth.post("/login")

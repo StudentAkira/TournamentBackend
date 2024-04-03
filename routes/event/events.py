@@ -10,7 +10,7 @@ from db.schemas.nomination_event import NominationEventSchema
 from dependencies import get_db, authorized_only
 from routes.event.events_service import EventsService
 
-events = APIRouter(prefix="/event", tags=["event"])
+events = APIRouter(prefix="/api/event", tags=["event"])
 
 
 @events.get("/event")

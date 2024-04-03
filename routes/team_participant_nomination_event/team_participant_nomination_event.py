@@ -9,7 +9,7 @@ from routes.team_participant_nomination_event.team_participant_nomination_event_
     TeamParticipantNominationEventService
 
 team_participant_nomination_event = APIRouter(
-    prefix="/team_participant_nomination_event",
+    prefix="/api/team_participant_nomination_event",
     tags=["team_participant_nomination_event"]
 )
 

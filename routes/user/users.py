@@ -7,7 +7,7 @@ from db.schemas.user import UserSchema, UserCreateSchema, UserRole, EditUserSche
 from dependencies import get_db, authorized_only
 from routes.user.users_service import UsersService
 
-users = APIRouter(prefix="/user", tags=["user"])
+users = APIRouter(prefix="/api/user", tags=["user"])
 
 
 @users.get("/profile")

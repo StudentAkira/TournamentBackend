@@ -9,7 +9,7 @@ from db.schemas.nomination_event_judge import NominationEventJudgeDataSchema, Ge
 from dependencies import authorized_only, get_db
 from routes.nomination_event_judge.nomination_event_judge_service import NominationEventJudgeService
 
-nomination_event_judge = APIRouter(prefix="/nomination_event_judge", tags=["nomination_event_judge"])
+nomination_event_judge = APIRouter(prefix="/api/nomination_event_judge", tags=["nomination_event_judge"])
 
 
 @nomination_event_judge.post("/nomination_event_judge")

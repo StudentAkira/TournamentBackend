@@ -53,3 +53,8 @@ class NominationEventPDFSchema(BaseModel):
     event_name: str
     type: str
     participants: list[ParticipantPDFSchema]
+
+    first_name: str
+    second_name: str
+    third_name: str
+    region: str

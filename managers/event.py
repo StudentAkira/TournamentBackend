@@ -29,8 +29,6 @@ class EventManager:
         self.raise_exception_if_name_taken(event.name)
         create_event_db(self.__db, event, owner_id)
 
-
-
     def list(self, offset: int, limit: int) -> list[EventSchema]:
         events_db = get_events_db(self.__db, offset, limit)
         events = [EventSchema.from_orm(event_db) for event_db in events_db]
