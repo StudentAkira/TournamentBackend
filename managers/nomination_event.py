@@ -44,6 +44,7 @@ class NominationEventManager:
         self.__nomination_event_already_exist_error = "nomination event already exist"
         self.__tournament_already_started_error = "tournament already started"
         self.__tournament_started_error = "tournament started"
+        self.__tournament_not_started_error = "tournament not started"
         self.__wrong_nomination_event_type_error = "wrong nomination event type"
 
     def get_nomination_event_pdf(self, data: list[NominationEventSchema]):
@@ -212,6 +213,19 @@ class NominationEventManager:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail={"message": self.__tournament_started_error}
+            )
+
+    def raise_exception_if_tournament_not_started(
+            self,
+            nomination_name: str,
+            event_name: str,
+            nomination_event_type: str
+    ):
+        started = is_tournament_started_db(self.__db, nomination_name, event_name, nomination_event_type)
+        if not started:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail={"message": self.__tournament_not_started_error}
             )
 
     def raise_exception_if_nomination_event_not_olympyc(self, nomination_event_type: str):

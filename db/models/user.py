@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from db.models.participant import Participant
     from db.models.nomination_event import NominationEvent
     from db.models.match import Match
+    from db.models.match import BracketMatch
 
 
 class User(Base):

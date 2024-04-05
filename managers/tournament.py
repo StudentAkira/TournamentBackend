@@ -44,8 +44,8 @@ class TournamentManager:
     def finish_group_stage(self, nomination_event):
         finish_group_stage_db(self.__db, nomination_event)
 
-    def start_play_off_tournament(self, nomination_event: NominationEventSchema):
-        start_play_off_tournament_db(self.__db, nomination_event)
+    def start_play_off_tournament(self, nomination_event: NominationEventSchema, teams: list[TeamSchema]):
+        start_play_off_tournament_db(self.__db, nomination_event, teams)
 
     def validate_group_count(self, group_count: int, nomination_name: str, event_name: str, nomination_event_type: str):
         team_count = get_count_of_participants_of_tournament_db(

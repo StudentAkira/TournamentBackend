@@ -44,6 +44,11 @@ class TournamentService:
     def finish_group_stage(self, response: Response, token: str, nomination_event: NominationEventSchema):
         self.actions_validation(response, token, nomination_event)
         self.__tournament_manager.raise_exception_if_not_all_matches_finished(nomination_event)
+        self.__nomination_event_manager.raise_exception_if_tournament_not_started(
+            nomination_event.nomination_name,
+            nomination_event.event_name,
+            nomination_event.type
+        )
         self.__tournament_manager.finish_group_stage(nomination_event)
         return {"message": self.__group_stage_finished_message}
 
@@ -62,7 +67,7 @@ class TournamentService:
 
         self.__tournament_manager.raise_exception_if_teams_not_in_tournament(teams, nomination_event)
         self.__tournament_manager.raise_exception_if_group_stage_not_finished(nomination_event)
-        self.__tournament_manager.start_play_off_tournament(nomination_event)
+        self.__tournament_manager.start_play_off_tournament(nomination_event, teams)
         return {"message": self.__play_off_tournament_started}
 
     def actions_validation(

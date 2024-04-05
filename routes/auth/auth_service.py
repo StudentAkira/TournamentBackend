@@ -30,7 +30,7 @@ class AuthService:
             samesite="lax",
             secure=True,
             expires=expires.strftime("%a, %d %b %Y %H:%M:%S GMT"),
-            domain=settings.cookie_domain
+            domain=settings.frontend_domain
         )
         return {"message": self.__logged_in_message}
 

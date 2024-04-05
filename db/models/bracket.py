@@ -9,7 +9,7 @@ from db.database import Base
 if TYPE_CHECKING:
     from db.models.nomination_event import NominationEvent
     from db.models.team import Team
-    from db.models.match import Match
+    from db.models.match import BracketMatch
 
 
 class Bracket(Base):
@@ -30,4 +30,4 @@ class Bracket(Base):
         secondary="bracket_team"
     )
 
-    matches: Mapped[list["Match"]] = relationship("Match", back_populates="bracket")
+    matches: Mapped[list["BracketMatch"]] = relationship("Match", back_populates="bracket")

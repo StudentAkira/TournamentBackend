@@ -104,6 +104,6 @@ def team_check_existence_in_tournament_db(db: Session, teams: list[TeamSchema], 
 
     tournament_team_ids = set(team_participant.team_id for team_participant in nomination_event_db.team_participants)
 
-    if received_teams_ids == tournament_team_ids:
+    if received_teams_ids.issubset(tournament_team_ids):
         return True
     return False

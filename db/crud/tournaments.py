@@ -149,7 +149,7 @@ def finish_group_stage_db(db: Session, nomination_event: NominationEventSchema):
     db.commit()
 
 
-def start_play_off_tournament_db(db: Session, nomination_event: NominationEventSchema):
+def start_play_off_tournament_db(db: Session, nomination_event: NominationEventSchema, teams: list[TeamSchema]):
     event_db = db.query(Event).filter(
         cast("ColumnElement[bool]", Event.name == nomination_event.event_name)).first()
     nomination_db = db.query(Nomination).filter(
@@ -165,13 +165,78 @@ def start_play_off_tournament_db(db: Session, nomination_event: NominationEventS
     team_score = {}
 
     for group in nomination_event_db.groups:
+
         for match in group.matches:
 
             if match.team1:
                 team_score[match.team1.id] = team_score.get(match.team1.id, 0)\
-                                             + (1 if match.winner.id == match.team1.id else 0)
+                                             + (1 if
+                                                match.winner is not None and match.winner.id == match.team1.id
+                                                else 0)
             if match.team2:
                 team_score[match.team2.id] = team_score.get(match.team2.id, 0)\
-                                             + (1 if match.winner.id == match.team2.id else 0)
-    print(team_score)
+                                             + (1 if
+                                                match.winner is not None and match.winner.id == match.team2.id
+                                                else 0)
+
+    receive_team_names = set(team_db.name for team_db in teams)
+    received_team_ids = set(team_db.id for team_db in db.query(Team).filter(Team.name.in_(receive_team_names)))
+
+    teams_to_create_matches = sorted(
+        [
+            (k, team_score[k])
+            for k in team_score.keys() if k in received_team_ids],
+        key=lambda item: item[1],
+        reverse=True
+    )
+
+    team_count = 2
+    while team_count < len(teams):
+        team_count *= 2
+    while team_count > len(teams_to_create_matches):
+        teams_to_create_matches.append((None, 0))
+
+    print(teams_to_create_matches)
+
+    teams_ids = [team[0] for team in teams_to_create_matches]
+    teams_db = db.query(Team).filter(Team.id.in_(teams_ids)).all()
+
+    team_id_entity = {team_db.id: team_db for team_db in teams_db}
+
+    matches = []
+    last = len(teams_to_create_matches) - 1
+    first = 0
+
+    while last > first:
+
+        team1_id = teams_to_create_matches[first][0]
+        team2_id = teams_to_create_matches[last][0]
+
+        match_db = Match(
+            team1_id=team1_id if team1_id is not None else None,
+            team2_id=team2_id if team2_id is not None else None
+        )
+        match_db.team1 = team_id_entity[team1_id] if team1_id is not None else None
+        match_db.team2 = team_id_entity[team2_id] if team2_id is not None else None
+        matches.append(match_db)
+        last -= 1
+        first += 1
+
+
+    print([
+        (
+            match_db.team1.id if match_db.team1 is not None else None,
+            match_db.team2.id if match_db.team2 is not None else None
+        )
+        for match_db in matches
+    ])
+    count = int(len(matches) / 2)
+    while count != 0:
+        print(count)
+        for i in range(count):
+            pass
+        count = int(count/2)
+
+
+
 

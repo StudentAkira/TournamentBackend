@@ -5,7 +5,6 @@ from sqlalchemy.orm import relationship, Mapped
 
 from db.database import Base
 
-
 if TYPE_CHECKING:
     from db.models.group import Group
     from db.models.bracket import Bracket
@@ -27,13 +26,16 @@ class Match(Base):
     winner_id: int = Column(Integer, ForeignKey("team.id"))
     winner: Mapped["Team"] = relationship("Team", foreign_keys="[Match.winner_id]")
 
+    last_result_creator_id: int = Column(Integer, ForeignKey("users.id"), nullable=True, default=None)
+    last_result_creator: Mapped["User"] = relationship("User", back_populates="condemned_matches")
+
     group_id: int = Column(Integer, ForeignKey("tournament_group.id"), nullable=True)
     group: Mapped["Group"] = relationship("Group", back_populates="matches")
 
-    match_queue_number: int = Column(Integer)
-    last_result_creator_id: int = Column(Integer, ForeignKey("users.id"), nullable=True, default=None)
-
-    last_result_creator: Mapped["User"] = relationship("User", back_populates="condemned_matches")
+    match_queue_number: int = Column(Integer, nullable=True)
 
     bracket_id: int = Column(Integer, ForeignKey("tournament_bracket.id"), nullable=True)
     bracket: Mapped["Bracket"] = relationship("Bracket", back_populates="matches")
+
+    next_bracket_match_id: int = Column(Integer, ForeignKey("match.id"), nullable=True)
+    next_bracket_match: Mapped["Match"] = relationship("Match",  remote_side=[id])
