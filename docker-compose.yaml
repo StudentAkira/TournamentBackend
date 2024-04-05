@@ -2,16 +2,21 @@ version: '3'
 
 services:
   backend:
-    image: 1akiaki1/tournament_backend:env_fixed
+    image: sha256:9a6673abf16204e26e354a3d679649a1bd03e5dbf019fa00250608747dbbf5d2
+    container_name: backend
+    ports:
+      - 8000:8000
     depends_on:
       - db
   db:
     image: postgres
+    container_name: db
     env_file:
       - .db_env
-  nginx:
-    image: sha256:329fd7f181cd
-    ports:
-      - "127.0.0.1:80:80"
-    depends_on:
-      - backend
+#  nginx:
+#    image: sha256:4900b3b015c807b67
+#    container_name: nginx
+#    ports:
+#      - "127.0.0.1:80:80"
+#    depends_on:
+#      - backend

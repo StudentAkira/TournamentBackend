@@ -6,6 +6,7 @@ from starlette.responses import Response
 
 from db.schemas.group_tournament import StartGroupTournamentSchema
 from db.schemas.nomination_event import NominationEventSchema
+from db.schemas.team import TeamSchema
 from dependencies import authorized_only, get_db
 from routes.tournaments.tournaments_service import TournamentService
 
@@ -49,8 +50,9 @@ async def finish_group_stage(
 async def start_play_off_tournament(
         response: Response,
         nomination_event: NominationEventSchema,
+        teams: list[TeamSchema],
         token: str = Depends(authorized_only),
         db: Session = Depends(get_db)
 ):
     service = TournamentService(db)
-    return service.start_play_off_tournament(response, token, nomination_event)
+    return service.start_play_off_tournament(response, token, nomination_event, teams)

@@ -1,9 +1,11 @@
 from starlette.responses import Response
 from db.schemas.group_tournament import StartGroupTournamentSchema
 from db.schemas.nomination_event import NominationEventSchema
+from db.schemas.team import TeamSchema
 from managers.event import EventManager
 from managers.nomination import NominationManager
 from managers.nomination_event import NominationEventManager
+from managers.team import TeamManager
 from managers.token import TokenManager
 from managers.tournament import TournamentManager
 
@@ -18,6 +20,7 @@ class TournamentService:
         self.__nomination_event_manager = NominationEventManager(db)
         self.__token_manager = TokenManager(db)
         self.__tournament_manager = TournamentManager(db)
+        self.__team_manager = TeamManager(db)
 
         self.__groups_created_message = "groups are created"
         self.__group_stage_finished_message = "group stage finished"
@@ -49,8 +52,15 @@ class TournamentService:
             response: Response,
             token: str,
             nomination_event: NominationEventSchema,
+            teams: list[TeamSchema]
     ):
         self.actions_validation(response, token, nomination_event)
+
+        teams = [TeamSchema(
+            name=self.__team_manager.get_team_name_from_team_name_or_participant_email(team.name)
+        ) for team in teams]
+
+        self.__tournament_manager.raise_exception_if_teams_not_in_tournament(teams, nomination_event)
         self.__tournament_manager.raise_exception_if_group_stage_not_finished(nomination_event)
         self.__tournament_manager.start_play_off_tournament(nomination_event)
         return {"message": self.__play_off_tournament_started}

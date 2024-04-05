@@ -33,8 +33,8 @@ database.Base.metadata.create_all(bind=database.engine)
 origins = ['http://localhost:3000', 'http://127.0.0.1:3000',
            'https://localhost:3000', 'https://127.0.0.1:3000',
             'http://localhost:3001', 'http://127.0.0.1:3001',
-           'http://127.0.0.1:9000', "http://judgment.robin-zubronok.by"
-           ]
+           'http://127.0.0.1:9000'
+        ]
 
 app.add_middleware(
     CORSMiddleware,
@@ -47,7 +47,7 @@ app.add_middleware(
 
 @app.get('/')
 async def main():
-    return {"message": "hello world"}
+    return {"message": "hello world test"}
 
 
 app.include_router(auth)

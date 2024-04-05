@@ -29,6 +29,7 @@ async def list_users(
     service = UsersService(db)
     return service.list(response, token)
 
+
 @users.patch("/profile")
 async def edit_profile(
         response: Response,

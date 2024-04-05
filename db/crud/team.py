@@ -4,10 +4,13 @@ from pydantic import EmailStr
 from sqlalchemy.orm import Session
 
 from db.crud.nomination_event import get_nomination_event_db
+from db.models.event import Event
+from db.models.nomination import Nomination
 from db.models.nomination_event import NominationEvent
 from db.models.participant import Participant
 from db.models.team import Team
 from db.models.team_participant_nomination_event import TeamParticipantNominationEvent
+from db.schemas.nomination_event import NominationEventSchema
 from db.schemas.team import TeamSchema, TeamUpdateSchema
 
 from sqlalchemy import and_
@@ -81,3 +84,26 @@ def set_software_equipment_db(db, nomination_event_db: type(NominationEvent), so
         team_participant_nomination_event_db.software = software
         team_participant_nomination_event_db.equipment = equipment
         db.add(team_participant_nomination_event_db)
+
+
+def team_check_existence_in_tournament_db(db: Session, teams: list[TeamSchema], nomination_event: NominationEventSchema):
+    event_db = db.query(Event).filter(
+        cast("ColumnElement[bool]", Event.name == nomination_event.event_name)).first()
+    nomination_db = db.query(Nomination).filter(
+        cast("ColumnElement[bool]", Nomination.name == nomination_event.nomination_name)).first()
+    nomination_event_db = db.query(NominationEvent).filter(
+        and_(
+            NominationEvent.event_id == event_db.id,
+            NominationEvent.nomination_id == nomination_db.id,
+            NominationEvent.type == nomination_event.type
+        )
+    ).first()
+
+    team_names = [team.name for team in teams]
+    received_teams_ids = set(team_db.id for team_db in db.query(Team).filter(Team.name.in_(team_names)).all())
+
+    tournament_team_ids = set(team_participant.team_id for team_participant in nomination_event_db.team_participants)
+
+    if received_teams_ids == tournament_team_ids:
+        return True
+    return False

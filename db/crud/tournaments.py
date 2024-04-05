@@ -162,8 +162,9 @@ def start_play_off_tournament_db(db: Session, nomination_event: NominationEventS
         )
     ).first()
 
+    team_score = {}
+
     for group in nomination_event_db.groups:
-        team_score = {}
         for match in group.matches:
 
             if match.team1:
@@ -172,5 +173,5 @@ def start_play_off_tournament_db(db: Session, nomination_event: NominationEventS
             if match.team2:
                 team_score[match.team2.id] = team_score.get(match.team2.id, 0)\
                                              + (1 if match.winner.id == match.team2.id else 0)
-        print(group.id)
-        print(team_score)
+    print(team_score)
+
