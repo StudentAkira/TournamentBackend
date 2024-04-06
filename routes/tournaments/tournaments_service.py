@@ -59,6 +59,7 @@ class TournamentService:
             name=self.__team_manager.get_team_name_from_team_name_or_participant_email(team.name)
         ) for team in teams]
 
+        self.__tournament_manager.raise_exception_if_play_off_stage_started()
         self.__tournament_manager.raise_exception_if_teams_not_in_tournament(teams, nomination_event)
         self.__tournament_manager.raise_exception_if_group_stage_not_finished(nomination_event)
         self.__tournament_manager.raise_exception_if_play_off_stage_started(nomination_event)

@@ -253,6 +253,9 @@ def start_play_off_tournament_db(db: Session, nomination_event: OlympycNominatio
         print([
             (match_db.team1_id, match_db.team2_id) for match_db in tmp_matches
         ])
+
+    nomination_event_db.play_of_stage_sta
+
     db.add(bracket_db)
     db.add(nomination_event_db)
 

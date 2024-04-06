@@ -27,6 +27,7 @@ class NominationEvent(Base):
     type: NominationEventType = Column(String, nullable=False, default=NominationEventType.olympyc)
 
     group_stage_finished: bool = Column(Boolean, nullable=False, default=False)
+    play_off_stage_finished: bool = Column(Boolean, nullable=False, default=False)
 
     groups: Mapped[list["Group"]] = relationship(
         "Group",

@@ -7,7 +7,7 @@ from starlette import status
 
 from db.crud.match import get_group_matches_db, \
     is_match_related_to_nomination_event_db, get_bracket_matches_db, set_group_match_result_db, \
-    is_winner_exists_in_bracket_match_db, set_bracket_match_result_db
+    is_winner_exists_in_bracket_match_db, set_bracket_match_result_db, is_prev_match_was_judged_db
 from db.models.match import Match
 from db.models.team import Team
 from db.schemas.match import SetMatchResultSchema
@@ -24,10 +24,11 @@ class MatchManager:
         self.__team_manager = TeamManager(db)
 
         self.__match_not_related_to_group_error = "match not related to group"
-        self.__match_not_found_error = "match not found error"
-        self.__team_not_related_to_match_error = "team not related to match error"
-        self.__wrong_match_data_error = "wrong match data error"
+        self.__match_not_found_error = "match not found"
+        self.__team_not_related_to_match_error = "team not related to match"
+        self.__wrong_match_data_error = "wrong match data"
         self.__play_off_matches_cannot_result_draw = "play off match cannot be draw"
+        self.__prev_matches_not_finished = "prev matches not finished"
 
     def get_group_matches(self, nomination_event: OlympycNominationEventSchema):
         data = get_group_matches_db(self.__db, nomination_event)
@@ -92,6 +93,13 @@ class MatchManager:
         if not winner_exists_in_bracket_match:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail={"error", self.__play_off_matches_cannot_result_draw}
+                detail={"error": self.__play_off_matches_cannot_result_draw}
             )
 
+    def raise_exception_if_prev_match_was_not_judged(self, data: SetMatchResultSchema):
+        prev_match_was_judged = is_prev_match_was_judged_db(self.__db, data)
+        if not prev_match_was_judged:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail={"error": self.__prev_matches_not_finished}
+            )

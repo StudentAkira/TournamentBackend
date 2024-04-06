@@ -34,8 +34,8 @@ class MatchService:
     def set_group_match_result(self, response: Response, token: str, data: SetMatchResultSchema):
         decoded_token = self.__token_manager.decode_token(token, response)
         self.__validator.check_event_nomination__nomination_event_existence(
-            data.nomination_name,
-            data.event_name,
+            data.nomination_event.nomination_name,
+            data.nomination_event.event_name,
             NominationEventType.olympyc
         )
         self.__match_manager.raise_exception_if_not_found(data.match_id)
@@ -51,8 +51,8 @@ class MatchService:
     def set_bracket_match_result(self, response: Response, token: str, data: SetMatchResultSchema):
         decoded_token = self.__token_manager.decode_token(token, response)
         self.__validator.check_event_nomination__nomination_event_existence(
-            data.nomination_name,
-            data.event_name,
+            data.nomination_event.nomination_name,
+            data.nomination_event.event_name,
             NominationEventType.olympyc
         )
         self.__match_manager.raise_exception_if_not_found(data.match_id)
@@ -60,6 +60,7 @@ class MatchService:
         self.__match_manager.raise_exception_if_no_winner_in_bracket_match(data)
         self.__tournament_manger.raise_exception_if_play_off_stage_finished(data)
         self.__match_manager.raise_exception_if_winner_not_in_match(data.match_id, data.winner_team_name)
+        self.__match_manager.raise_exception_if_prev_match_was_not_judged(data)
         self.__match_manager.set_bracket_match_result(decoded_token.user_id, data)
         return {"message": self.__match_result_set_message}
 
