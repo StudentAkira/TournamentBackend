@@ -5,7 +5,8 @@ from sqlalchemy import and_
 from sqlalchemy.orm import Session
 from starlette import status
 
-from db.crud.nomination_event import close_registration_nomination_event_db, is_group_stage_finished_db
+from db.crud.nomination_event import close_registration_nomination_event_db, is_group_stage_finished_db, \
+    is_play_off_stage_finished_db
 from db.crud.team import team_check_existence_in_tournament_db
 from db.crud.tournaments import create_group_tournament_db, \
     get_groups_of_tournament_db, get_count_of_participants_of_tournament_db, is_all_matches_finished_db, \
@@ -15,7 +16,7 @@ from db.models.nomination import Nomination
 from db.models.nomination_event import NominationEvent
 from db.schemas.group_tournament import StartGroupTournamentSchema
 from db.schemas.match import SetMatchResultSchema
-from db.schemas.nomination_event import NominationEventSchema,OlympycNominationEventSchema
+from db.schemas.nomination_event import OlympycNominationEventSchema
 from db.schemas.team import TeamSchema
 
 
@@ -122,4 +123,12 @@ class TournamentManager:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail={"error": self.__play_off_stage_already_started}
+            )
+
+    def raise_exception_if_play_off_stage_finished(self, data):
+        play_off_stage_finished = is_play_off_stage_finished_db(self.__db, data.nomination_event)
+        if play_off_stage_finished:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail={"error": self.__group_stage_finished_error}
             )

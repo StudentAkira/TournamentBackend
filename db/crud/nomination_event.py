@@ -424,3 +424,18 @@ def is_group_stage_finished_db(db: Session, nomination_event: OlympycNominationE
         )
     ).first()
     return nomination_event_db.group_stage_finished
+
+
+def is_play_off_stage_finished_db(db: Session, nomination_event: OlympycNominationEventSchema):
+    event_db = db.query(Event).filter(
+        cast("ColumnElement[bool]", Event.name == nomination_event.event_name)).first()
+    nomination_db = db.query(Nomination).filter(
+        cast("ColumnElement[bool]", Nomination.name == nomination_event.nomination_name)).first()
+    nomination_event_db = db.query(NominationEvent).filter(
+        and_(
+            NominationEvent.event_id == event_db.id,
+            NominationEvent.nomination_id == nomination_db.id,
+            NominationEvent.type == NominationEventType.olympyc
+        )
+    ).first()
+    return nomination_event_db.play_off_stage_finished

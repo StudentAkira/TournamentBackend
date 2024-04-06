@@ -45,11 +45,23 @@ class MatchService:
         if data.winner_team_name:
             self.__match_manager.raise_exception_if_winner_not_in_match(data.match_id, data.winner_team_name)
 
-        self.__match_manager.set_match_result(decoded_token.user_id, data)
+        self.__match_manager.set_group_match_result(decoded_token.user_id, data)
         return {"message": self.__match_result_set_message}
 
     def set_bracket_match_result(self, response: Response, token: str, data: SetMatchResultSchema):
-        pass
+        decoded_token = self.__token_manager.decode_token(token, response)
+        self.__validator.check_event_nomination__nomination_event_existence(
+            data.nomination_name,
+            data.event_name,
+            NominationEventType.olympyc
+        )
+        self.__match_manager.raise_exception_if_not_found(data.match_id)
+        self.__match_manager.raise_exception_if_match_not_related_to_nomination_event(data)
+        self.__match_manager.raise_exception_if_no_winner_in_bracket_match(data)
+        self.__tournament_manger.raise_exception_if_play_off_stage_finished(data)
+        self.__match_manager.raise_exception_if_winner_not_in_match(data.match_id, data.winner_team_name)
+        self.__match_manager.set_bracket_match_result(decoded_token.user_id, data)
+        return {"message": self.__match_result_set_message}
 
     def get_group_matches(
             self,
@@ -64,7 +76,7 @@ class MatchService:
             NominationEventType.olympyc
         )
         self.__event_manager.raise_exception_if_owner_wrong(nomination_event.event_name, decoded_token.user_id)
-        return self.__match_manager.get_group_matches_of_tournament(nomination_event)
+        return self.__match_manager.get_group_matches(nomination_event)
 
     def get_bracket_matches(
             self,
@@ -72,4 +84,11 @@ class MatchService:
             token: str,
             nomination_event: OlympycNominationEventSchema
     ):
-        pass
+        decoded_token = self.__token_manager.decode_token(token, response)
+        self.__validator.check_event_nomination__nomination_event_existence(
+            nomination_event.nomination_name,
+            nomination_event.event_name,
+            NominationEventType.olympyc
+        )
+        self.__event_manager.raise_exception_if_owner_wrong(nomination_event.event_name, decoded_token.user_id)
+        return self.__match_manager.get_bracket_matches(nomination_event)
