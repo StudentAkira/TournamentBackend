@@ -89,6 +89,8 @@ def set_group_match_result_db(db: Session, judge_id: int, data: SetMatchResultSc
 def set_bracket_match_result_db(db: Session, judge_id: int, data: SetMatchResultSchema):
     match_db = db.query(Match).filter(cast("ColumnElement[bool]", Match.id == data.match_id)).first()
     winner_team_db = db.query(Team).filter(cast("ColumnElement[bool]", Team.name == data.winner_team_name)).first()
+    if match_db.winner == winner_team_db:
+        return
     match_db.winner = winner_team_db
     match_db.last_result_creator = db.query(User).filter(cast("ColumnElement[bool]", User.id == judge_id)).first()
     defeated_team = match_db.team1 if match_db.team1 != winner_team_db else match_db.team2
@@ -165,6 +167,14 @@ def is_prev_match_was_judged_db(db: Session, data: SetMatchResultSchema):
         match for match in nomination_event_db.bracket.matches if match.next_bracket_match_id == data.match_id
     ]
 
-    if len(prev_matches) != 0 and (prev_matches[0].last_result_creator is None or prev_matches[1].last_result_creator):
+    # print(len(prev_matches))
+    # print(prev_matches[0].id, prev_matches[1].id)
+    # print(prev_matches[0].last_result_creator, prev_matches[1].last_result_creator)
+
+    if len(prev_matches) == 0:
+        return True
+    if prev_matches[0].last_result_creator is None:
+        return False
+    if prev_matches[1].last_result_creator is None:
         return False
     return True

@@ -13,8 +13,8 @@ from routes.tournaments.tournaments_service import TournamentService
 tournaments = APIRouter(prefix="/api/tournaments", tags=["tournaments"])
 
 
-@tournaments.post("/start_group_tournament")
-async def start_group_tournament(
+@tournaments.post("/start_group_stage")
+async def start_group_stage(
         response: Response,
         nomination_event: StartGroupTournamentSchema,
         token: str = Depends(authorized_only),
@@ -46,8 +46,8 @@ async def finish_group_stage(
     return service.finish_group_stage(response, token, nomination_event)
 
 
-@tournaments.post("/start_play_off_tournament")
-async def start_play_off_tournament(
+@tournaments.post("/start_play_off_stage")
+async def start_play_off_stage(
         response: Response,
         nomination_event: OlympycNominationEventSchema,
         teams: list[TeamSchema],
@@ -56,3 +56,14 @@ async def start_play_off_tournament(
 ):
     service = TournamentService(db)
     return service.start_play_off_tournament(response, token, nomination_event, teams)
+
+
+@tournaments.post("/finish_play_off_stage")
+async def start_play_off_stage(
+        response: Response,
+        nomination_event: OlympycNominationEventSchema,
+        token: str = Depends(authorized_only),
+        db: Session = Depends(get_db)
+):
+    service = TournamentService(db)
+    return service.finish_play_off_stage(response, token, nomination_event)

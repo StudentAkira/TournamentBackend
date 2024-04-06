@@ -125,6 +125,10 @@ def is_all_matches_finished_db(db: Session, nomination_event: OlympycNominationE
         for match in group.matches:
             if match.last_result_creator is None and match.team1 is not None and match.team2 is not None:
                 return False
+    if nomination_event_db.bracket:
+        for match in nomination_event_db.bracket.matches:
+            if match.last_result_creator is None:
+                return False
     return True
 
 
@@ -144,6 +148,25 @@ def finish_group_stage_db(db: Session, nomination_event: OlympycNominationEventS
     nomination_event_db.group_stage_finished = True
     db.add(nomination_event_db)
     db.commit()
+
+
+def finish_play_off_stage_db(db: Session, nomination_event: OlympycNominationEventSchema):
+    event_db = db.query(Event).filter(
+        cast("ColumnElement[bool]", Event.name == nomination_event.event_name)).first()
+    nomination_db = db.query(Nomination).filter(
+        cast("ColumnElement[bool]", Nomination.name == nomination_event.nomination_name)).first()
+    nomination_event_db = db.query(NominationEvent).filter(
+        and_(
+            NominationEvent.event_id == event_db.id,
+            NominationEvent.nomination_id == nomination_db.id,
+            NominationEvent.type == NominationEventType.olympyc
+        )
+    ).first()
+
+    nomination_event_db.play_off_stage_finished = True
+    db.add(nomination_event_db)
+    db.commit()
+
 
 
 def start_play_off_tournament_db(db: Session, nomination_event: OlympycNominationEventSchema, teams: list[TeamSchema]):
@@ -253,8 +276,6 @@ def start_play_off_tournament_db(db: Session, nomination_event: OlympycNominatio
         print([
             (match_db.team1_id, match_db.team2_id) for match_db in tmp_matches
         ])
-
-    nomination_event_db.play_of_stage_sta
 
     db.add(bracket_db)
     db.add(nomination_event_db)

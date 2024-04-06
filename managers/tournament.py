@@ -10,12 +10,11 @@ from db.crud.nomination_event import close_registration_nomination_event_db, is_
 from db.crud.team import team_check_existence_in_tournament_db
 from db.crud.tournaments import create_group_tournament_db, \
     get_groups_of_tournament_db, get_count_of_participants_of_tournament_db, is_all_matches_finished_db, \
-    finish_group_stage_db, start_play_off_tournament_db
+    finish_group_stage_db, start_play_off_tournament_db, finish_play_off_stage_db
 from db.models.event import Event
 from db.models.nomination import Nomination
 from db.models.nomination_event import NominationEvent
 from db.schemas.group_tournament import StartGroupTournamentSchema
-from db.schemas.match import SetMatchResultSchema
 from db.schemas.nomination_event import OlympycNominationEventSchema
 from db.schemas.team import TeamSchema
 
@@ -30,9 +29,12 @@ class TournamentManager:
         self.__not_all_matches_finished_error = "not all matches are finished"
         self.__group_stage_not_finished_error = "group stage is not finished"
         self.__group_stage_finished_error = "group stage is finished"
+        self.__group_stage_already_finished_error = "group stage is already finished"
         self.__top_count_wrong_error = "top count parameter is wrong"
         self.__wrong_teams_provided = "wrong teams provided"
         self.__play_off_stage_already_started = "play off stage already started"
+        self.__play_off_stage_not_finished_error = "play off stage not finished"
+        self.__play_off_stage_already_finished_error = "play off stage already finished"
 
     def create_group_tournament(self, nomination_event: StartGroupTournamentSchema):
         close_registration_nomination_event_db(self.__db, nomination_event.olympyc_nomination_event)
@@ -47,6 +49,9 @@ class TournamentManager:
 
     def start_play_off_tournament(self, nomination_event: OlympycNominationEventSchema, teams: list[TeamSchema]):
         start_play_off_tournament_db(self.__db, nomination_event, teams)
+
+    def finish_play_off_stage(self, nomination_event: OlympycNominationEventSchema):
+        finish_play_off_stage_db(self.__db, nomination_event)
 
     def validate_group_count(self, group_count: int, nomination_event: OlympycNominationEventSchema):
         team_count = get_count_of_participants_of_tournament_db(self.__db, nomination_event)
@@ -76,11 +81,11 @@ class TournamentManager:
         if not is_group_stage_finished_db(self.__db, nomination_event):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail={"error": self.__group_stage_not_finished_error}
+                detail={"error": self.__play_off_stage_not_finished_error}
             )
 
-    def raise_exception_if_group_stage_finished(self, data: SetMatchResultSchema):
-        group_stage_finished = is_group_stage_finished_db(self.__db, data.nomination_event)
+    def raise_exception_if_group_stage_finished(self, data: OlympycNominationEventSchema):
+        group_stage_finished = is_group_stage_finished_db(self.__db, data)
         if group_stage_finished:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
@@ -119,16 +124,17 @@ class TournamentManager:
             )
         ).first()
 
-        if not nomination_event_db:
+        if nomination_event_db is not None:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail={"error": self.__play_off_stage_already_started}
             )
 
-    def raise_exception_if_play_off_stage_finished(self, data):
-        play_off_stage_finished = is_play_off_stage_finished_db(self.__db, data.nomination_event)
+    def raise_exception_if_play_off_stage_finished(self, data: OlympycNominationEventSchema):
+        play_off_stage_finished = is_play_off_stage_finished_db(self.__db, data)
         if play_off_stage_finished:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail={"error": self.__group_stage_finished_error}
+                detail={"error": self.__play_off_stage_already_finished_error}
             )
+
