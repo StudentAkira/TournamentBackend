@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field, EmailStr, validator
 
-from db.schemas.nomination_event import NominationEventSchema
+from db.schemas.nomination_event import NominationEventSchema, OlympycNominationEventSchema
 from db.schemas.team import TeamSchema
 from db.schemas.team_participant import TeamParticipantsSchema
 
@@ -19,7 +19,7 @@ class MatchSchema(BaseModel):
 
 
 class SetMatchResultSchema(BaseModel):
-    nomination_event: NominationEventSchema
+    nomination_event: OlympycNominationEventSchema
 
     match_id: int
     winner_team_name: str | None = None

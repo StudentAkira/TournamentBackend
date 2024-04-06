@@ -11,7 +11,7 @@ from db.models.match import Match
 from db.models.team import Team
 from db.schemas.group_tournament import GroupMatchSchema
 from db.schemas.match import MatchSchema, SetMatchResultSchema
-from db.schemas.nomination_event import NominationEventSchema
+from db.schemas.nomination_event import NominationEventSchema, OlympycNominationEventSchema
 from managers.team import TeamManager
 
 
@@ -28,7 +28,7 @@ class MatchManager:
         self.__team_not_related_to_match_error = "team not related to match error"
         self.__wrong_match_data_error = "wrong match data error"
 
-    def get_group_matches_of_tournament(self, nomination_event: NominationEventSchema):
+    def get_group_matches_of_tournament(self, nomination_event: OlympycNominationEventSchema):
         data = get_group_matches_of_tournament_db(self.__db, nomination_event)
         return data
 

@@ -1,10 +1,8 @@
 from pydantic import BaseModel, Field
 
-from db.models.match import Match
 from db.schemas.match import MatchSchema
-from db.schemas.nomination_event import NominationEventType
+from db.schemas.nomination_event import OlympycNominationEventSchema
 from db.schemas.team import TeamSchema
-from db.schemas.team_participant import TeamParticipantsSchema
 
 
 class GroupSchema(BaseModel):
@@ -17,9 +15,7 @@ class GroupSchema(BaseModel):
 
 
 class StartGroupTournamentSchema(BaseModel):
-    event_name: str
-    nomination_name: str
-    type: NominationEventType
+    olympyc_nomination_event: OlympycNominationEventSchema
 
     group_count: int = Field(gt=0)
 

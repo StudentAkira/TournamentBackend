@@ -7,10 +7,9 @@ from db.crud.nomination_event import get_nomination_event_db
 from db.models.event import Event
 from db.models.nomination import Nomination
 from db.models.nomination_event import NominationEvent
-from db.models.participant import Participant
 from db.models.team import Team
 from db.models.team_participant_nomination_event import TeamParticipantNominationEvent
-from db.schemas.nomination_event import NominationEventSchema
+from db.schemas.nomination_event import OlympycNominationEventSchema, NominationEventType
 from db.schemas.team import TeamSchema, TeamUpdateSchema
 
 from sqlalchemy import and_
@@ -86,7 +85,11 @@ def set_software_equipment_db(db, nomination_event_db: type(NominationEvent), so
         db.add(team_participant_nomination_event_db)
 
 
-def team_check_existence_in_tournament_db(db: Session, teams: list[TeamSchema], nomination_event: NominationEventSchema):
+def team_check_existence_in_tournament_db(
+        db: Session,
+        teams: list[TeamSchema],
+        nomination_event: OlympycNominationEventSchema
+):
     event_db = db.query(Event).filter(
         cast("ColumnElement[bool]", Event.name == nomination_event.event_name)).first()
     nomination_db = db.query(Nomination).filter(
@@ -95,7 +98,7 @@ def team_check_existence_in_tournament_db(db: Session, teams: list[TeamSchema], 
         and_(
             NominationEvent.event_id == event_db.id,
             NominationEvent.nomination_id == nomination_db.id,
-            NominationEvent.type == nomination_event.type
+            NominationEvent.type == NominationEventType.olympyc
         )
     ).first()
 

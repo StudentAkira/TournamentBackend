@@ -11,11 +11,11 @@ from db.models.team import Team
 from db.models.user import User
 from db.schemas.group_tournament import GroupMatchSchema
 from db.schemas.match import MatchSchema, SetMatchResultSchema
-from db.schemas.nomination_event import NominationEventSchema
+from db.schemas.nomination_event import  OlympycNominationEventSchema, NominationEventType
 from db.schemas.team import TeamSchema
 
 
-def get_group_matches_of_tournament_db(db: Session, nomination_event: NominationEventSchema):
+def get_group_matches_of_tournament_db(db: Session, nomination_event: OlympycNominationEventSchema):
     event_db = db.query(Event).filter(
         cast("ColumnElement[bool]", Event.name == nomination_event.event_name)).first()
     nomination_db = db.query(Nomination).filter(
@@ -25,7 +25,7 @@ def get_group_matches_of_tournament_db(db: Session, nomination_event: Nomination
         and_(
             NominationEvent.event_id == event_db.id,
             NominationEvent.nomination_id == nomination_db.id,
-            NominationEvent.type == nomination_event.type
+            NominationEvent.type == NominationEventType.olympyc
         )
     ).first()
 
@@ -68,7 +68,7 @@ def is_match_related_to_nomination_event_db(db: Session, data: SetMatchResultSch
         and_(
             NominationEvent.event_id == event_db.id,
             NominationEvent.nomination_id == nomination_db.id,
-            NominationEvent.type == data.nomination_event.type
+            NominationEvent.type == NominationEventType.olympyc
         )
     ).first()
 

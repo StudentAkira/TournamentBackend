@@ -1,7 +1,7 @@
 from typing import cast
 
 from fastapi import HTTPException
-from sqlalchemy import and_, exists
+from sqlalchemy import and_
 from sqlalchemy.orm import Session
 from starlette import status
 
@@ -15,7 +15,7 @@ from db.models.nomination import Nomination
 from db.models.nomination_event import NominationEvent
 from db.schemas.group_tournament import StartGroupTournamentSchema
 from db.schemas.match import SetMatchResultSchema
-from db.schemas.nomination_event import NominationEventSchema
+from db.schemas.nomination_event import NominationEventSchema,OlympycNominationEventSchema
 from db.schemas.team import TeamSchema
 
 
@@ -34,33 +34,21 @@ class TournamentManager:
         self.__play_off_stage_already_started = "play off stage already started"
 
     def create_group_tournament(self, nomination_event: StartGroupTournamentSchema):
-        close_registration_nomination_event_db(self.__db, NominationEventSchema(
-            **nomination_event.model_dump()
-        ))
-        self.validate_group_count(
-            nomination_event.group_count,
-            nomination_event.nomination_name,
-            nomination_event.event_name,
-            nomination_event.type
-        )
+        close_registration_nomination_event_db(self.__db, nomination_event.olympyc_nomination_event)
+        self.validate_group_count(nomination_event.group_count, nomination_event.olympyc_nomination_event)
         create_group_tournament_db(self.__db, nomination_event)
 
-    def get_groups_of_tournament(self, nomination_event: NominationEventSchema):
+    def get_groups_of_tournament(self, nomination_event: OlympycNominationEventSchema):
         return get_groups_of_tournament_db(self.__db, nomination_event)
 
-    def finish_group_stage(self, nomination_event):
+    def finish_group_stage(self, nomination_event: OlympycNominationEventSchema):
         finish_group_stage_db(self.__db, nomination_event)
 
-    def start_play_off_tournament(self, nomination_event: NominationEventSchema, teams: list[TeamSchema]):
+    def start_play_off_tournament(self, nomination_event: OlympycNominationEventSchema, teams: list[TeamSchema]):
         start_play_off_tournament_db(self.__db, nomination_event, teams)
 
-    def validate_group_count(self, group_count: int, nomination_name: str, event_name: str, nomination_event_type: str):
-        team_count = get_count_of_participants_of_tournament_db(
-            self.__db,
-            nomination_name,
-            event_name,
-            nomination_event_type
-        )
+    def validate_group_count(self, group_count: int, nomination_event: OlympycNominationEventSchema):
+        team_count = get_count_of_participants_of_tournament_db(self.__db, nomination_event)
         max_group_amount = int(team_count / 2)
         if team_count <= 3 and group_count >= 2:
             self.raise_exception_if_group_count_wrong()
@@ -75,7 +63,7 @@ class TournamentManager:
             detail={"error": self.__invalid_group_count_error}
         )
 
-    def raise_exception_if_not_all_matches_finished(self, nomination_event: NominationEventSchema):
+    def raise_exception_if_not_all_matches_finished(self, nomination_event: OlympycNominationEventSchema):
         all_matches_finished = is_all_matches_finished_db(self.__db, nomination_event)
         if not all_matches_finished:
             raise HTTPException(
@@ -83,7 +71,7 @@ class TournamentManager:
                 detail={"error": self.__not_all_matches_finished_error}
             )
 
-    def raise_exception_if_group_stage_not_finished(self, nomination_event: NominationEventSchema):
+    def raise_exception_if_group_stage_not_finished(self, nomination_event: OlympycNominationEventSchema):
         if not is_group_stage_finished_db(self.__db, nomination_event):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
@@ -101,7 +89,7 @@ class TournamentManager:
     def raise_exception_if_teams_not_in_tournament(
             self,
             teams: list[TeamSchema],
-            nomination_event: NominationEventSchema
+            nomination_event: OlympycNominationEventSchema
     ):
         teams_in_tournament = team_check_existence_in_tournament_db(self.__db, teams, nomination_event)
         if not teams_in_tournament:
@@ -110,7 +98,7 @@ class TournamentManager:
                 detail={"error": self.__wrong_teams_provided}
             )
 
-    def raise_exception_if_play_off_stage_started(self, nomination_event: NominationEventSchema):
+    def raise_exception_if_play_off_stage_started(self, nomination_event: OlympycNominationEventSchema):
         event_db = self.__db.query(Event).filter(
             cast("ColumnElement[bool]",
                  Event.name == nomination_event.event_name

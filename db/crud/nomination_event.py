@@ -16,10 +16,11 @@ from db.models.team import Team
 from db.models.team_participant import TeamParticipant
 from db.models.team_participant_nomination_event import TeamParticipantNominationEvent
 from db.models.user import User
-from db.schemas.event import EventListSchema, EventSchema, EventGetNameSchema
+from db.schemas.event import EventListSchema, EventGetNameSchema
 from db.schemas.nomination import NominationSchema
 from db.schemas.nomination_event import NominationEventSchema, NominationEventDeleteSchema, \
-    NominationEventFullInfoSchema, NominationEventParticipantCountSchema, NominationEventPDFSchema
+    NominationEventFullInfoSchema, NominationEventParticipantCountSchema, NominationEventPDFSchema, NominationEventType, \
+    OlympycNominationEventSchema
 from sqlalchemy import and_
 
 from db.schemas.participant import ParticipantPDFSchema
@@ -344,14 +345,18 @@ def get_nomination_event_pdf_data_db(db: Session, data: list[NominationEventSche
     return pdf_data
 
 
-def close_registration_nomination_event_db(db: Session, nomination_event_data: NominationEventSchema):
-    event_db = db.query(Event).filter(cast("ColumnElement[bool]", Event.name == nomination_event_data.event_name)).first()
-    nomination_db = db.query(Nomination).filter(cast("ColumnElement[bool]", Nomination.name == nomination_event_data.nomination_name)).first()
+def close_registration_nomination_event_db(db: Session, nomination_event_data: OlympycNominationEventSchema):
+    event_db = db.query(Event).filter(
+        cast("ColumnElement[bool]", Event.name == nomination_event_data.event_name)
+    ).first()
+    nomination_db = db.query(Nomination).filter(
+        cast("ColumnElement[bool]", Nomination.name == nomination_event_data.nomination_name)
+    ).first()
     nomination_event_db = db.query(NominationEvent).filter(
         and_(
             NominationEvent.event_id == event_db.id,
             NominationEvent.nomination_id == nomination_db.id,
-            NominationEvent.type == nomination_event_data.type
+            NominationEvent.type == NominationEventType.olympyc
         )
     ).first()
 
@@ -376,16 +381,16 @@ def open_registration_nomination_event_db(db: Session, nomination_event_data: No
     db.commit()
 
 
-def is_tournament_started_db(db: Session, nomination_name: str, event_name: str, nomination_event_type: str):
+def is_tournament_started_db(db: Session, nomination_event: OlympycNominationEventSchema):
     event_db = db.query(Event).filter(
-        cast("ColumnElement[bool]", Event.name == event_name)).first()
+        cast("ColumnElement[bool]", Event.name == nomination_event.event_name)).first()
     nomination_db = db.query(Nomination).filter(
-        cast("ColumnElement[bool]", Nomination.name == nomination_name)).first()
+        cast("ColumnElement[bool]", Nomination.name == nomination_event.nomination_name)).first()
     nomination_event_db = db.query(NominationEvent).filter(
         and_(
             NominationEvent.event_id == event_db.id,
             NominationEvent.nomination_id == nomination_db.id,
-            NominationEvent.type == nomination_event_type
+            NominationEvent.type == NominationEventType.olympyc
         )
     ).first()
     return nomination_event_db.tournament_started
@@ -406,7 +411,7 @@ def get_judge_command_ids_db(db: Session, nomination_name: str, event_name: str,
     return set(judge_db.id for judge_db in nomination_event_db.judges).union({event_db.owner_id})
 
 
-def is_group_stage_finished_db(db: Session, nomination_event: NominationEventSchema):
+def is_group_stage_finished_db(db: Session, nomination_event: OlympycNominationEventSchema):
     event_db = db.query(Event).filter(
         cast("ColumnElement[bool]", Event.name == nomination_event.event_name)).first()
     nomination_db = db.query(Nomination).filter(
@@ -415,7 +420,7 @@ def is_group_stage_finished_db(db: Session, nomination_event: NominationEventSch
         and_(
             NominationEvent.event_id == event_db.id,
             NominationEvent.nomination_id == nomination_db.id,
-            NominationEvent.type == nomination_event.type
+            NominationEvent.type == NominationEventType.olympyc
         )
     ).first()
     return nomination_event_db.group_stage_finished

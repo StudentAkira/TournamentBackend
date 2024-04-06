@@ -3,28 +3,23 @@ from typing import cast
 
 from fastapi import HTTPException
 from fpdf import FPDF, fpdf
-from sqlalchemy import exists, and_
+from sqlalchemy import exists
 from sqlalchemy.orm import Session
 from starlette import status
 
-from db.crud.event import get_event_by_name_db
 from db.crud.general import get_person_age
 from db.crud.nomination_event import get_nomination_events_full_info_db, \
     get_nomination_events_all_names_by_owner_db, \
     get_nomination_events_full_info_by_owner_db, \
     get_nomination_events_all_names_db, append_event_nominations_db, get_nominations_event_participant_count_db, \
     delete_nomination_event_db, append_nomination_for_event_db, get_nomination_event_pdf_data_db, \
-    close_registration_nomination_event_db, open_registration_nomination_event_db, is_tournament_started_db, \
-    is_group_stage_finished_db
-from db.crud.tournaments import create_group_tournament_db
+    close_registration_nomination_event_db, open_registration_nomination_event_db, is_tournament_started_db
 from db.models.event import Event
 from db.models.nomination import Nomination
 from db.models.nomination_event import NominationEvent
-from db.models.user import User
 from db.schemas.event import EventGetNameSchema
-from db.schemas.group_tournament import StartGroupTournamentSchema
-from db.schemas.nomination_event import NominationEventSchema, NominationEventDataSchema, NominationEventDeleteSchema, \
-    NominationEventParticipantCountSchema, NominationEventType
+from db.schemas.nomination_event import NominationEventSchema, NominationEventDeleteSchema, \
+    NominationEventParticipantCountSchema, OlympycNominationEventSchema
 from managers.event import EventManager
 from managers.nomination import NominationManager
 from managers.team import TeamManager
@@ -207,8 +202,8 @@ class NominationEventManager:
 
         return entity_exists
 
-    def raise_exception_if_tournament_started(self, nomination_name: str, event_name: str, nomination_event_type: str):
-        started = is_tournament_started_db(self.__db, nomination_name, event_name, nomination_event_type)
+    def raise_exception_if_tournament_started(self, nomination_event: OlympycNominationEventSchema):
+        started = is_tournament_started_db(self.__db, nomination_event)
         if started:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
@@ -217,21 +212,11 @@ class NominationEventManager:
 
     def raise_exception_if_tournament_not_started(
             self,
-            nomination_name: str,
-            event_name: str,
-            nomination_event_type: str
+            nomination_event: OlympycNominationEventSchema
     ):
-        started = is_tournament_started_db(self.__db, nomination_name, event_name, nomination_event_type)
+        started = is_tournament_started_db(self.__db, nomination_event)
         if not started:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail={"message": self.__tournament_not_started_error}
             )
-
-    def raise_exception_if_nomination_event_not_olympyc(self, nomination_event_type: str):
-        if nomination_event_type != NominationEventType.olympyc:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail={"error": self.__wrong_nomination_event_type_error}
-            )
-

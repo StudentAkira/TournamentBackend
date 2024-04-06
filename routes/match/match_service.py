@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from starlette.responses import Response
 
 from db.schemas.match import SetMatchResultSchema
-from db.schemas.nomination_event import NominationEventSchema
+from db.schemas.nomination_event import NominationEventType, OlympycNominationEventSchema
 from managers.event import EventManager
 from managers.match import MatchManager
 from managers.nomination import NominationManager
@@ -10,6 +10,7 @@ from managers.nomination_event import NominationEventManager
 from managers.team import TeamManager
 from managers.token import TokenManager
 from managers.tournament import TournamentManager
+from validators.validator import Validator
 
 
 class MatchService:
@@ -26,22 +27,16 @@ class MatchService:
         self.__team_manager = TeamManager(db)
         self.__tournament_manger = TournamentManager(db)
 
+        self.__validator = Validator(db)
+
         self.__match_result_set_message = "match result set"
 
-    def set_match_result(self, response: Response, token: str, data: SetMatchResultSchema):
+    def set_group_match_result(self, response: Response, token: str, data: SetMatchResultSchema):
         decoded_token = self.__token_manager.decode_token(token, response)
-        self.__event_manager.raise_exception_if_not_found(data.nomination_event.event_name)
-        self.__nomination_manager.raise_exception_if_not_found(data.nomination_event.nomination_name)
-        self.__nomination_event_manager.raise_exception_if_not_found(
-            data.nomination_event.nomination_name,
-            data.nomination_event.event_name,
-            data.nomination_event.type
-        )
-        self.__event_manager.raise_exception_if_user_not_in_judge_command(
-            data.nomination_event.nomination_name,
-            data.nomination_event.event_name,
-            data.nomination_event.type,
-            decoded_token.user_id
+        self.__validator.check_event_nomination__nomination_event_existence(
+            data.nomination_name,
+            data.event_name,
+            NominationEventType.olympyc
         )
         self.__match_manager.raise_exception_if_not_found(data.match_id)
         self.__match_manager.raise_exception_if_match_not_related_to_nomination_event(data)
@@ -53,22 +48,28 @@ class MatchService:
         self.__match_manager.set_match_result(decoded_token.user_id, data)
         return {"message": self.__match_result_set_message}
 
-    def get_group_matches_of_tournament(
+    def set_bracket_match_result(self, response: Response, token: str, data: SetMatchResultSchema):
+        pass
+
+    def get_group_matches(
             self,
             response: Response,
             token: str,
-            nomination_event: NominationEventSchema
+            nomination_event: OlympycNominationEventSchema
     ):
         decoded_token = self.__token_manager.decode_token(token, response)
-        self.__event_manager.raise_exception_if_not_found(nomination_event.event_name)
-        self.__nomination_manager.raise_exception_if_not_found(nomination_event.nomination_name)
-        self.__nomination_event_manager.raise_exception_if_not_found(
+        self.__validator.check_event_nomination__nomination_event_existence(
             nomination_event.nomination_name,
             nomination_event.event_name,
-            nomination_event.type
+            NominationEventType.olympyc
         )
-
         self.__event_manager.raise_exception_if_owner_wrong(nomination_event.event_name, decoded_token.user_id)
-        self.__nomination_event_manager.raise_exception_if_nomination_event_not_olympyc(nomination_event.type)
-
         return self.__match_manager.get_group_matches_of_tournament(nomination_event)
+
+    def get_bracket_matches(
+            self,
+            response: Response,
+            token: str,
+            nomination_event: OlympycNominationEventSchema
+    ):
+        pass

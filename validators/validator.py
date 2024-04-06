@@ -1,12 +1,12 @@
 from fastapi import HTTPException
 from pydantic import EmailStr
 from starlette import status
+from starlette.responses import Response
 
 from db.crud.nomination_event import get_nomination_event_db
 from db.crud.participant_nomination_event import get_participants_of_nomination_event_db
-from db.crud.team import get_team_participants_emails_db, get_team_by_name_db
-from db.crud.team_nomination_event import get_nomination_event_teams_db
-from db.crud.team_participant import get_emails_of_teams_participants_db
+from db.crud.team import get_team_participants_emails_db
+from db.schemas.nomination_event import OlympycNominationEventSchema, NominationEventType
 from db.schemas.team import TeamSchema
 from db.schemas.token import TokenDecodedSchema
 from db.schemas.user import UserRole
@@ -16,10 +16,12 @@ from managers.nomination import NominationManager
 from managers.participant import ParticipantManager
 from managers.team import TeamManager
 from managers.team_nomination_event import TeamNominationEventManager
+from managers.token import TokenManager
 
 
 class Validator:
     def __init__(self, db):
+        self.__token_manager = TokenManager(db)
         self.__team_nomination_event_manager = TeamNominationEventManager(db)
         self.__participant_manager = ParticipantManager(db)
         self.__nomination_event_manager = NominationEventManager(db)
@@ -92,10 +94,19 @@ class Validator:
                 detail={"error": self.__default_team_error}
             )
 
-    def check_nomination_event__nomination_event_existence(self, nomination_name: str, event_name: str):
+    def check_nomination_event__nomination_event_existence(
+            self,
+            nomination_name: str,
+            event_name: str,
+            nomination_event_type: str
+    ):
         self.__nomination_manager.raise_exception_if_not_found(nomination_name)
         self.__event_manager.raise_exception_if_not_found(event_name)
-        self.__nomination_event_manager.raise_exception_if_not_found(nomination_name, event_name)
+        self.__nomination_event_manager.raise_exception_if_not_found(
+            nomination_name,
+            event_name,
+            nomination_event_type
+        )
 
     def raise_exception_if_participant_not_in_team(self, team_name: str, participant_email: EmailStr):
         team_participants_emails = set(get_team_participants_emails_db(self.__db, team_name))
@@ -170,4 +181,24 @@ class Validator:
                 event_name,
                 nomination_event_type
             )
+        )
+
+    def actions_validation(
+            self,
+            response: Response,
+            token: str,
+            nomination_event: OlympycNominationEventSchema
+    ):
+        decoded_token = self.__token_manager.decode_token(token, response)
+        self.check_event_nomination__nomination_event_existence(
+            nomination_event.nomination_name,
+            nomination_event.event_name,
+            NominationEventType.olympyc
+        )
+
+        self.__event_manager.raise_exception_if_user_not_in_judge_command(
+            nomination_event.nomination_name,
+            nomination_event.event_name,
+            NominationEventType.olympyc,
+            decoded_token.user_id
         )

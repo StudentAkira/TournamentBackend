@@ -24,6 +24,11 @@ class NominationEventSchema(BaseModel):
     type: NominationEventType
 
 
+class OlympycNominationEventSchema(BaseModel):
+    event_name: str
+    nomination_name: str
+
+
 class NominationEventDataSchema(BaseModel):
     name: str
     date: datetime.date

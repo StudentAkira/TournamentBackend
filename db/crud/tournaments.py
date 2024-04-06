@@ -12,22 +12,20 @@ from db.models.nomination import Nomination
 from db.models.nomination_event import NominationEvent
 from db.models.team import Team
 from db.schemas.group_tournament import StartGroupTournamentSchema, GetGroupsOfTournamentSchema, GroupSchema
-from db.schemas.nomination_event import NominationEventSchema
-from db.schemas.participant import ParticipantSchema
+from db.schemas.nomination_event import OlympycNominationEventSchema, NominationEventType
 from db.schemas.team import TeamSchema
-from db.schemas.team_participant import TeamParticipantsSchema
 
 
 def create_group_tournament_db(db: Session, nomination_event: StartGroupTournamentSchema):
     event_db = db.query(Event).filter(
-        cast("ColumnElement[bool]", Event.name == nomination_event.event_name)).first()
+        cast("ColumnElement[bool]", Event.name == nomination_event.olympyc_nomination_event.event_name)).first()
     nomination_db = db.query(Nomination).filter(
-        cast("ColumnElement[bool]", Nomination.name == nomination_event.nomination_name)).first()
+        cast("ColumnElement[bool]", Nomination.name == nomination_event.olympyc_nomination_event.nomination_name)).first()
     nomination_event_db = db.query(NominationEvent).filter(
         and_(
             NominationEvent.event_id == event_db.id,
             NominationEvent.nomination_id == nomination_db.id,
-            NominationEvent.type == nomination_event.type
+            NominationEvent.type == NominationEventType.olympyc
         )
     ).first()
 
@@ -65,26 +63,8 @@ def create_group_tournament_db(db: Session, nomination_event: StartGroupTourname
 
 def get_count_of_participants_of_tournament_db(
         db: Session,
-        nomination_name: str,
-        event_name: str,
-        nomination_event_type: str
+        nomination_event: OlympycNominationEventSchema
 ):
-    event_db = db.query(Event).filter(
-        cast("ColumnElement[bool]", Event.name == event_name)).first()
-    nomination_db = db.query(Nomination).filter(
-        cast("ColumnElement[bool]", Nomination.name ==nomination_name)).first()
-    nomination_event_db = db.query(NominationEvent).filter(
-        and_(
-            NominationEvent.event_id == event_db.id,
-            NominationEvent.nomination_id == nomination_db.id,
-            NominationEvent.type == nomination_event_type
-        )
-    ).first()
-    count = len(nomination_event_db.team_participants)
-    return count
-
-
-def get_groups_of_tournament_db(db: Session, nomination_event: NominationEventSchema):
     event_db = db.query(Event).filter(
         cast("ColumnElement[bool]", Event.name == nomination_event.event_name)).first()
     nomination_db = db.query(Nomination).filter(
@@ -93,7 +73,23 @@ def get_groups_of_tournament_db(db: Session, nomination_event: NominationEventSc
         and_(
             NominationEvent.event_id == event_db.id,
             NominationEvent.nomination_id == nomination_db.id,
-            NominationEvent.type == nomination_event.type
+            NominationEvent.type == NominationEventType.olympyc
+        )
+    ).first()
+    count = len(nomination_event_db.team_participants)
+    return count
+
+
+def get_groups_of_tournament_db(db: Session, nomination_event: OlympycNominationEventSchema):
+    event_db = db.query(Event).filter(
+        cast("ColumnElement[bool]", Event.name == nomination_event.event_name)).first()
+    nomination_db = db.query(Nomination).filter(
+        cast("ColumnElement[bool]", Nomination.name == nomination_event.nomination_name)).first()
+    nomination_event_db = db.query(NominationEvent).filter(
+        and_(
+            NominationEvent.event_id == event_db.id,
+            NominationEvent.nomination_id == nomination_db.id,
+            NominationEvent.type == NominationEventType.olympyc
         )
     ).first()
 
@@ -112,7 +108,7 @@ def get_groups_of_tournament_db(db: Session, nomination_event: NominationEventSc
     return result
 
 
-def is_all_matches_finished_db(db: Session, nomination_event: NominationEventSchema):
+def is_all_matches_finished_db(db: Session, nomination_event: OlympycNominationEventSchema):
     event_db = db.query(Event).filter(
         cast("ColumnElement[bool]", Event.name == nomination_event.event_name)).first()
     nomination_db = db.query(Nomination).filter(
@@ -121,7 +117,7 @@ def is_all_matches_finished_db(db: Session, nomination_event: NominationEventSch
         and_(
             NominationEvent.event_id == event_db.id,
             NominationEvent.nomination_id == nomination_db.id,
-            NominationEvent.type == nomination_event.type
+            NominationEvent.type == NominationEventType.olympyc
         )
     ).first()
 
@@ -132,7 +128,7 @@ def is_all_matches_finished_db(db: Session, nomination_event: NominationEventSch
     return True
 
 
-def finish_group_stage_db(db: Session, nomination_event: NominationEventSchema):
+def finish_group_stage_db(db: Session, nomination_event: OlympycNominationEventSchema):
     event_db = db.query(Event).filter(
         cast("ColumnElement[bool]", Event.name == nomination_event.event_name)).first()
     nomination_db = db.query(Nomination).filter(
@@ -141,7 +137,7 @@ def finish_group_stage_db(db: Session, nomination_event: NominationEventSchema):
         and_(
             NominationEvent.event_id == event_db.id,
             NominationEvent.nomination_id == nomination_db.id,
-            NominationEvent.type == nomination_event.type
+            NominationEvent.type == NominationEventType.olympyc
         )
     ).first()
 
@@ -150,7 +146,7 @@ def finish_group_stage_db(db: Session, nomination_event: NominationEventSchema):
     db.commit()
 
 
-def start_play_off_tournament_db(db: Session, nomination_event: NominationEventSchema, teams: list[TeamSchema]):
+def start_play_off_tournament_db(db: Session, nomination_event: OlympycNominationEventSchema, teams: list[TeamSchema]):
     event_db = db.query(Event).filter(
         cast("ColumnElement[bool]", Event.name == nomination_event.event_name)).first()
     nomination_db = db.query(Nomination).filter(
@@ -159,7 +155,7 @@ def start_play_off_tournament_db(db: Session, nomination_event: NominationEventS
         and_(
             NominationEvent.event_id == event_db.id,
             NominationEvent.nomination_id == nomination_db.id,
-            NominationEvent.type == nomination_event.type
+            NominationEvent.type == NominationEventType.olympyc
         )
     ).first()
 
@@ -210,6 +206,10 @@ def start_play_off_tournament_db(db: Session, nomination_event: NominationEventS
 
     bracket_db = Bracket()
     nomination_event_db.bracket = bracket_db
+    bracket_db.nomination_event = nomination_event_db
+    db.add(bracket_db)
+    db.add(nomination_event_db)
+    db.commit()
 
     while last > first:
 

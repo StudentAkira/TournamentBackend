@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from starlette.responses import Response
 
 from db.schemas.group_tournament import StartGroupTournamentSchema
-from db.schemas.nomination_event import NominationEventSchema
+from db.schemas.nomination_event import NominationEventSchema, OlympycNominationEventSchema
 from db.schemas.team import TeamSchema
 from dependencies import authorized_only, get_db
 from routes.tournaments.tournaments_service import TournamentService
@@ -27,7 +27,7 @@ async def start_group_tournament(
 @tournaments.get("/get_groups_of_tournament")
 async def get_groups_of_tournament(
         response: Response,
-        nomination_event: NominationEventSchema = Depends(),
+        nomination_event: OlympycNominationEventSchema = Depends(),
         token: str = Depends(authorized_only),
         db: Session = Depends(get_db)
 ):
@@ -38,7 +38,7 @@ async def get_groups_of_tournament(
 @tournaments.post("/finish_group_stage")
 async def finish_group_stage(
     response: Response,
-    nomination_event: NominationEventSchema,
+    nomination_event: OlympycNominationEventSchema,
     token: str = Depends(authorized_only),
     db: Session = Depends(get_db)
 ):
@@ -49,7 +49,7 @@ async def finish_group_stage(
 @tournaments.post("/start_play_off_tournament")
 async def start_play_off_tournament(
         response: Response,
-        nomination_event: NominationEventSchema,
+        nomination_event: OlympycNominationEventSchema,
         teams: list[TeamSchema],
         token: str = Depends(authorized_only),
         db: Session = Depends(get_db)
