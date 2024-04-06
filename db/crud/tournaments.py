@@ -4,6 +4,7 @@ from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
 from db.crud.general import round_robin
+from db.models.bracket import Bracket
 from db.models.event import Event
 from db.models.group import Group
 from db.models.match import Match
@@ -196,7 +197,7 @@ def start_play_off_tournament_db(db: Session, nomination_event: NominationEventS
     while team_count > len(teams_to_create_matches):
         teams_to_create_matches.append((None, 0))
 
-    print(teams_to_create_matches)
+    # print(teams_to_create_matches)
 
     teams_ids = [team[0] for team in teams_to_create_matches]
     teams_db = db.query(Team).filter(Team.id.in_(teams_ids)).all()
@@ -207,6 +208,9 @@ def start_play_off_tournament_db(db: Session, nomination_event: NominationEventS
     last = len(teams_to_create_matches) - 1
     first = 0
 
+    bracket_db = Bracket()
+    nomination_event_db.bracket = bracket_db
+
     while last > first:
 
         team1_id = teams_to_create_matches[first][0]
@@ -216,12 +220,15 @@ def start_play_off_tournament_db(db: Session, nomination_event: NominationEventS
             team1_id=team1_id if team1_id is not None else None,
             team2_id=team2_id if team2_id is not None else None
         )
+        match_db.bracket = bracket_db
         match_db.team1 = team_id_entity[team1_id] if team1_id is not None else None
         match_db.team2 = team_id_entity[team2_id] if team2_id is not None else None
         matches.append(match_db)
+
+        db.add(match_db)
+
         last -= 1
         first += 1
-
 
     print([
         (
@@ -230,13 +237,25 @@ def start_play_off_tournament_db(db: Session, nomination_event: NominationEventS
         )
         for match_db in matches
     ])
-    count = int(len(matches) / 2)
-    while count != 0:
-        print(count)
-        for i in range(count):
-            pass
-        count = int(count/2)
+    while len(matches) > 1:
+        tmp_matches = []
+        for i in range(0, len(matches), 2):
+            match_db = Match()
+            matches[i].next_bracket_match = match_db
+            matches[i + 1].next_bracket_match = match_db
 
+            match_db.bracket = bracket_db
+            db.add(match_db)
 
+            tmp_matches.append(match_db)
+        matches = tmp_matches.copy()
+
+        print([
+            (match_db.team1_id, match_db.team2_id) for match_db in tmp_matches
+        ])
+    db.add(bracket_db)
+    db.add(nomination_event_db)
+
+    db.commit()
 
 

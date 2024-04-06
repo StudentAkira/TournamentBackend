@@ -67,6 +67,7 @@ class TournamentService:
 
         self.__tournament_manager.raise_exception_if_teams_not_in_tournament(teams, nomination_event)
         self.__tournament_manager.raise_exception_if_group_stage_not_finished(nomination_event)
+        self.__tournament_manager.raise_exception_if_play_off_stage_started(nomination_event)
         self.__tournament_manager.start_play_off_tournament(nomination_event, teams)
         return {"message": self.__play_off_tournament_started}
 

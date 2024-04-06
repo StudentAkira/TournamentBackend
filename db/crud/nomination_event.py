@@ -403,8 +403,7 @@ def get_judge_command_ids_db(db: Session, nomination_name: str, event_name: str,
             NominationEvent.type == nomination_event_type
         )
     ).first()
-
-    return set(judge_db.id for judge_db in nomination_event_db.judges)
+    return set(judge_db.id for judge_db in nomination_event_db.judges).union({event_db.owner_id})
 
 
 def is_group_stage_finished_db(db: Session, nomination_event: NominationEventSchema):

@@ -39,3 +39,4 @@ class Match(Base):
 
     next_bracket_match_id: int = Column(Integer, ForeignKey("match.id"), nullable=True)
     next_bracket_match: Mapped["Match"] = relationship("Match",  remote_side=[id])
+
