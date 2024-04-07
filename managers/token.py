@@ -10,7 +10,7 @@ from starlette.responses import Response
 
 from config import settings
 from db.crud.token.token import save_token_db, delete_token_db, get_token_db
-from db.schemas.token import TokenDecodedSchema
+from db.schemas.token.token_decoded import TokenDecodedSchema
 
 
 class TokenManager:

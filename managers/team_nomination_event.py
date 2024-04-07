@@ -4,7 +4,7 @@ from starlette import status
 
 from db.crud.team.team import get_team_by_name_db
 from db.crud.team_nomination_event.team_nomination_event import get_nomination_event_teams_db
-from db.schemas.team import TeamSchema
+from db.schemas.team.team import TeamSchema
 
 
 class TeamNominationEventManager:
@@ -27,7 +27,7 @@ class TeamNominationEventManager:
 
     def raise_exception_if_team_not_in_event_nomination(self, team_name: str, nomination_name: str, event_name: str):
         team_db = get_team_by_name_db(self.__db, team_name)
-        teams_db = get_nomination_event_teams_db(self.__db, nomination_name, event_name)
+        teams_db = get_nomination_event_teams_db(self.__db, nomination_name, event_name)#todo
 
         if team_db not in teams_db:
             raise HTTPException(

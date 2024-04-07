@@ -4,7 +4,10 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 
-from db.schemas.event import EventSchema, EventCreateSchema, EventUpdateSchema, EventDeleteSchema
+from db.schemas.event.event import EventSchema
+from db.schemas.event.event_create import EventCreateSchema
+from db.schemas.event.event_delete import EventDeleteSchema
+from db.schemas.event.event_update import EventUpdateSchema
 from dependencies import get_db, authorized_only
 from routes.event.events_service import EventsService
 

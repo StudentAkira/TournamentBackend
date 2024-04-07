@@ -1,6 +1,8 @@
 from starlette.responses import Response
-from db.schemas.team import TeamSchema, TeamUpdateSchema
-from db.schemas.user import UserRole
+
+from db.schemas.team.team import TeamSchema
+from db.schemas.team.team_update import TeamUpdateSchema
+from db.schemas.user.user_role import UserRole
 from managers.event import EventManager
 from managers.team import TeamManager
 from managers.token import TokenManager

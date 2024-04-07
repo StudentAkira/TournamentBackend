@@ -16,15 +16,20 @@ from db.models.team import Team
 from db.models.team_participant import TeamParticipant
 from db.models.team_participant_nomination_event import TeamParticipantNominationEvent
 from db.models.user import User
-from db.schemas.event import EventListSchema, EventGetNameSchema
-from db.schemas.nomination import NominationSchema
-from db.schemas.nomination_event import NominationEventSchema, NominationEventDeleteSchema, \
-    NominationEventFullInfoSchema, NominationEventParticipantCountSchema, NominationEventPDFSchema, NominationEventType, \
-    OlympycNominationEventSchema
 from sqlalchemy import and_
 
-from db.schemas.participant import ParticipantPDFSchema
-from db.schemas.team_participant import TeamParticipantsSchema
+from db.schemas.event.event_get_name import EventGetNameSchema
+from db.schemas.event.event_list import EventListSchema
+from db.schemas.nomination.nomination import NominationSchema
+from db.schemas.nomination_event.nomination_event import NominationEventSchema
+from db.schemas.nomination_event.nomination_event_delete import NominationEventDeleteSchema
+from db.schemas.nomination_event.nomination_event_full_info_schema import NominationEventFullInfoSchema
+from db.schemas.nomination_event.nomination_event_participant_count import NominationEventParticipantCountSchema
+from db.schemas.nomination_event.nomination_event_pdf import NominationEventPDFSchema
+from db.schemas.nomination_event.nomination_event_type import NominationEventType
+from db.schemas.nomination_event.olympyc_nomination_event import OlympycNominationEventSchema
+from db.schemas.participant.participant_pdf import ParticipantPDFSchema
+from db.schemas.team_participant.team_participant import TeamParticipantsSchema
 
 
 def get_nominations_event_participant_count_db(

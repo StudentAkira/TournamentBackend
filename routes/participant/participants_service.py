@@ -1,5 +1,8 @@
 from starlette.responses import Response
-from db.schemas.participant import ParticipantSchema, ParticipantHideSchema, ParticipantUpdateSchema
+
+from db.schemas.participant.participant import ParticipantSchema
+from db.schemas.participant.participant_hide import ParticipantHideSchema
+from db.schemas.participant.participant_update import ParticipantUpdateSchema
 from managers.participant import ParticipantManager
 from managers.team import TeamManager
 from managers.team_participant import TeamParticipantManager

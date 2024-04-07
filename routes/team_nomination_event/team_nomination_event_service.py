@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from starlette.responses import Response
-from db.schemas.user import UserRole
+
+from db.schemas.user.user_role import UserRole
 from managers.event import EventManager
 from managers.team_nomination_event import TeamNominationEventManager
 from managers.token import TokenManager
@@ -18,7 +19,7 @@ class TeamNominationEventService:
         self.__event_manager = EventManager(db)
         self.__team_nomination_event_manager = TeamNominationEventManager(db)
 
-    def list_teams_nomination_event(
+    def list_teams_nomination_event(#todo
             self,
             response: Response,
             token: str,

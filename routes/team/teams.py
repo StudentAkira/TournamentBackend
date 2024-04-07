@@ -2,7 +2,9 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from starlette.responses import Response
-from db.schemas.team import TeamSchema, TeamUpdateSchema
+
+from db.schemas.team.team import TeamSchema
+from db.schemas.team.team_update import TeamUpdateSchema
 from dependencies import get_db, authorized_only
 from routes.team.teams_service import TeamsService
 

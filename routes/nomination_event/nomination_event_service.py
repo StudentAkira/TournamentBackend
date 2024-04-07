@@ -1,6 +1,8 @@
 from starlette.responses import Response
-from db.schemas.nomination_event import NominationEventDeleteSchema, NominationEventSchema
-from db.schemas.user import UserRole
+
+from db.schemas.nomination_event.nomination_event import NominationEventSchema
+from db.schemas.nomination_event.nomination_event_delete import NominationEventDeleteSchema
+from db.schemas.user.user_role import UserRole
 from managers.event import EventManager
 from managers.nomination import NominationManager
 from managers.nomination_event import NominationEventManager
@@ -105,7 +107,7 @@ class NominationEventService:
             token: str,
             event_name: str
     ):
-        decoded_token = self.__token_manager.decode_token(token, response)
+        self.__token_manager.decode_token(token, response)
         self.__event_manager.raise_exception_if_not_found(event_name)
         return self.__nomination_event_manager.get_nomination_event_data(event_name)
 
@@ -136,7 +138,7 @@ class NominationEventService:
         )
         self.__event_manager.raise_exception_if_owner_wrong(nomination_event_data.event_name, decoded_token.user_id)
         self.__nomination_event_manager.close_registration(nomination_event_data)
-        self.__nomination_event_manager.raise_exception_if_tournament_started(
+        self.__nomination_event_manager.raise_exception_if_tournament_started(#todo
             nomination_event_data.nomination_name,
             nomination_event_data.event_name,
             nomination_event_data.type
@@ -156,7 +158,7 @@ class NominationEventService:
             nomination_event_data.type
         )
         self.__event_manager.raise_exception_if_owner_wrong(nomination_event_data.event_name, decoded_token.user_id)
-        self.__nomination_event_manager.raise_exception_if_tournament_started(
+        self.__nomination_event_manager.raise_exception_if_tournament_started(#todo
             nomination_event_data.nomination_name,
             nomination_event_data.event_name,
             nomination_event_data.type

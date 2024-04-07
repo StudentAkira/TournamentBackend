@@ -9,7 +9,9 @@ from starlette import status
 from db.crud.participant.participant import get_participants_by_owner_db, create_participant_db, \
     get_participant_by_email_db, hide_participant_db, update_participant_db
 from db.models.participant import Participant
-from db.schemas.participant import ParticipantSchema, ParticipantHideSchema, ParticipantUpdateSchema
+from db.schemas.participant.participant import ParticipantSchema
+from db.schemas.participant.participant_hide import ParticipantHideSchema
+from db.schemas.participant.participant_update import ParticipantUpdateSchema
 
 
 class ParticipantManager:

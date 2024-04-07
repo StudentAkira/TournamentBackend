@@ -12,13 +12,16 @@ from db.crud.nomination_event.nomination_event import get_nomination_event_pdf_d
     get_nominations_event_participant_count_db, get_nomination_events_all_names_db, \
     get_nomination_events_all_names_by_owner_db, get_nomination_events_full_info_db, \
     get_nomination_events_full_info_by_owner_db, append_nomination_for_event_db, append_event_nominations_db, \
-    delete_nomination_event_db, close_registration_nomination_event_db, open_registration_nomination_event_db
+    delete_nomination_event_db, close_registration_nomination_event_db, open_registration_nomination_event_db, \
+    is_tournament_started_db
 from db.models.event import Event
 from db.models.nomination import Nomination
 from db.models.nomination_event import NominationEvent
-from db.schemas.event import EventGetNameSchema
-from db.schemas.nomination_event import NominationEventSchema, NominationEventDeleteSchema, \
-    NominationEventParticipantCountSchema, OlympycNominationEventSchema
+from db.schemas.event.event_get_name import EventGetNameSchema
+from db.schemas.nomination_event.nomination_event import NominationEventSchema
+from db.schemas.nomination_event.nomination_event_delete import NominationEventDeleteSchema
+from db.schemas.nomination_event.nomination_event_participant_count import NominationEventParticipantCountSchema
+from db.schemas.nomination_event.olympyc_nomination_event import OlympycNominationEventSchema
 from managers.event import EventManager
 from managers.nomination import NominationManager
 from managers.team import TeamManager

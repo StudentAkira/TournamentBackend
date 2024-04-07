@@ -6,10 +6,11 @@ from starlette.responses import Response
 from db.crud.nomination_event.nomination_event import get_nomination_event_db
 from db.crud.participant_nomination_event.participant_nomination_event import get_participants_of_nomination_event_db
 from db.crud.team.team import get_team_participants_emails_db
-from db.schemas.nomination_event import OlympycNominationEventSchema, NominationEventType
-from db.schemas.team import TeamSchema
-from db.schemas.token import TokenDecodedSchema
-from db.schemas.user import UserRole
+from db.schemas.nomination_event.nomination_event_type import NominationEventType
+from db.schemas.nomination_event.olympyc_nomination_event import OlympycNominationEventSchema
+from db.schemas.team.team import TeamSchema
+from db.schemas.token.token_decoded import TokenDecodedSchema
+from db.schemas.user.user_role import UserRole
 from managers.event import EventManager
 from managers.nomination_event import NominationEventManager
 from managers.nomination import NominationManager

@@ -3,7 +3,10 @@ from sqlalchemy.orm import Session
 from starlette.responses import Response
 
 from db.crud.user.user import create_user_db
-from db.schemas.user import UserSchema, UserCreateSchema, UserRole, EditUserSchema
+from db.schemas.user.edit_user import EditUserSchema
+from db.schemas.user.user import UserSchema
+from db.schemas.user.user_create import UserCreateSchema
+from db.schemas.user.user_role import UserRole
 from dependencies import get_db, authorized_only
 from routes.user.users_service import UsersService
 

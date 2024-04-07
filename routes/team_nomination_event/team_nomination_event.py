@@ -2,6 +2,8 @@ from typing import Annotated
 from fastapi import APIRouter, Query, Depends
 from sqlalchemy.orm import Session
 from starlette.responses import Response
+
+from db.schemas.nomination_event.nomination_event import NominationEventSchema
 from dependencies import authorized_only, get_db
 from routes.team_nomination_event.team_nomination_event_service import TeamNominationEventService
 
@@ -17,6 +19,7 @@ async def list_teams_nomination_event(
         nomination_name: Annotated[str, Query()],
         event_name: Annotated[str, Query()],
         nomination_event_type: Annotated[str, Query()],
+        nomination_event: NominationEventSchema = Depends(),
         token: str = Depends(authorized_only),
         db: Session = Depends(get_db)
 ):

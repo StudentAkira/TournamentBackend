@@ -10,8 +10,8 @@ from db.crud.match.match import get_group_matches_db, set_group_match_result_db,
     is_prev_match_was_judged_db
 from db.models.match import Match
 from db.models.team import Team
-from db.schemas.match import SetMatchResultSchema
-from db.schemas.nomination_event import OlympycNominationEventSchema
+from db.schemas.match.set_match_result_schema import SetMatchResultSchema
+from db.schemas.nomination_event.olympyc_nomination_event import OlympycNominationEventSchema
 from managers.team import TeamManager
 
 

@@ -14,9 +14,9 @@ from db.crud.tournament.tournaments import create_group_tournament_db, \
 from db.models.event import Event
 from db.models.nomination import Nomination
 from db.models.nomination_event import NominationEvent
-from db.schemas.group_tournament import StartGroupTournamentSchema
-from db.schemas.nomination_event import OlympycNominationEventSchema
-from db.schemas.team import TeamSchema
+from db.schemas.group_tournament.start_group_tournament import StartGroupTournamentSchema
+from db.schemas.nomination_event.olympyc_nomination_event import OlympycNominationEventSchema
+from db.schemas.team.team import TeamSchema
 
 
 class TournamentManager:
@@ -137,4 +137,3 @@ class TournamentManager:
                 status_code=status.HTTP_409_CONFLICT,
                 detail={"error": self.__play_off_stage_already_finished_error}
             )
-

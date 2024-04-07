@@ -9,10 +9,12 @@ from db.models.nomination import Nomination
 from db.models.nomination_event import NominationEvent
 from db.models.team import Team
 from db.models.team_participant_nomination_event import TeamParticipantNominationEvent
-from db.schemas.nomination_event import OlympycNominationEventSchema, NominationEventType
-from db.schemas.team import TeamSchema, TeamUpdateSchema
-
 from sqlalchemy import and_
+
+from db.schemas.nomination_event.nomination_event_type import NominationEventType
+from db.schemas.nomination_event.olympyc_nomination_event import OlympycNominationEventSchema
+from db.schemas.team.team import TeamSchema
+from db.schemas.team.team_update import TeamUpdateSchema
 
 
 def create_team_db(db: Session, team: TeamSchema, creator_id: int):

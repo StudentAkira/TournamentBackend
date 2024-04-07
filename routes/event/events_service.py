@@ -1,7 +1,10 @@
 from starlette.responses import Response
 
-from db.schemas.event import EventSchema, EventCreateSchema, EventUpdateSchema, EventDeleteSchema
-from db.schemas.user import UserRole
+from db.schemas.event.event import EventSchema
+from db.schemas.event.event_create import EventCreateSchema
+from db.schemas.event.event_delete import EventDeleteSchema
+from db.schemas.event.event_update import EventUpdateSchema
+from db.schemas.user.user_role import UserRole
 from managers.event import EventManager
 from managers.token import TokenManager
 from managers.user import UserManager

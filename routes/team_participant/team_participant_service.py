@@ -2,8 +2,8 @@ from pydantic import EmailStr
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 
-from db.schemas.token import TokenDecodedSchema
-from db.schemas.user import UserRole
+from db.schemas.token.token_decoded import TokenDecodedSchema
+from db.schemas.user.user_role import UserRole
 from managers.participant import ParticipantManager
 from managers.team import TeamManager
 from managers.team_participant import TeamParticipantManager

@@ -1,12 +1,13 @@
 from typing import cast
 
 from pydantic import EmailStr
-from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
 from db.models.participant import Participant
 from db.models.team import Team
-from db.schemas.participant import ParticipantSchema, ParticipantHideSchema, ParticipantUpdateSchema
+from db.schemas.participant.participant import ParticipantSchema
+from db.schemas.participant.participant_hide import ParticipantHideSchema
+from db.schemas.participant.participant_update import ParticipantUpdateSchema
 
 
 def create_participant_db(db: Session, participant: ParticipantSchema, creator_id: int) -> type(Participant):

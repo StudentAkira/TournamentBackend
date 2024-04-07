@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 
-from db.schemas.nomination_event_judge import NominationEventJudgeDataSchema, GenNominationEventJudgeSchema
+from db.schemas.nomination_event_judge.get_nomination_event_judge import GenNominationEventJudgeSchema
+from db.schemas.nomination_event_judge.nomination_event_judge_data import NominationEventJudgeDataSchema
 from managers.event import EventManager
 from managers.nomination import NominationManager
 from managers.nomination_event import NominationEventManager
@@ -34,7 +35,7 @@ class NominationEventJudgeService:
             response: Response,
             token: str,
             nomination_event_judge_data: NominationEventJudgeDataSchema
-            ):
+    ):
         decoded_token = self.__token_manager.decode_token(token, response)
         self.__user_manager.raise_exception_if_user_specialist(decoded_token.role)
         self.__validator.check_event_nomination__nomination_event_existence(
@@ -82,7 +83,7 @@ class NominationEventJudgeService:
             response: Response,
             token: str,
             nomination_event_judge_data: NominationEventJudgeDataSchema
-        ):
+    ):
         decoded_token = self.__token_manager.decode_token(token, response)
         self.__user_manager.raise_exception_if_user_specialist(decoded_token.role)
         self.__validator.check_event_nomination__nomination_event_existence(

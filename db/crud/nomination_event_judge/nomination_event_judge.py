@@ -7,7 +7,8 @@ from db.models.event import Event
 from db.models.nomination import Nomination
 from db.models.nomination_event import NominationEvent
 from db.models.user import User
-from db.schemas.nomination_event_judge import NominationEventJudgeDataSchema, GenNominationEventJudgeSchema
+from db.schemas.nomination_event_judge.get_nomination_event_judge import GenNominationEventJudgeSchema
+from db.schemas.nomination_event_judge.nomination_event_judge_data import NominationEventJudgeDataSchema
 
 
 def create_nomination_event_judge_db(db: Session, data: NominationEventJudgeDataSchema):

@@ -1,7 +1,9 @@
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 
-from db.schemas.user import UserSchema, UserCreateSchema, EditUserSchema
+from db.schemas.user.edit_user import EditUserSchema
+from db.schemas.user.user import UserSchema
+from db.schemas.user.user_create import UserCreateSchema
 from managers.token import TokenManager
 from managers.user import UserManager
 

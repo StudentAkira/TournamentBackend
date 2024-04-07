@@ -10,8 +10,11 @@ from db.models.match import Match
 from db.models.nomination_event import NominationEvent
 from db.models.nominatuin_event_judge import NominationEventJudge
 from db.models.team_participant_nomination_event import TeamParticipantNominationEvent
-from db.schemas.event import EventCreateSchema, EventListSchema, EventUpdateSchema, EventDeleteSchema
-from db.schemas.nomination import NominationSchema
+from db.schemas.event.event_create import EventCreateSchema
+from db.schemas.event.event_delete import EventDeleteSchema
+from db.schemas.event.event_list import EventListSchema
+from db.schemas.event.event_update import EventUpdateSchema
+from db.schemas.nomination.nomination import NominationSchema
 
 
 def get_all_events_db(db: Session):

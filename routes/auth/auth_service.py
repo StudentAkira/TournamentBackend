@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 from config import settings
-from db.schemas.user import UserLoginSchema
+from db.schemas.user.user_login import UserLoginSchema
 from managers.token import TokenManager
 from managers.user import UserManager
 

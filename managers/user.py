@@ -8,8 +8,11 @@ from starlette import status
 from db.crud.user.user import get_users_db, get_user_by_id_db, get_user_by_email_db, create_user_db, pwd_context, \
     edit_user_data_db
 from db.models.user import User
-from db.schemas.nomination_event_judge import NominationEventJudgeDataSchema
-from db.schemas.user import UserCreateSchema, UserRole, UserSchema, EditUserSchema
+from db.schemas.nomination_event_judge.nomination_event_judge_data import NominationEventJudgeDataSchema
+from db.schemas.user.edit_user import EditUserSchema
+from db.schemas.user.user import UserSchema
+from db.schemas.user.user_create import UserCreateSchema
+from db.schemas.user.user_role import UserRole
 
 
 class UserManager:

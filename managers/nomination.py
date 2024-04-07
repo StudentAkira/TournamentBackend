@@ -10,7 +10,7 @@ from db.crud.nomination.nomination import get_nominations_db, \
     get_nomination_by_name_db, \
     update_nomination_db, create_nomination_db
 from db.models.nomination import Nomination
-from db.schemas.nomination import NominationSchema
+from db.schemas.nomination.nomination import NominationSchema
 
 
 class NominationManager:

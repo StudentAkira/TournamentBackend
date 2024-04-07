@@ -1,7 +1,11 @@
 from starlette.responses import Response
 
-from db.schemas.team_nomination_event import AppendTeamParticipantNominationEventSchema, \
-    DeleteTeamParticipantNominationEventSchema, UpdateTeamParticipantNominationEventSchema
+from db.schemas.team_nomination_event.append_team_participant_nomination_event import \
+    AppendTeamParticipantNominationEventSchema
+from db.schemas.team_nomination_event.delete_team_participant_nomination_event import \
+    DeleteTeamParticipantNominationEventSchema
+from db.schemas.team_nomination_event.update_team_participant_nomination_event import \
+    UpdateTeamParticipantNominationEventSchema
 from managers.event import EventManager
 from managers.nomination_event import NominationEventManager
 from managers.nomination import NominationManager

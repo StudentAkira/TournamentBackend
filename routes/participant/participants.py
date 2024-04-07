@@ -4,7 +4,9 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 
-from db.schemas.participant import ParticipantSchema, ParticipantHideSchema, ParticipantUpdateSchema
+from db.schemas.participant.participant import ParticipantSchema
+from db.schemas.participant.participant_hide import ParticipantHideSchema
+from db.schemas.participant.participant_update import ParticipantUpdateSchema
 from dependencies import get_db, authorized_only
 from routes.participant.participants_service import ParticipantsService
 

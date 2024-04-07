@@ -3,7 +3,9 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from starlette.responses import Response
-from db.schemas.nomination_event import NominationEventDeleteSchema, NominationEventSchema
+
+from db.schemas.nomination_event.nomination_event import NominationEventSchema
+from db.schemas.nomination_event.nomination_event_delete import NominationEventDeleteSchema
 from dependencies import authorized_only, get_db
 from routes.nomination_event.nomination_event_service import NominationEventService
 

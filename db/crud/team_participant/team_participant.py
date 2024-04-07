@@ -7,8 +7,8 @@ from db.crud.participant.participant import get_participant_by_email_db
 from db.crud.team.team import get_team_by_name_db
 from db.models.participant import Participant
 from db.models.team import Team
-from db.schemas.participant import ParticipantSchema
-from db.schemas.team import TeamSchema
+from db.schemas.participant.participant import ParticipantSchema
+from db.schemas.team.team import TeamSchema
 
 
 def get_emails_of_teams_participants_db(teams: list[type(Team)]) -> list[str]:

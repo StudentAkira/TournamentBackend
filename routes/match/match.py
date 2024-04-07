@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends
 from starlette.responses import Response
 from sqlalchemy.orm import Session
 
-from db.schemas.match import SetMatchResultSchema
-from db.schemas.nomination_event import OlympycNominationEventSchema
+from db.schemas.match.set_match_result_schema import SetMatchResultSchema
+from db.schemas.nomination_event.olympyc_nomination_event import OlympycNominationEventSchema
 from dependencies import authorized_only, get_db
 from routes.match.match_service import MatchService
 

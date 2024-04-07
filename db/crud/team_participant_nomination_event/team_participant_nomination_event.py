@@ -11,8 +11,12 @@ from db.models.participant import Participant
 from db.models.team import Team
 from db.models.team_participant import TeamParticipant
 from db.models.team_participant_nomination_event import TeamParticipantNominationEvent
-from db.schemas.team_nomination_event import AppendTeamParticipantNominationEventSchema, \
-    DeleteTeamParticipantNominationEventSchema, UpdateTeamParticipantNominationEventSchema
+from db.schemas.team_nomination_event.append_team_participant_nomination_event import \
+    AppendTeamParticipantNominationEventSchema
+from db.schemas.team_nomination_event.delete_team_participant_nomination_event import \
+    DeleteTeamParticipantNominationEventSchema
+from db.schemas.team_nomination_event.update_team_participant_nomination_event import \
+    UpdateTeamParticipantNominationEventSchema
 
 
 def append_team_participant_nomination_event_db(
@@ -122,7 +126,6 @@ def update_team_participant_nomination_event_db(
         db: Session,
         team_participant_nomination_event_data: UpdateTeamParticipantNominationEventSchema
 ):
-
     participant_db = db.query(Participant).\
         filter(
             cast(

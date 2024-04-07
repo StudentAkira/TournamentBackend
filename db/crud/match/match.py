@@ -9,11 +9,14 @@ from db.models.nomination import Nomination
 from db.models.nomination_event import NominationEvent
 from db.models.team import Team
 from db.models.user import User
-from db.schemas.bracket_tournament import BracketMatchesSchema
-from db.schemas.group_tournament import GroupMatchesSchema
-from db.schemas.match import GroupMatchSchema, SetMatchResultSchema, BracketMatchSchema, SetMatchResultSchema
-from db.schemas.nomination_event import  OlympycNominationEventSchema, NominationEventType
-from db.schemas.team import TeamSchema
+from db.schemas.bracket.bracket_tournament import BracketMatchesSchema
+from db.schemas.group_tournament.group_matches import GroupMatchesSchema
+from db.schemas.match.bracket_match_schema import BracketMatchSchema
+from db.schemas.match.group_match_schema import GroupMatchSchema
+from db.schemas.match.set_match_result_schema import SetMatchResultSchema
+from db.schemas.nomination_event.nomination_event_type import NominationEventType
+from db.schemas.nomination_event.olympyc_nomination_event import OlympycNominationEventSchema
+from db.schemas.team.team import TeamSchema
 
 
 def get_group_matches_db(db: Session, nomination_event: OlympycNominationEventSchema):

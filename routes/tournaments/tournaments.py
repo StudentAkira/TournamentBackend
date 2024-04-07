@@ -2,9 +2,9 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 
-from db.schemas.group_tournament import StartGroupTournamentSchema
-from db.schemas.nomination_event import OlympycNominationEventSchema
-from db.schemas.team import TeamSchema
+from db.schemas.group_tournament.start_group_tournament import StartGroupTournamentSchema
+from db.schemas.nomination_event.olympyc_nomination_event import OlympycNominationEventSchema
+from db.schemas.team.team import TeamSchema
 from dependencies import authorized_only, get_db
 from routes.tournaments.tournaments_service import TournamentService
 

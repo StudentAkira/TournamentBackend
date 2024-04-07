@@ -1,6 +1,6 @@
 from starlette.responses import Response
 
-from db.schemas.nomination import NominationSchema
+from db.schemas.nomination.nomination import NominationSchema
 from managers.event import EventManager
 from managers.nomination import NominationManager
 from managers.nomination_event import NominationEventManager

@@ -2,8 +2,12 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 
-from db.schemas.team_nomination_event import AppendTeamParticipantNominationEventSchema, \
-    DeleteTeamParticipantNominationEventSchema, UpdateTeamParticipantNominationEventSchema
+from db.schemas.team_nomination_event.append_team_participant_nomination_event import \
+    AppendTeamParticipantNominationEventSchema
+from db.schemas.team_nomination_event.delete_team_participant_nomination_event import \
+    DeleteTeamParticipantNominationEventSchema
+from db.schemas.team_nomination_event.update_team_participant_nomination_event import \
+    UpdateTeamParticipantNominationEventSchema
 from dependencies import get_db, authorized_only
 from routes.team_participant_nomination_event.team_participant_nomination_event_service import \
     TeamParticipantNominationEventService

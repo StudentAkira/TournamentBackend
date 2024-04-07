@@ -4,8 +4,7 @@ from sqlalchemy import Column, Integer, ForeignKey, Boolean, String, UniqueConst
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 
 from db.database import Base
-from db.schemas.nomination_event import NominationEventType
-
+from db.schemas.nomination_event.nomination_event_type import NominationEventType
 
 if TYPE_CHECKING:
     from db.models.team_participant import TeamParticipant
@@ -51,4 +50,3 @@ class NominationEvent(Base):
     )
 
     __table_args__ = (UniqueConstraint('event_id', 'nomination_id', 'type', name='_event_id__nomination_id__type'),)
-

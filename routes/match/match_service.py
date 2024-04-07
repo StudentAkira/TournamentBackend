@@ -1,8 +1,9 @@
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 
-from db.schemas.match import SetMatchResultSchema
-from db.schemas.nomination_event import NominationEventType, OlympycNominationEventSchema
+from db.schemas.match.set_match_result_schema import SetMatchResultSchema
+from db.schemas.nomination_event.nomination_event_type import NominationEventType
+from db.schemas.nomination_event.olympyc_nomination_event import OlympycNominationEventSchema
 from managers.event import EventManager
 from managers.match import MatchManager
 from managers.nomination import NominationManager
@@ -40,7 +41,7 @@ class MatchService:
         )
         self.__match_manager.raise_exception_if_not_found(data.match_id)
         self.__match_manager.raise_exception_if_match_not_related_to_nomination_event(data)
-        self.__tournament_manger.raise_exception_if_group_stage_finished(data)
+        self.__tournament_manger.raise_exception_if_group_stage_finished(data)#todo
 
         if data.winner_team_name:
             self.__match_manager.raise_exception_if_winner_not_in_match(data.match_id, data.winner_team_name)
@@ -58,7 +59,7 @@ class MatchService:
         self.__match_manager.raise_exception_if_not_found(data.match_id)
         self.__match_manager.raise_exception_if_match_not_related_to_nomination_event(data)
         self.__match_manager.raise_exception_if_no_winner_in_bracket_match(data)
-        self.__tournament_manger.raise_exception_if_play_off_stage_finished(data)
+        self.__tournament_manger.raise_exception_if_play_off_stage_finished(data)#todo
         self.__match_manager.raise_exception_if_winner_not_in_match(data.match_id, data.winner_team_name)
         self.__match_manager.raise_exception_if_prev_match_was_not_judged(data)
         self.__match_manager.set_bracket_match_result(decoded_token.user_id, data)

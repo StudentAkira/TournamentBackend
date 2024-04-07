@@ -11,9 +11,12 @@ from db.models.match import Match
 from db.models.nomination import Nomination
 from db.models.nomination_event import NominationEvent
 from db.models.team import Team
-from db.schemas.group_tournament import StartGroupTournamentSchema, GetGroupsOfTournamentSchema, GroupSchema
-from db.schemas.nomination_event import OlympycNominationEventSchema, NominationEventType
-from db.schemas.team import TeamSchema
+from db.schemas.group_tournament.get_groups_of_tournament import GetGroupsOfTournamentSchema
+from db.schemas.group_tournament.group import GroupSchema
+from db.schemas.group_tournament.start_group_tournament import StartGroupTournamentSchema
+from db.schemas.nomination_event.nomination_event_type import NominationEventType
+from db.schemas.nomination_event.olympyc_nomination_event import OlympycNominationEventSchema
+from db.schemas.team.team import TeamSchema
 
 
 def create_group_tournament_db(db: Session, nomination_event: StartGroupTournamentSchema):

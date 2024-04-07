@@ -3,7 +3,7 @@ from typing import cast
 from sqlalchemy.orm import Session
 
 from db.models.token import Token
-from db.schemas.token import TokenDatabaseSchema
+from db.schemas.token.token_database import TokenDatabaseSchema
 
 
 def save_token_db(db: Session, token: str, user_id: int) -> TokenDatabaseSchema:

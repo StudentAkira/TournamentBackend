@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 
-from db.schemas.user import UserLoginSchema
+from db.schemas.user.user_login import UserLoginSchema
 from dependencies import get_db, authorized_only
 from routes.auth.auth_service import AuthService
 

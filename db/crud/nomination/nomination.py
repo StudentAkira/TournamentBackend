@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from db.crud.general import create_missing_items
 from db.models.nomination import Nomination
-from db.schemas.nomination import NominationSchema
+from db.schemas.nomination.nomination import NominationSchema
 
 
 def create_nomination_db(db: Session, nomination: NominationSchema):

@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from db.models.nomination import Nomination
 from db.models.team import Team
-from db.schemas.nomination import NominationSchema
+from db.schemas.nomination.nomination import NominationSchema
 
 
 def create_missing_items(
@@ -49,8 +49,8 @@ def round_robin(teams: list[Team | None]):
         mid = num_players // 2
         first_half = teams[:mid]
         second_half = teams[mid:]
-        round = zip(first_half, reversed(second_half))
-        matches.extend(round)
+        round_ = zip(first_half, reversed(second_half))
+        matches.extend(round_)
         teams.insert(1, teams.pop())
 
     return matches
