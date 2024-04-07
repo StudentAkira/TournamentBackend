@@ -38,7 +38,7 @@ class NominationEventJudgeService:
     ):
         decoded_token = self.__token_manager.decode_token(token, response)
         self.__user_manager.raise_exception_if_user_specialist(decoded_token.role)
-        self.__validator.check_event_nomination__nomination_event_existence(
+        self.__validator.validate_event_nomination__nomination_event_existence(
             nomination_event_judge_data.nomination_name,
             nomination_event_judge_data.event_name,
             nomination_event_judge_data.nomination_event_type
@@ -51,7 +51,7 @@ class NominationEventJudgeService:
         self.__user_manager.raise_exception_if_user_specialist(nomination_event_judge_data.email)
         judge = self.__user_manager.get_user_by_email(nomination_event_judge_data.email)
         self.__user_manager.raise_exception_if_user_specialist(judge.role)
-        self.__validator.raise_exception_if_registration_finished(
+        self.__nomination_event_manager.raise_exception_if_registration_finished(
             nomination_event_judge_data.nomination_name,
             nomination_event_judge_data.event_name,
             nomination_event_judge_data.nomination_event_type
@@ -67,7 +67,7 @@ class NominationEventJudgeService:
     ):
         decoded_token = self.__token_manager.decode_token(token, response)
         self.__user_manager.raise_exception_if_user_specialist(decoded_token.role)
-        self.__validator.check_event_nomination__nomination_event_existence(
+        self.__validator.validate_event_nomination__nomination_event_existence(
             nomination_event_judge_data.nomination_name,
             nomination_event_judge_data.event_name,
             nomination_event_judge_data.nomination_event_type
@@ -86,7 +86,7 @@ class NominationEventJudgeService:
     ):
         decoded_token = self.__token_manager.decode_token(token, response)
         self.__user_manager.raise_exception_if_user_specialist(decoded_token.role)
-        self.__validator.check_event_nomination__nomination_event_existence(
+        self.__validator.validate_event_nomination__nomination_event_existence(
             nomination_event_judge_data.nomination_name,
             nomination_event_judge_data.event_name,
             nomination_event_judge_data.nomination_event_type
@@ -95,11 +95,12 @@ class NominationEventJudgeService:
             nomination_event_judge_data.event_name,
             decoded_token.user_id
         )
-        self.__validator.raise_exception_if_registration_finished(
+        self.__nomination_event_manager.raise_exception_if_registration_finished(
             nomination_event_judge_data.nomination_name,
             nomination_event_judge_data.event_name,
             nomination_event_judge_data.nomination_event_type
         )
         self.__user_manager.raise_exception_if_user_not_found(nomination_event_judge_data)
+        self.__nomination_event_judge_manager.raise_exception_if_judge_not_in_judge_command(nomination_event_judge_data)
         self.__nomination_event_judge_manager.delete(nomination_event_judge_data)
         return {"message": self.__judge_deleted_message}

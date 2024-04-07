@@ -26,6 +26,7 @@ class TeamManager:
         self.__cant_append_participant_to_default_team_error = "you cant not append participant to default team"
         self.__cant_create_team_marked_as_default_error = "you cant not name team as default"
         self.__team_contains_email_address_error = "team cannot contain email address"
+        self.__default_team_error = "default team is unchangeable"
 
     def list(self, offset: int, limit: int) -> list[TeamParticipantsSchema]:
         teams_db = get_teams_db(self.__db, offset, limit)
@@ -105,4 +106,11 @@ class TeamManager:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail={"error": self.__cant_create_team_marked_as_default_error}
+            )
+
+    def raise_exception_if_team_default(self, team: TeamSchema):
+        if "default_team" in team.name:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail={"error": self.__default_team_error}
             )

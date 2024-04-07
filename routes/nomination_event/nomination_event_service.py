@@ -131,7 +131,7 @@ class NominationEventService:
             nomination_event: NominationEventSchema
     ):
         decoded_token = self.__token_manager.decode_token(token, response)
-        self.__validator.check_event_nomination__nomination_event_existence(
+        self.__validator.validate_event_nomination__nomination_event_existence(
             nomination_event.nomination_name,
             nomination_event.event_name,
             nomination_event.type
@@ -148,7 +148,7 @@ class NominationEventService:
             nomination_event: NominationEventSchema
     ):
         decoded_token = self.__token_manager.decode_token(token, response)
-        self.__validator.check_event_nomination__nomination_event_existence(
+        self.__validator.validate_event_nomination__nomination_event_existence(
             nomination_event.nomination_name,
             nomination_event.event_name,
             nomination_event.type

@@ -21,7 +21,7 @@ def get_nomination_event_teams_db(db: Session, nomination_event: NominationEvent
         and_(
             NominationEvent.nomination_id == nomination_db.id,
             NominationEvent.event_id == event_db.id,
-            NominationEvent.type == nomination_event.nomination_event_type
+            NominationEvent.type == nomination_event.type
         )
     ).first()
 

@@ -34,7 +34,7 @@ class MatchService:
 
     def set_group_match_result(self, response: Response, token: str, data: SetMatchResultSchema):
         decoded_token = self.__token_manager.decode_token(token, response)
-        self.__validator.check_event_nomination__nomination_event_existence(
+        self.__validator.validate_event_nomination__nomination_event_existence(
             data.nomination_event.nomination_name,
             data.nomination_event.event_name,
             NominationEventType.olympyc
@@ -51,7 +51,7 @@ class MatchService:
 
     def set_bracket_match_result(self, response: Response, token: str, data: SetMatchResultSchema):
         decoded_token = self.__token_manager.decode_token(token, response)
-        self.__validator.check_event_nomination__nomination_event_existence(
+        self.__validator.validate_event_nomination__nomination_event_existence(
             data.nomination_event.nomination_name,
             data.nomination_event.event_name,
             NominationEventType.olympyc
@@ -72,7 +72,7 @@ class MatchService:
             nomination_event: OlympycNominationEventSchema
     ):
         decoded_token = self.__token_manager.decode_token(token, response)
-        self.__validator.check_event_nomination__nomination_event_existence(
+        self.__validator.validate_event_nomination__nomination_event_existence(
             nomination_event.nomination_name,
             nomination_event.event_name,
             NominationEventType.olympyc
@@ -87,10 +87,11 @@ class MatchService:
             nomination_event: OlympycNominationEventSchema
     ):
         decoded_token = self.__token_manager.decode_token(token, response)
-        self.__validator.check_event_nomination__nomination_event_existence(
+        self.__validator.validate_event_nomination__nomination_event_existence(
             nomination_event.nomination_name,
             nomination_event.event_name,
             NominationEventType.olympyc
         )
+        self.__tournament_manger.raise_exception_if_play_off_stage_not_started(nomination_event)
         self.__event_manager.raise_exception_if_owner_wrong(nomination_event.event_name, decoded_token.user_id)
         return self.__match_manager.get_bracket_matches(nomination_event)

@@ -15,6 +15,8 @@ from db.models.event import Event
 from db.models.nomination import Nomination
 from db.models.nomination_event import NominationEvent
 from db.schemas.group_tournament.start_group_tournament import StartGroupTournamentSchema
+from db.schemas.nomination_event.nomination_event import NominationEventSchema
+from db.schemas.nomination_event.nomination_event_type import NominationEventType
 from db.schemas.nomination_event.olympyc_nomination_event import OlympycNominationEventSchema
 from db.schemas.team.team import TeamSchema
 
@@ -35,9 +37,13 @@ class TournamentManager:
         self.__play_off_stage_already_started = "play off stage already started"
         self.__play_off_stage_not_finished_error = "play off stage not finished"
         self.__play_off_stage_already_finished_error = "play off stage already finished"
+        self.__play_off_stage_not_started = "play off stage not started"
 
     def create_group_tournament(self, nomination_event: StartGroupTournamentSchema):
-        close_registration_nomination_event_db(self.__db, nomination_event.olympyc_nomination_event)
+        close_registration_nomination_event_db(
+            self.__db,
+            nomination_event.olympyc_nomination_event.to_nomination_event_schema()
+       )
         self.validate_group_count(nomination_event.group_count, nomination_event.olympyc_nomination_event)
         create_group_tournament_db(self.__db, nomination_event)
 
@@ -81,7 +87,7 @@ class TournamentManager:
         if not is_group_stage_finished_db(self.__db, nomination_event):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail={"error": self.__play_off_stage_not_finished_error}
+                detail={"error": self.__group_stage_not_finished_error}
             )
 
     def raise_exception_if_group_stage_finished(self, data: OlympycNominationEventSchema):
@@ -120,14 +126,44 @@ class TournamentManager:
             and_(
                 NominationEvent.event_id == event_db.id,
                 NominationEvent.nomination_id == nomination_db.id,
-                NominationEvent.bracket is not None
+                NominationEvent.bracket is not None#todo
             )
         ).first()
+
+        print(nomination_event_db.bracket)
 
         if nomination_event_db is not None:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail={"error": self.__play_off_stage_already_started}
+            )
+
+    def raise_exception_if_play_off_stage_not_started(self, nomination_event: OlympycNominationEventSchema):
+        event_db = self.__db.query(Event).filter(
+            cast("ColumnElement[bool]",
+                 Event.name == nomination_event.event_name
+                 )
+        ).first()
+        nomination_db = self.__db.query(Nomination).filter(
+            cast("ColumnElement[bool]",
+                 Nomination.name == nomination_event.nomination_name,
+                 )
+        ).first()
+
+        nomination_event_db = self.__db.query(NominationEvent).filter(
+            and_(
+                NominationEvent.event_id == event_db.id,
+                NominationEvent.nomination_id == nomination_db.id,
+                NominationEvent.bracket is None
+            )
+        ).first()
+
+        print(nomination_event_db)
+
+        if nomination_event_db is not None:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail={"error": self.__play_off_stage_not_started}
             )
 
     def raise_exception_if_play_off_stage_finished(self, data: OlympycNominationEventSchema):

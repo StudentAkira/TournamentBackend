@@ -1,6 +1,8 @@
 from starlette.responses import Response
 
 from db.schemas.group_tournament.start_group_tournament import StartGroupTournamentSchema
+from db.schemas.nomination_event.nomination_event import NominationEventSchema
+from db.schemas.nomination_event.nomination_event_type import NominationEventType
 from db.schemas.nomination_event.olympyc_nomination_event import OlympycNominationEventSchema
 from db.schemas.team.team import TeamSchema
 from managers.event import EventManager
@@ -32,8 +34,9 @@ class TournamentService:
 
     def create_group_tournament(self, response: Response, token: str, nomination_event: StartGroupTournamentSchema):
         self.__validator.actions_validation(response, token, nomination_event.olympyc_nomination_event)
-
-        self.__nomination_event_manager.raise_exception_if_tournament_started(nomination_event.olympyc_nomination_event)
+        self.__nomination_event_manager.raise_exception_if_tournament_started(
+            nomination_event.olympyc_nomination_event.to_nomination_event_schema()
+        )#todo
         self.__tournament_manager.create_group_tournament(nomination_event)
         return {"message": self.__groups_created_message}
 
@@ -45,7 +48,12 @@ class TournamentService:
         self.__validator.actions_validation(response, token, nomination_event)
         self.__tournament_manager.raise_exception_if_not_all_matches_finished(nomination_event)
         self.__tournament_manager.raise_exception_if_group_stage_finished(nomination_event)
-        self.__nomination_event_manager.raise_exception_if_tournament_not_started(nomination_event)
+        self.__nomination_event_manager.raise_exception_if_tournament_not_started(
+            NominationEventSchema(
+                **nomination_event.model_dump(),
+                type=NominationEventType.olympyc
+            )
+        )
         self.__tournament_manager.finish_group_stage(nomination_event)
         return {"message": self.__group_stage_finished_message}
 
@@ -71,7 +79,9 @@ class TournamentService:
     def finish_play_off_stage(self, response: Response, token: str, nomination_event: OlympycNominationEventSchema):
         self.__validator.actions_validation(response, token, nomination_event)
         self.__tournament_manager.raise_exception_if_not_all_matches_finished(nomination_event)
-        self.__nomination_event_manager.raise_exception_if_tournament_not_started(nomination_event)
+        self.__nomination_event_manager.raise_exception_if_tournament_not_started(
+            nomination_event.to_nomination_event_schema()
+        )
         self.__tournament_manager.raise_exception_if_play_off_stage_finished(nomination_event)
         self.__tournament_manager.finish_play_off_stage(nomination_event)
         return {"message": self.__play_off_stage_finished_message}

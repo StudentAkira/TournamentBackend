@@ -11,6 +11,7 @@ from managers.nomination_event import NominationEventManager
 from managers.nomination import NominationManager
 from managers.participant import ParticipantManager
 from managers.team import TeamManager
+from managers.team_participant import TeamParticipantManager
 from managers.team_participant_nomination_event import TeamParticipantNominationEventManager
 from managers.token import TokenManager
 from utils.validation_util import Validator
@@ -27,6 +28,7 @@ class TeamParticipantNominationEventService:
         self.__nomination_manager = NominationManager(db)
         self.__participant_manager = ParticipantManager(db)
         self.__team_participant_nomination_event_manager = TeamParticipantNominationEventManager(db)
+        self.__team_participant_manager = TeamParticipantManager(db)
 
         self.__validator = Validator(db)
 
@@ -63,9 +65,11 @@ class TeamParticipantNominationEventService:
             team_participant_nomination_event_data.event_name,
             team_participant_nomination_event_data.nomination_event_type
         )
-        self.__validator.raise_exception_if_participant_not_in_team(
-            team_name,
-            team_participant_nomination_event_data.participant_email
+        team = self.__team_manager.read_by_name(team_name)
+        participant = self.__participant_manager.read_by_email(team_participant_nomination_event_data.participant_email)
+        self.__team_participant_manager.raise_exception_if_participant_not_in_team(#todo
+            participant,
+            team
         )
         self.__validator.validate_user_entity_ownership(
             decoded_token,
@@ -73,13 +77,13 @@ class TeamParticipantNominationEventService:
             team_participant_nomination_event_data.event_name
         )
 
-        self.__validator.raise_exception_if_registration_finished(
+        self.__nomination_event_manager.raise_exception_if_registration_finished(
             team_participant_nomination_event_data.nomination_name,
             team_participant_nomination_event_data.event_name,
             team_participant_nomination_event_data.nomination_event_type
         )
 
-        self.__validator.raise_exception_if_participant_in_nomination_event(
+        self.__nomination_event_manager.raise_exception_if_participant_in_nomination_event(#todo
             team_participant_nomination_event_data.participant_email,
             team_participant_nomination_event_data.nomination_name,
             team_participant_nomination_event_data.event_name,
@@ -115,14 +119,14 @@ class TeamParticipantNominationEventService:
             team_participant_nomination_event_data.event_name,
             team_participant_nomination_event_data.nomination_event_type
         )
-        self.__validator.raise_exception_if_participant_not_in_nomination_event(
+        self.__nomination_event_manager.raise_exception_if_participant_not_in_nomination_event(
             team_participant_nomination_event_data.participant_email,
             team_participant_nomination_event_data.nomination_name,
             team_participant_nomination_event_data.event_name,
             team_participant_nomination_event_data.nomination_event_type
         )
 
-        self.__validator.raise_exception_if_registration_finished(
+        self.__nomination_event_manager.raise_exception_if_registration_finished(
             team_participant_nomination_event_data.nomination_name,
             team_participant_nomination_event_data.event_name,
             team_participant_nomination_event_data.nomination_event_type
@@ -161,7 +165,7 @@ class TeamParticipantNominationEventService:
             team_participant_nomination_event_data.event_name,
             team_participant_nomination_event_data.nomination_event_type
         )
-        self.__validator.raise_exception_if_participant_not_in_nomination_event(
+        self.__nomination_event_manager.raise_exception_if_participant_not_in_nomination_event(
             team_participant_nomination_event_data.participant_email,
             team_participant_nomination_event_data.nomination_name,
             team_participant_nomination_event_data.event_name,
@@ -177,7 +181,7 @@ class TeamParticipantNominationEventService:
             decoded_token.user_id
         )
 
-        self.__validator.raise_exception_if_registration_finished(
+        self.__nomination_event_manager.raise_exception_if_registration_finished(
             team_participant_nomination_event_data.nomination_name,
             team_participant_nomination_event_data.event_name,
             team_participant_nomination_event_data.nomination_event_type

@@ -3,6 +3,7 @@ from typing import cast
 
 from fastapi import HTTPException
 from fpdf import FPDF, fpdf
+from pydantic import EmailStr
 from sqlalchemy import exists
 from sqlalchemy.orm import Session
 from starlette import status
@@ -13,7 +14,8 @@ from db.crud.nomination_event.nomination_event import get_nomination_event_pdf_d
     get_nomination_events_all_names_by_owner_db, get_nomination_events_full_info_db, \
     get_nomination_events_full_info_by_owner_db, append_nomination_for_event_db, append_event_nominations_db, \
     delete_nomination_event_db, close_registration_nomination_event_db, open_registration_nomination_event_db, \
-    is_tournament_started_db
+    is_tournament_started_db, get_nomination_event_db
+from db.crud.participant_nomination_event.participant_nomination_event import get_participants_of_nomination_event_db
 from db.models.event import Event
 from db.models.nomination import Nomination
 from db.models.nomination_event import NominationEvent
@@ -30,6 +32,7 @@ class NominationEventManager:
     __db: Session
 
     def __init__(self, db: Session):
+
         self.__db = db
 
         self.__team_manager = TeamManager(db)
@@ -42,6 +45,9 @@ class NominationEventManager:
         self.__tournament_started_error = "tournament started"
         self.__tournament_not_started_error = "tournament not started"
         self.__wrong_nomination_event_type_error = "wrong nomination event type"
+        self.__participant_not_in_nomination_event = "participant not in nomination event"
+        self.__registration_finished_error = "registration finished"
+        self.__participant_already_in_nomination_event = "participant already in nomination event"
 
     def get_nomination_event_pdf(self, data: list[NominationEventSchema]):
 
@@ -140,13 +146,48 @@ class NominationEventManager:
     def open_registration(self, nomination_event_data: NominationEventSchema):
         open_registration_nomination_event_db(self.__db, nomination_event_data)
 
+    def get_nomination_event_participant_emails(
+            self,
+            nomination_name: str,
+            event_name: str,
+            nomination_event_type: str
+    ):
+        return set(
+            participant_db.email for participant_db in
+            get_participants_of_nomination_event_db(
+                self.__db,
+                nomination_name,
+                event_name,
+                nomination_event_type
+            )
+        )
+
+    def raise_exception_if_participant_not_in_nomination_event(
+            self,
+            participant_email: EmailStr,
+            nomination_name: str,
+            event_name: str,
+            nomination_event_type: str
+    ):
+        nomination_event_participant_emails = self.get_nomination_event_participant_emails(
+            nomination_name,
+            event_name,
+            nomination_event_type
+        )
+
+        if participant_email not in nomination_event_participant_emails:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail={"error": self.__participant_not_in_nomination_event}
+            )
+
     def raise_exception_if_not_found(
             self,
             nomination_name: str,
             event_name: str,
             nomination_event_type: str
     ):
-        entity_exists = self.check_nomination_event_exists(
+        entity_exists = self.validate_nomination_event_exists(
             nomination_name,
             event_name,
             nomination_event_type
@@ -160,7 +201,7 @@ class NominationEventManager:
 
     def raise_exception_if_exists(self,  nomination_event_data: NominationEventSchema):
 
-        entity_exists = self.check_nomination_event_exists(
+        entity_exists = self.validate_nomination_event_exists(
             nomination_event_data.nomination_name,
             nomination_event_data.event_name,
             nomination_event_data.type
@@ -172,7 +213,7 @@ class NominationEventManager:
                 detail={"error": self.__nomination_event_already_exist_error}
             )
 
-    def check_nomination_event_exists(
+    def validate_nomination_event_exists(
             self,
             nomination_name: str,
             event_name: str,
@@ -220,4 +261,35 @@ class NominationEventManager:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail={"message": self.__tournament_not_started_error}
+            )
+
+    def raise_exception_if_participant_in_nomination_event(
+            self,
+            participant_email: EmailStr,
+            nomination_name: str,
+            event_name: str,
+            nomination_event_type: str
+    ):
+        nomination_event_participant_emails = self.get_nomination_event_participant_emails(
+            nomination_name,
+            event_name,
+            nomination_event_type
+        )
+        if participant_email in nomination_event_participant_emails:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail={"error": self.__participant_already_in_nomination_event}
+            )
+
+    def raise_exception_if_registration_finished(
+            self,
+            nomination_name: str,
+            event_name: str,
+            nomination_event_type: str
+    ):
+        nomination_event_db = get_nomination_event_db(self.__db, nomination_name, event_name, nomination_event_type)
+        if nomination_event_db.registration_finished:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail={"error": self.__registration_finished_error}
             )

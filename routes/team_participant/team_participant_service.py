@@ -34,14 +34,14 @@ class TeamParticipantService:
             team_name: str,
     ) -> dict[str, str]:
         decoded_token = self.__token_manager.decode_token(token, response)
-        self.__validator.check_participant_and_team_existence(participant_email, team_name)
+        self.__validator.validate_participant_and_team_existence(participant_email, team_name)
         self.check_ownership_for_not_admin(decoded_token, participant_email, team_name)
 
         participant = self.__participant_manager.read_by_email(participant_email)
         team = self.__team_manager.read_by_name(team_name)
 
         self.__team_participant_manager.raise_exception_if_participant_already_in_team(participant, team)
-        self.__validator.raise_exception_if_team_default(team)
+        self.__team_manager.raise_exception_if_team_default(team)
         self.__team_participant_manager.append_participant_to_team(participant, team)
 
         return {"message": self.__participant_appended_to_team_message}
@@ -59,14 +59,14 @@ class TeamParticipantService:
             team_name: str
     ):
         decoded_token = self.__token_manager.decode_token(token, response)
-        self.__validator.check_participant_and_team_existence(participant_email, team_name)
+        self.__validator.validate_participant_and_team_existence(participant_email, team_name)
         self.check_ownership_for_not_admin(decoded_token, participant_email, team_name)
 
         participant = self.__participant_manager.read_by_email(participant_email)
         team = self.__team_manager.read_by_name(team_name)
 
         self.__team_participant_manager.raise_exception_if_participant_not_in_team(participant, team)
-        self.__validator.raise_exception_if_team_default(team)
+        self.__team_manager.raise_exception_if_team_default(team)
 
         self.__team_participant_manager.delete_participant_from_team(participant_email, team_name)
         return {"message": self.__participant_deleted_team}
