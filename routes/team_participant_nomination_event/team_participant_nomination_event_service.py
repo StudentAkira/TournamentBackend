@@ -1,6 +1,5 @@
 from starlette.responses import Response
 
-from db.models.team_participant_nomination_event import TeamParticipantNominationEvent
 from db.schemas.team_nomination_event import AppendTeamParticipantNominationEventSchema, \
     DeleteTeamParticipantNominationEventSchema, UpdateTeamParticipantNominationEventSchema
 from managers.event import EventManager

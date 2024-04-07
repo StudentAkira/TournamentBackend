@@ -1,9 +1,5 @@
-from pydantic import EmailStr
 from starlette.responses import Response
-
 from db.schemas.participant import ParticipantSchema, ParticipantHideSchema, ParticipantUpdateSchema
-from db.schemas.token import TokenDecodedSchema
-from db.schemas.user import UserRole
 from managers.participant import ParticipantManager
 from managers.team import TeamManager
 from managers.team_participant import TeamParticipantManager

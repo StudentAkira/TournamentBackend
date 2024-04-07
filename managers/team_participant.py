@@ -3,8 +3,8 @@ from pydantic import EmailStr
 from sqlalchemy.orm import Session
 from starlette import status
 
-from db.crud.team_participant import append_participant_to_team_db, check_if_participant_already_in_team_db, \
-    delete_participant_from_team_db
+from db.crud.team_participant.team_participant import append_participant_to_team_db, delete_participant_from_team_db, \
+    check_if_participant_already_in_team_db
 from db.schemas.participant import ParticipantSchema
 from db.schemas.team import TeamSchema
 

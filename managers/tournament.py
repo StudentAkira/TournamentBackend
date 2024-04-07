@@ -5,10 +5,10 @@ from sqlalchemy import and_
 from sqlalchemy.orm import Session
 from starlette import status
 
-from db.crud.nomination_event import close_registration_nomination_event_db, is_group_stage_finished_db, \
-    is_play_off_stage_finished_db
-from db.crud.team import team_check_existence_in_tournament_db
-from db.crud.tournaments import create_group_tournament_db, \
+from db.crud.nomination_event.nomination_event import close_registration_nomination_event_db, \
+    is_group_stage_finished_db, is_play_off_stage_finished_db
+from db.crud.team.team import team_check_existence_in_tournament_db
+from db.crud.tournament.tournaments import create_group_tournament_db, \
     get_groups_of_tournament_db, get_count_of_participants_of_tournament_db, is_all_matches_finished_db, \
     finish_group_stage_db, start_play_off_tournament_db, finish_play_off_stage_db
 from db.models.event import Event

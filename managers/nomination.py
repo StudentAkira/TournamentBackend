@@ -5,7 +5,7 @@ from sqlalchemy import exists
 from sqlalchemy.orm import Session
 from starlette import status
 
-from db.crud.nominations import get_nominations_db, \
+from db.crud.nomination.nomination import get_nominations_db, \
     save_nominations_db, \
     get_nomination_by_name_db, \
     update_nomination_db, create_nomination_db

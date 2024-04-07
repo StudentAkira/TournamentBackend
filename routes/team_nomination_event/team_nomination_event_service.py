@@ -1,6 +1,5 @@
 from sqlalchemy.orm import Session
 from starlette.responses import Response
-
 from db.schemas.user import UserRole
 from managers.event import EventManager
 from managers.team_nomination_event import TeamNominationEventManager

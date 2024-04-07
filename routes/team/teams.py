@@ -1,10 +1,7 @@
 from typing import Annotated
-
 from fastapi import APIRouter, Depends, Query
-from pydantic import EmailStr
 from sqlalchemy.orm import Session
 from starlette.responses import Response
-
 from db.schemas.team import TeamSchema, TeamUpdateSchema
 from dependencies import get_db, authorized_only
 from routes.team.teams_service import TeamsService

@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
-from db.crud.nomination_event_judge import create_nomination_event_judge_db, get_nomination_event_judge_db, \
-    delete_nomination_event_judge_db
+from db.crud.nomination_event_judge.nomination_event_judge import create_nomination_event_judge_db, \
+    get_nomination_event_judge_db, delete_nomination_event_judge_db
 from db.schemas.nomination_event_judge import NominationEventJudgeDataSchema, GenNominationEventJudgeSchema
 from db.schemas.user import UserSchema
 

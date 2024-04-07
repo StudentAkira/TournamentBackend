@@ -5,7 +5,7 @@ from pydantic import EmailStr
 from sqlalchemy.orm import Session
 from starlette import status
 
-from db.crud.team import get_teams_by_owner_db, create_team_db, get_team_by_name_db, get_teams_db, update_team_db
+from db.crud.team.team import get_teams_db, get_teams_by_owner_db, create_team_db, update_team_db, get_team_by_name_db
 from db.models.team import Team
 from db.schemas.team import TeamSchema, TeamUpdateSchema
 from db.schemas.team_participant import TeamParticipantsSchema

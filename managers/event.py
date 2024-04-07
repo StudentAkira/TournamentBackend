@@ -5,10 +5,9 @@ from sqlalchemy import exists
 from sqlalchemy.orm import Session
 from starlette import status
 
-from db.crud.event import create_event_db, get_event_by_name_db, get_events_by_owner_db, \
-    get_events_db, update_event_db, get_events_with_nominations_db, get_events_with_nominations_by_owner_db, \
-    delete_event_db
-from db.crud.nomination_event import get_judge_command_ids_db
+from db.crud.event.event import create_event_db, get_events_by_owner_db, get_events_db, get_events_with_nominations_db, \
+    get_events_with_nominations_by_owner_db, get_event_by_name_db, update_event_db, delete_event_db
+from db.crud.nomination_event.nomination_event import get_judge_command_ids_db
 from db.models.event import Event
 from db.schemas.event import EventCreateSchema, EventSchema, EventUpdateSchema, EventDeleteSchema
 

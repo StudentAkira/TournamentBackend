@@ -3,9 +3,9 @@ from pydantic import EmailStr
 from starlette import status
 from starlette.responses import Response
 
-from db.crud.nomination_event import get_nomination_event_db
-from db.crud.participant_nomination_event import get_participants_of_nomination_event_db
-from db.crud.team import get_team_participants_emails_db
+from db.crud.nomination_event.nomination_event import get_nomination_event_db
+from db.crud.participant_nomination_event.participant_nomination_event import get_participants_of_nomination_event_db
+from db.crud.team.team import get_team_participants_emails_db
 from db.schemas.nomination_event import OlympycNominationEventSchema, NominationEventType
 from db.schemas.team import TeamSchema
 from db.schemas.token import TokenDecodedSchema

@@ -122,7 +122,7 @@ class NominationEventService:
         self.__nomination_event_manager.delete(nomination_event_data)
         return {"message": self.__nomination_event_deleted_message}
 
-    def close_registration(
+    def close_registration(#TODO
             self,
             response: Response,
             token: str,

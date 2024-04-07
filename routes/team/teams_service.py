@@ -1,6 +1,4 @@
-from pydantic import EmailStr
 from starlette.responses import Response
-
 from db.schemas.team import TeamSchema, TeamUpdateSchema
 from db.schemas.user import UserRole
 from managers.event import EventManager

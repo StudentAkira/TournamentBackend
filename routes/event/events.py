@@ -1,12 +1,10 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
-from fpdf import FPDF
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 
 from db.schemas.event import EventSchema, EventCreateSchema, EventUpdateSchema, EventDeleteSchema
-from db.schemas.nomination_event import NominationEventSchema
 from dependencies import get_db, authorized_only
 from routes.event.events_service import EventsService
 

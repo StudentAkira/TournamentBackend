@@ -1,9 +1,7 @@
 from typing import Annotated
-
 from fastapi import APIRouter, Query, Depends
 from sqlalchemy.orm import Session
 from starlette.responses import Response
-
 from dependencies import authorized_only, get_db
 from routes.team_nomination_event.team_nomination_event_service import TeamNominationEventService
 

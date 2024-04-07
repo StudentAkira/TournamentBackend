@@ -19,15 +19,3 @@ async def append_participant_to_team(
 ):
     service = TeamParticipantService(db)
     return service.append_participant_to_team(response, token, participant_email, team_name)
-
-
-# @team_participant.delete("/team_participant")
-# async def delete_participant_from_team(
-#         response: Response,
-#         participant_email: EmailStr,
-#         team_name: str,
-#         token: str = Depends(authorized_only),
-#         db: Session = Depends(get_db)
-# ):
-#     service = TeamParticipantService(db)
-#     return service.delete_participant_from_team(response, token, participant_email, team_name)

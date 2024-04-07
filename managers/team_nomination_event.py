@@ -2,8 +2,8 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from starlette import status
 
-from db.crud.team import  get_team_by_name_db
-from db.crud.team_nomination_event import get_nomination_event_teams_db
+from db.crud.team.team import get_team_by_name_db
+from db.crud.team_nomination_event.team_nomination_event import get_nomination_event_teams_db
 from db.schemas.team import TeamSchema
 
 

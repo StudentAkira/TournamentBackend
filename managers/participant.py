@@ -6,8 +6,8 @@ from sqlalchemy import exists, and_
 from sqlalchemy.orm import Session
 from starlette import status
 
-from db.crud.participant import get_participants_by_owner_db, create_participant_db, get_participant_by_email_db, \
-    hide_participant_db, update_participant_db
+from db.crud.participant.participant import get_participants_by_owner_db, create_participant_db, \
+    get_participant_by_email_db, hide_participant_db, update_participant_db
 from db.models.participant import Participant
 from db.schemas.participant import ParticipantSchema, ParticipantHideSchema, ParticipantUpdateSchema
 

@@ -5,8 +5,8 @@ from sqlalchemy import exists
 from sqlalchemy.orm import Session
 from starlette import status
 
-from db.crud.user import get_user_by_id_db, get_user_by_email_db, create_user_db, pwd_context, edit_user_data_db, \
-    get_users_db
+from db.crud.user.user import get_users_db, get_user_by_id_db, get_user_by_email_db, create_user_db, pwd_context, \
+    edit_user_data_db
 from db.models.user import User
 from db.schemas.nomination_event_judge import NominationEventJudgeDataSchema
 from db.schemas.user import UserCreateSchema, UserRole, UserSchema, EditUserSchema

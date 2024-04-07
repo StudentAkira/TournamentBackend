@@ -28,7 +28,7 @@ class AuthService:
             value=token,
             httponly=True,
             samesite="lax",
-            secure=True,
+            secure=False,
             expires=expires.strftime("%a, %d %b %Y %H:%M:%S GMT"),
             domain=settings.frontend_domain
         )

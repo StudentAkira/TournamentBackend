@@ -5,9 +5,9 @@ from sqlalchemy import exists, or_
 from sqlalchemy.orm import Session
 from starlette import status
 
-from db.crud.match import get_group_matches_db, \
-    is_match_related_to_nomination_event_db, get_bracket_matches_db, set_group_match_result_db, \
-    is_winner_exists_in_bracket_match_db, set_bracket_match_result_db, is_prev_match_was_judged_db
+from db.crud.match.match import get_group_matches_db, set_group_match_result_db, get_bracket_matches_db, \
+    set_bracket_match_result_db, is_match_related_to_nomination_event_db, is_winner_exists_in_bracket_match_db, \
+    is_prev_match_was_judged_db
 from db.models.match import Match
 from db.models.team import Team
 from db.schemas.match import SetMatchResultSchema
