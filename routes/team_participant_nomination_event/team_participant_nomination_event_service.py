@@ -13,7 +13,7 @@ from managers.participant import ParticipantManager
 from managers.team import TeamManager
 from managers.team_participant_nomination_event import TeamParticipantNominationEventManager
 from managers.token import TokenManager
-from validators.validator import Validator
+from utils.validation_util import Validator
 
 
 class TeamParticipantNominationEventService:

@@ -9,7 +9,7 @@ from managers.nomination_event import NominationEventManager
 from managers.team_nomination_event import TeamNominationEventManager
 from managers.token import TokenManager
 from managers.user import UserManager
-from validators.validator import Validator
+from utils.validation_util import Validator
 
 
 class NominationEventService:
@@ -124,44 +124,36 @@ class NominationEventService:
         self.__nomination_event_manager.delete(nomination_event_data)
         return {"message": self.__nomination_event_deleted_message}
 
-    def close_registration(#TODO
+    def close_registration(
             self,
             response: Response,
             token: str,
-            nomination_event_data: NominationEventSchema
+            nomination_event: NominationEventSchema
     ):
         decoded_token = self.__token_manager.decode_token(token, response)
         self.__validator.check_event_nomination__nomination_event_existence(
-            nomination_event_data.nomination_name,
-            nomination_event_data.event_name,
-            nomination_event_data.type
+            nomination_event.nomination_name,
+            nomination_event.event_name,
+            nomination_event.type
         )
-        self.__event_manager.raise_exception_if_owner_wrong(nomination_event_data.event_name, decoded_token.user_id)
-        self.__nomination_event_manager.close_registration(nomination_event_data)
-        self.__nomination_event_manager.raise_exception_if_tournament_started(#todo
-            nomination_event_data.nomination_name,
-            nomination_event_data.event_name,
-            nomination_event_data.type
-        )
+        self.__event_manager.raise_exception_if_owner_wrong(nomination_event.event_name, decoded_token.user_id)
+        self.__nomination_event_manager.close_registration(nomination_event)
+        self.__nomination_event_manager.raise_exception_if_tournament_started(nomination_event)
         return {"message": self.__registration_closed_message}
 
     def open_registration(
             self,
             response: Response,
             token: str,
-            nomination_event_data: NominationEventSchema
+            nomination_event: NominationEventSchema
     ):
         decoded_token = self.__token_manager.decode_token(token, response)
         self.__validator.check_event_nomination__nomination_event_existence(
-            nomination_event_data.nomination_name,
-            nomination_event_data.event_name,
-            nomination_event_data.type
+            nomination_event.nomination_name,
+            nomination_event.event_name,
+            nomination_event.type
         )
-        self.__event_manager.raise_exception_if_owner_wrong(nomination_event_data.event_name, decoded_token.user_id)
-        self.__nomination_event_manager.raise_exception_if_tournament_started(#todo
-            nomination_event_data.nomination_name,
-            nomination_event_data.event_name,
-            nomination_event_data.type
-        )
-        self.__nomination_event_manager.open_registration(nomination_event_data)
+        self.__event_manager.raise_exception_if_owner_wrong(nomination_event.event_name, decoded_token.user_id)
+        self.__nomination_event_manager.raise_exception_if_tournament_started(nomination_event)
+        self.__nomination_event_manager.open_registration(nomination_event)
         return {"message": self.__registration_opened_message}

@@ -21,7 +21,6 @@ from db.schemas.event.event_get_name import EventGetNameSchema
 from db.schemas.nomination_event.nomination_event import NominationEventSchema
 from db.schemas.nomination_event.nomination_event_delete import NominationEventDeleteSchema
 from db.schemas.nomination_event.nomination_event_participant_count import NominationEventParticipantCountSchema
-from db.schemas.nomination_event.olympyc_nomination_event import OlympycNominationEventSchema
 from managers.event import EventManager
 from managers.nomination import NominationManager
 from managers.team import TeamManager
@@ -204,7 +203,7 @@ class NominationEventManager:
 
         return entity_exists
 
-    def raise_exception_if_tournament_started(self, nomination_event: OlympycNominationEventSchema):
+    def raise_exception_if_tournament_started(self, nomination_event: NominationEventSchema):
         started = is_tournament_started_db(self.__db, nomination_event)
         if started:
             raise HTTPException(
@@ -214,7 +213,7 @@ class NominationEventManager:
 
     def raise_exception_if_tournament_not_started(
             self,
-            nomination_event: OlympycNominationEventSchema
+            nomination_event: NominationEventSchema
     ):
         started = is_tournament_started_db(self.__db, nomination_event)
         if not started:

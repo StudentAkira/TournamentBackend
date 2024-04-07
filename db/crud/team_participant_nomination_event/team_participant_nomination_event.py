@@ -1,6 +1,5 @@
 from typing import cast
 
-from pydantic import EmailStr
 from sqlalchemy import and_
 from sqlalchemy.orm import Session
 

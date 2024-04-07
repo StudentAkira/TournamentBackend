@@ -9,7 +9,7 @@ from managers.nomination_event import NominationEventManager
 from managers.team import TeamManager
 from managers.token import TokenManager
 from managers.tournament import TournamentManager
-from validators.validator import Validator
+from utils.validation_util import Validator
 
 
 class TournamentService:

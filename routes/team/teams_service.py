@@ -6,7 +6,7 @@ from db.schemas.user.user_role import UserRole
 from managers.event import EventManager
 from managers.team import TeamManager
 from managers.token import TokenManager
-from validators.validator import Validator
+from utils.validation_util import Validator
 
 
 class TeamsService:

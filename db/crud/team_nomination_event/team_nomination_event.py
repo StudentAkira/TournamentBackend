@@ -7,20 +7,21 @@ from db.models.nomination_event import NominationEvent
 from db.models.team import Team
 from db.models.team_participant import TeamParticipant
 from db.models.team_participant_nomination_event import TeamParticipantNominationEvent
+from db.schemas.nomination_event.nomination_event import NominationEventSchema
 
 
-def get_nomination_event_teams_db(db: Session, nomination_name: str, event_name: str, nomination_event_type: str):
+def get_nomination_event_teams_db(db: Session, nomination_event: NominationEventSchema):
     event_db = db.query(Event).filter(
-        cast("ColumnElement[bool]", Event.name == event_name)
+        cast("ColumnElement[bool]", Event.name == nomination_event.event_name)
     ).first()
     nomination_db = db.query(Nomination).filter(
-        cast("ColumnElement[bool]", Nomination.name == nomination_name)
+        cast("ColumnElement[bool]", Nomination.name == nomination_event.nomination_name)
     ).first()
     nomination_event_db = db.query(NominationEvent).filter(
         and_(
             NominationEvent.nomination_id == nomination_db.id,
             NominationEvent.event_id == event_db.id,
-            NominationEvent.type == nomination_event_type
+            NominationEvent.type == nomination_event.nomination_event_type
         )
     ).first()
 

@@ -6,6 +6,7 @@ from starlette.responses import Response
 from db.crud.nomination_event.nomination_event import get_nomination_event_db
 from db.crud.participant_nomination_event.participant_nomination_event import get_participants_of_nomination_event_db
 from db.crud.team.team import get_team_participants_emails_db
+from db.schemas.nomination_event.nomination_event import NominationEventSchema
 from db.schemas.nomination_event.nomination_event_type import NominationEventType
 from db.schemas.nomination_event.olympyc_nomination_event import OlympycNominationEventSchema
 from db.schemas.team.team import TeamSchema
@@ -40,20 +41,20 @@ class Validator:
         self.__participant_already_in_nomination_event = "participant already in nomination event"
         self.__registration_finished_error = "Registration_finished"
 
-    def check_team_event_nomination__nomination_event__existence(self,
+    def validate_team_event_nomination__nomination_event__existence(self,
                                                                  team_name: str,
                                                                  nomination_name: str,
                                                                  event_name: str,
                                                                  nomination_event_type: str
                                                                  ):
         self.__team_manager.raise_exception_if_not_found(team_name)
-        self.check_event_nomination__nomination_event_existence(
+        self.validate_event_nomination__nomination_event_existence(
             nomination_name,
             event_name,
             nomination_event_type
         )
 
-    def check_event_nomination__nomination_event_existence(self,
+    def validate_event_nomination__nomination_event_existence(self,
                                                            nomination_name: str,
                                                            event_name: str,
                                                            nomination_event_type: str
@@ -66,25 +67,13 @@ class Validator:
             nomination_event_type
         )
 
-    def check_if_team_not_in_event_nomination(
-            self,
-            team_name,
-            nomination_name,
-            event_name
-    ):
-        self.__team_nomination_event_manager.raise_exception_if_team_not_in_event_nomination(
-            team_name,
-            nomination_name,
-            event_name
-        )
-
     def validate_user_entity_ownership(self, decoded_token: TokenDecodedSchema, team_name: str, event_name: str):
         if decoded_token.role == UserRole.specialist or decoded_token.role == UserRole.judge:
             self.__team_manager.raise_exception_if_owner_wrong(team_name, decoded_token.user_id)
         if decoded_token.role == UserRole.judge:
             self.__event_manager.raise_exception_if_owner_wrong(event_name, decoded_token.user_id)
 
-    def check_participant_and_team_existence(self, participant_email: EmailStr, team_name: str):
+    def validate_participant_and_team_existence(self, participant_email: EmailStr, team_name: str):
         self.__participant_manager.raise_exception_if_not_found(participant_email)
         self.__team_manager.raise_exception_if_not_found(team_name)
 
@@ -95,7 +84,7 @@ class Validator:
                 detail={"error": self.__default_team_error}
             )
 
-    def check_nomination_event__nomination_event_existence(
+    def validate_nomination_event__nomination_event_existence(
             self,
             nomination_name: str,
             event_name: str,

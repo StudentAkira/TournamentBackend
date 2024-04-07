@@ -8,7 +8,7 @@ from managers.participant import ParticipantManager
 from managers.team import TeamManager
 from managers.team_participant import TeamParticipantManager
 from managers.token import TokenManager
-from validators.validator import Validator
+from utils.validation_util import Validator
 
 
 class TeamParticipantService:
