@@ -27,8 +27,7 @@ class UsersService:
     def get_user_data(self, response: Response, token: str) -> UserSchema:
         decoded_token = self.__token_manager.decode_token(token, response)
         user_db = self.__user_manager.get_user_by_id_or_raise_if_not_found(decoded_token.user_id)
-        response.delete_cookie(key="token")
-        self.__token_manager.get_or_raise_if_not_found(token, {"set-cookie": response.headers["set-cookie"]})
+        self.__token_manager.get_or_raise_if_not_found(token)
         return user_db
 
     def list(self, response: Response, token: str) -> list[UserSchema]:

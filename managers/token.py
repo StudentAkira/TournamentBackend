@@ -37,13 +37,12 @@ class TokenManager:
     def delete_token_from_db(self, token_db: type(Token)):
         delete_token_db(self.__db, token_db)
 
-    def get_or_raise_if_not_found(self, token: str, headers: dict):
+    def get_or_raise_if_not_found(self, token: str):
         token_db = get_token_db(self.__db, token)
         if not token_db:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail={"error": self.__token_not_found_error},
-                headers=headers
             )
         return token_db
 

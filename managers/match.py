@@ -3,13 +3,12 @@ from sqlalchemy.orm import Session
 from starlette import status
 
 from db.crud.match.match import get_group_matches_db, set_group_match_result_db, get_bracket_matches_db, \
-    set_bracket_match_result_db, is_match_related_to_nomination_event_db, is_winner_exists_in_bracket_match_db, \
+    set_bracket_match_result_db, is_match_related_to_nomination_event_db, \
     is_prev_match_was_judged_db, get_match_by_id
 from db.models.match import Match
 from db.models.nomination_event import NominationEvent
 from db.models.team import Team
 from db.models.user import User
-from db.schemas.match.set_match_result_schema import SetMatchResultSchema
 from managers.team import TeamManager
 
 
