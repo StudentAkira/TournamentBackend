@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from starlette.responses import Response
 
 from db.schemas.nomination_event.nomination_event_type import NominationEventType
-from db.schemas.nomination_event_judge.get_nomination_event_judge import GenNominationEventJudgeSchema
+from db.schemas.nomination_event_judge.get_nomination_event_judge import GetNominationEventJudgeSchema
 from db.schemas.nomination_event_judge.nomination_event_judge_data import NominationEventJudgeDataSchema
 from dependencies import authorized_only, get_db
 from routes.nomination_event_judge.nomination_event_judge_service import NominationEventJudgeService
@@ -33,7 +33,7 @@ async def get_nomination_event_judges(
         token: str = Depends(authorized_only),
         db: Session = Depends(get_db)
 ):
-    data = GenNominationEventJudgeSchema(
+    data = GetNominationEventJudgeSchema(
         nomination_name=nomination_name,
         event_name=event_name,
         nomination_event_type=nomination_event_type

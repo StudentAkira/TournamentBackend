@@ -4,6 +4,7 @@ from starlette import status
 
 from db.crud.team.team import get_team_by_name_db
 from db.crud.team_nomination_event.team_nomination_event import get_nomination_event_teams_db
+from db.models.nomination_event import NominationEvent
 from db.schemas.nomination_event.nomination_event import NominationEventSchema
 from db.schemas.team.team import TeamSchema
 
@@ -18,9 +19,9 @@ class TeamNominationEventManager:
 
     def list_teams_of_nomination_event(
             self,
-            nomination_event: NominationEventSchema
-        ) -> list[TeamSchema]:
-        teams_db = get_nomination_event_teams_db(self.__db, nomination_event)
+            nomination_event_db: type(NominationEvent)
+    ) -> list[TeamSchema]:
+        teams_db = get_nomination_event_teams_db(self.__db, nomination_event_db)
         teams = [TeamSchema.from_orm(team_db) for team_db in teams_db]
         return teams
 

@@ -17,6 +17,7 @@ from db.crud.participant_nomination_event.participant_nomination_event import ge
 from db.models.event import Event
 from db.models.nomination import Nomination
 from db.models.nomination_event import NominationEvent
+from db.models.participant import Participant
 from db.models.user import User
 from db.schemas.nomination_event.nomination_event import NominationEventSchema
 from db.schemas.nomination_event.nomination_event_participant_count import NominationEventParticipantCountSchema
@@ -113,7 +114,6 @@ class NominationEventManager:
             type_: NominationEventType
     ):
         nomination_event_db = get_nomination_event_db(self.__db, nomination_db, event_db,  type_)
-
         if not nomination_event_db:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -213,13 +213,13 @@ class NominationEventManager:
 
     def raise_exception_if_participant_in_nomination_event(
             self,
-            participant_email: EmailStr,
+            participant_db: type(Participant),
             nomination_event_db: type(NominationEvent)
     ):
         nomination_event_participant_emails = self.get_nomination_event_participant_emails(
             nomination_event_db
         )
-        if participant_email in nomination_event_participant_emails:
+        if participant_db.email in nomination_event_participant_emails:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail={"error": self.__participant_already_in_nomination_event}
@@ -237,10 +237,11 @@ class NominationEventManager:
 
     def raise_exception_if_user_not_in_judge_command(
             self,
+            event_db: type(Event),
             nomination_event_db: type(NominationEvent),
             user_db: type(User)
     ):
-        judge_command_ids = get_judge_command_ids_db(self.__db, nomination_event_db)
+        judge_command_ids = get_judge_command_ids_db(event_db.owner_id, nomination_event_db)
         if user_db.id not in judge_command_ids:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,

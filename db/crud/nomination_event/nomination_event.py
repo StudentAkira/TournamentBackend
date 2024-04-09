@@ -306,5 +306,5 @@ def open_registration_nomination_event_db(db: Session, nomination_event_db: type
     db.commit()
 
 
-def get_judge_command_ids_db(db: Session, nomination_event_db: type(NominationEvent)):#todo
-    return set(judge_db.id for judge_db in nomination_event_db.judges).union({event_db.owner_id})
+def get_judge_command_ids_db(event_owner_id: int, nomination_event_db: type(NominationEvent)):
+    return set(judge_db.id for judge_db in nomination_event_db.judges).union({event_owner_id})

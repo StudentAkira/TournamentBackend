@@ -2,6 +2,8 @@ from pydantic import EmailStr
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 
+from db.models.participant import Participant
+from db.models.team import Team
 from db.schemas.token.token_decoded import TokenDecodedSchema
 from db.schemas.user.user_role import UserRole
 from managers.participant import ParticipantManager
@@ -34,39 +36,24 @@ class TeamParticipantService:
             team_name: str,
     ) -> dict[str, str]:
         decoded_token = self.__token_manager.decode_token(token, response)
-        self.__validator.validate_participant_and_team_existence(participant_email, team_name)
-        self.check_ownership_for_not_admin(decoded_token, participant_email, team_name)
+        team_name = self.__team_manager.get_team_name_from_team_name_or_participant_email(team_name)
 
-        participant = self.__participant_manager.read_by_email(participant_email)
-        team = self.__team_manager.read_by_name(team_name)
+        team_db = self.__team_manager.get_by_name_or_raise_if_not_found(team_name)
+        participant_db = self.__participant_manager.get_by_email_or_raise_if_not_found(participant_email)
 
-        self.__team_participant_manager.raise_exception_if_participant_already_in_team(participant, team)
-        self.__team_manager.raise_exception_if_team_default(team)
-        self.__team_participant_manager.append_participant_to_team(participant, team)
+        self.check_ownership_for_not_admin(decoded_token, participant_db, team_db)
 
+        self.__team_participant_manager.raise_exception_if_participant_already_in_team(participant_db, team_db)
+        self.__team_manager.raise_exception_if_team_default(team_db.name)
+        self.__team_participant_manager.append_participant_to_team(participant_db, team_db)
         return {"message": self.__participant_appended_to_team_message}
 
-    def check_ownership_for_not_admin(self, decoded_token: TokenDecodedSchema, participant_email: str, team_name: str):
-        if decoded_token.role != UserRole.admin:
-            self.__team_manager.raise_exception_if_owner_wrong(team_name, decoded_token.user_id)
-            self.__participant_manager.raise_exception_if_owner_wrong(participant_email, decoded_token.user_id)
-
-    def delete_participant_from_team(
+    def check_ownership_for_not_admin(
             self,
-            response: Response,
-            token: str,
-            participant_email: EmailStr,
-            team_name: str
+            decoded_token: TokenDecodedSchema,
+            participant_db: type(Participant),
+            team_db: type(Team)
     ):
-        decoded_token = self.__token_manager.decode_token(token, response)
-        self.__validator.validate_participant_and_team_existence(participant_email, team_name)
-        self.check_ownership_for_not_admin(decoded_token, participant_email, team_name)
-
-        participant = self.__participant_manager.read_by_email(participant_email)
-        team = self.__team_manager.read_by_name(team_name)
-
-        self.__team_participant_manager.raise_exception_if_participant_not_in_team(participant, team)
-        self.__team_manager.raise_exception_if_team_default(team)
-
-        self.__team_participant_manager.delete_participant_from_team(participant_email, team_name)
-        return {"message": self.__participant_deleted_team}
+        if decoded_token.role != UserRole.admin:
+            self.__team_manager.raise_exception_if_owner_wrong(team_db, decoded_token.user_id)
+            self.__participant_manager.raise_exception_if_owner_wrong(participant_db, decoded_token.user_id)

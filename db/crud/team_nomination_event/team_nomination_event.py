@@ -10,21 +10,7 @@ from db.models.team_participant_nomination_event import TeamParticipantNominatio
 from db.schemas.nomination_event.nomination_event import NominationEventSchema
 
 
-def get_nomination_event_teams_db(db: Session, nomination_event: NominationEventSchema):
-    event_db = db.query(Event).filter(
-        cast("ColumnElement[bool]", Event.name == nomination_event.event_name)
-    ).first()
-    nomination_db = db.query(Nomination).filter(
-        cast("ColumnElement[bool]", Nomination.name == nomination_event.nomination_name)
-    ).first()
-    nomination_event_db = db.query(NominationEvent).filter(
-        and_(
-            NominationEvent.nomination_id == nomination_db.id,
-            NominationEvent.event_id == event_db.id,
-            NominationEvent.type == nomination_event.type
-        )
-    ).first()
-
+def get_nomination_event_teams_db(db: Session, nomination_event_db: type(NominationEvent)):
     team_participant_ids = db.query(TeamParticipantNominationEvent.team_participant_id). \
         filter(
         TeamParticipantNominationEvent.nomination_event_id == nomination_event_db.id
@@ -33,14 +19,11 @@ def get_nomination_event_teams_db(db: Session, nomination_event: NominationEvent
     set_team_participant_ids = set()
     for team_participant_id in team_participant_ids:
         set_team_participant_ids.add(team_participant_id[0])
-
     team_ids = set(
         team_id[0]
         for team_id in
             db.query(TeamParticipant.team_id).
                        filter(TeamParticipant.id.in_(set_team_participant_ids)).all()
         )
-
     teams_db = db.query(Team).filter(Team.id.in_(team_ids))
-
     return teams_db

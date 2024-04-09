@@ -101,8 +101,8 @@ class TeamManager:
                 detail={"error": self.__cant_create_team_marked_as_default_error}
             )
 
-    def raise_exception_if_team_default(self, team: TeamSchema):
-        if "default_team" in team.name:
+    def raise_exception_if_team_default(self, name: str):
+        if "default_team" in name:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail={"error": self.__default_team_error}

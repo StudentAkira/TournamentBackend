@@ -1,6 +1,8 @@
 from pydantic import EmailStr
 from starlette.responses import Response
 
+from db.models.event import Event
+from db.models.team import Team
 from db.schemas.nomination_event.nomination_event_type import NominationEventType
 from db.schemas.nomination_event.olympyc_nomination_event import OlympycNominationEventSchema
 from db.schemas.token.token_decoded import TokenDecodedSchema
@@ -44,28 +46,16 @@ class Validator:
             nomination_event_type
         )
 
-    def validate_event_nomination__nomination_event_existence(self,
-                                                              nomination_name: str,
-                                                              event_name: str,
-                                                              nomination_event_type: str
-                                                              ):
-        get_by_name_or_raise_if_not_found(event_name)
-        get_by_name(nomination_name)
-        self.__nomination_event_manager.raise_exception_if_not_found(
-            nomination_name,
-            event_name,
-            nomination_event_type
-        )
-
-    def validate_user_entity_ownership(self, decoded_token: TokenDecodedSchema, team_name: str, event_name: str):
+    def validate_user_entity_ownership(
+            self,
+            decoded_token: TokenDecodedSchema,
+            team_db: type(Team),
+            event_db: type(Event)
+    ):
         if decoded_token.role == UserRole.specialist or decoded_token.role == UserRole.judge:
-            self.__team_manager.raise_exception_if_owner_wrong(team_name, decoded_token.user_id)
+            self.__team_manager.raise_exception_if_owner_wrong(team_db, decoded_token.user_id)
         if decoded_token.role == UserRole.judge:
-            self.__event_manager.raise_exception_if_owner_wrong(event_name, decoded_token.user_id)
-
-    def validate_participant_and_team_existence(self, participant_email: EmailStr, team_name: str):
-        self.__participant_manager.raise_exception_if_not_found(participant_email)
-        self.__team_manager.raise_exception_if_not_found(team_name)
+            self.__event_manager.raise_exception_if_owner_wrong(event_db, decoded_token.user_id)
 
     def validate_nomination_event__nomination_event_existence(
             self,

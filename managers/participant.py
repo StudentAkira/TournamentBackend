@@ -9,9 +9,11 @@ from starlette import status
 from db.crud.participant.participant import get_participants_by_owner_db, create_participant_db, \
     get_participant_by_email_db, hide_participant_db, update_participant_db
 from db.models.participant import Participant
+from db.models.user import User
 from db.schemas.participant.participant import ParticipantSchema
 from db.schemas.participant.participant_hide import ParticipantHideSchema
 from db.schemas.participant.participant_update import ParticipantUpdateSchema
+from db.schemas.user.user_role import UserRole
 
 
 class ParticipantManager:
@@ -58,8 +60,8 @@ class ParticipantManager:
     def update(self, participant_db: type(Participant), participant_data: ParticipantUpdateSchema):
         update_participant_db(self.__db, participant_db, participant_data)
 
-    def raise_exception_if_owner_wrong(self, participant_db: type(Participant), creator_id: int):
-        if participant_db.creator_id != creator_id:
+    def raise_exception_if_owner_wrong(self, participant_db: type(Participant), user_db: type(User)):
+        if user_db.role != UserRole.admin and participant_db.creator_id != user_db.id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail={"error": self.__wrong_participant_owner_error}
