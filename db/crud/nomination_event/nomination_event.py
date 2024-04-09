@@ -294,7 +294,7 @@ def get_nomination_event_pdf_data_db(db: Session, data: list[type(Nomination), t
     return pdf_data
 
 
-def close_registration_nomination_event_db(db: Session, nomination_event_db):
+def close_registration_nomination_event_db(db: Session, nomination_event_db: type(NominationEvent)):
     nomination_event_db.registration_finished = True
     db.add(nomination_event_db)
     db.commit()

@@ -71,9 +71,9 @@ class TeamManager:
         team_db = get_team_by_name_db(self.__db, team_name_or_participant_email)
         if team_db:
             return team_db.name
-        participant = self.__participant_manager.read_by_email(team_name_or_participant_email)
-        if participant:
-            return f"default_team_{participant.email}"
+        participant_db = self.__participant_manager.get_by_email_or_raise_if_not_found(team_name_or_participant_email)
+        if participant_db:
+            return f"default_team_{participant_db.email}"
 
     def raise_exception_if_owner_wrong(self, team_db: type(Team), user_id: int):
         if team_db.creator_id != user_id:

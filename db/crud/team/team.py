@@ -1,18 +1,13 @@
 from typing import cast
 
 from pydantic import EmailStr
+from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
 from db.crud.nomination_event.nomination_event import get_nomination_event_db
-from db.models.event import Event
-from db.models.nomination import Nomination
 from db.models.nomination_event import NominationEvent
 from db.models.team import Team
 from db.models.team_participant_nomination_event import TeamParticipantNominationEvent
-from sqlalchemy import and_
-
-from db.schemas.nomination_event.nomination_event_type import NominationEventType
-from db.schemas.nomination_event.olympyc_nomination_event import OlympycNominationEventSchema
 from db.schemas.team.team import TeamSchema
 from db.schemas.team.team_update import TeamUpdateSchema
 
@@ -23,18 +18,6 @@ def create_team_db(db: Session, team: TeamSchema, creator_id: int):
     db.add(team_db)
     db.commit()
     return team_db
-
-
-def get_teams_by_event_nomination_db(
-        db: Session,
-        nomination_name: str,
-        event_name: str,
-        nomination_event_type: str
-) -> list[type(Team)] | None:
-    nomination_event_db = get_nomination_event_db(db, nomination_name, event_name, nomination_event_type)
-    if nomination_event_db:
-        teams_db = nomination_event_db.teams
-        return teams_db
 
 
 def get_team_by_name_db(db: Session, team_name: str) -> type(Team) | None:
@@ -88,25 +71,11 @@ def set_software_equipment_db(db, nomination_event_db: type(NominationEvent), so
 def team_check_existence_in_tournament_db(
         db: Session,
         teams: list[TeamSchema],
-        nomination_event: OlympycNominationEventSchema
+        nomination_event_db: type(NominationEvent)
 ):
-    event_db = db.query(Event).filter(
-        cast("ColumnElement[bool]", Event.name == nomination_event.event_name)).first()
-    nomination_db = db.query(Nomination).filter(
-        cast("ColumnElement[bool]", Nomination.name == nomination_event.nomination_name)).first()
-    nomination_event_db = db.query(NominationEvent).filter(
-        and_(
-            NominationEvent.event_id == event_db.id,
-            NominationEvent.nomination_id == nomination_db.id,
-            NominationEvent.type == NominationEventType.olympyc
-        )
-    ).first()
-
     team_names = [team.name for team in teams]
     received_teams_ids = set(team_db.id for team_db in db.query(Team).filter(Team.name.in_(team_names)).all())
-
     tournament_team_ids = set(team_participant.team_id for team_participant in nomination_event_db.team_participants)
-
     if received_teams_ids.issubset(tournament_team_ids):
         return True
     return False

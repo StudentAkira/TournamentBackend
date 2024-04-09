@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Body
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 
@@ -11,17 +11,6 @@ from routes.tournaments.tournaments_service import TournamentService
 tournaments = APIRouter(prefix="/api/tournaments", tags=["tournaments"])
 
 
-@tournaments.post("/start_group_stage")
-async def start_group_stage(
-        response: Response,
-        nomination_event: StartGroupTournamentSchema,
-        token: str = Depends(authorized_only),
-        db: Session = Depends(get_db)
-):
-    service = TournamentService(db)
-    return service.create_group_tournament(response, token, nomination_event)
-
-
 @tournaments.get("/get_groups_of_tournament")
 async def get_groups_of_tournament(
         response: Response,
@@ -31,6 +20,18 @@ async def get_groups_of_tournament(
 ):
     service = TournamentService(db)
     return service.get_groups_of_tournament(response, token, nomination_event)
+
+
+@tournaments.post("/start_group_stage")
+async def start_group_stage(
+        response: Response,
+        nomination_event: OlympycNominationEventSchema,
+        group_count: int = Body(gt=0),
+        token: str = Depends(authorized_only),
+        db: Session = Depends(get_db)
+):
+    service = TournamentService(db)
+    return service.start_group_stage(response, token, nomination_event, group_count)
 
 
 @tournaments.post("/finish_group_stage")
@@ -57,7 +58,7 @@ async def start_play_off_stage(
 
 
 @tournaments.post("/finish_play_off_stage")
-async def start_play_off_stage(
+async def finish_play_off_stage(
         response: Response,
         nomination_event: OlympycNominationEventSchema,
         token: str = Depends(authorized_only),
