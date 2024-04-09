@@ -7,7 +7,7 @@ class SetMatchResultSchema(BaseModel):
     nomination_event: OlympycNominationEventSchema
 
     match_id: int
-    winner_team_name: str | None = None
+    winner_team_name: str | None
 
     @field_validator('winner_team_name')
     def validate_winner_team_name(cls, value: str | None):

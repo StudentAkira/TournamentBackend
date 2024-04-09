@@ -1,7 +1,4 @@
-from typing import cast
-
 from fastapi import HTTPException
-from sqlalchemy import exists, or_
 from sqlalchemy.orm import Session
 from starlette import status
 
@@ -9,9 +6,10 @@ from db.crud.match.match import get_group_matches_db, set_group_match_result_db,
     set_bracket_match_result_db, is_match_related_to_nomination_event_db, is_winner_exists_in_bracket_match_db, \
     is_prev_match_was_judged_db, get_match_by_id
 from db.models.match import Match
+from db.models.nomination_event import NominationEvent
 from db.models.team import Team
+from db.models.user import User
 from db.schemas.match.set_match_result_schema import SetMatchResultSchema
-from db.schemas.nomination_event.olympyc_nomination_event import OlympycNominationEventSchema
 from managers.team import TeamManager
 
 
@@ -39,61 +37,45 @@ class MatchManager:
             )
         return match_db
 
-    def get_group_matches(self, nomination_event: OlympycNominationEventSchema):
-        data = get_group_matches_db(self.__db, nomination_event)
+    def get_group_matches(self, nomination_event_db: type(NominationEvent)):
+        data = get_group_matches_db(nomination_event_db)
         return data
 
-    def get_bracket_matches(self, nomination_event: OlympycNominationEventSchema):
-        data = get_bracket_matches_db(self.__db, nomination_event)
+    def get_bracket_matches(self, nomination_event_db: type(NominationEvent)):
+        data = get_bracket_matches_db(nomination_event_db)
         return data
 
-    def set_group_match_result(self, judge_id: int, data: SetMatchResultSchema):
-        set_group_match_result_db(self.__db, judge_id, data)
+    def set_group_match_result(self, judge_db: type(User), match_db: type(Match), team_db: type(Team)):
+        set_group_match_result_db(self.__db, judge_db, match_db, team_db)
 
-    def set_bracket_match_result(self, judge_id, data):
-        set_bracket_match_result_db(self.__db, judge_id, data)
+    def set_bracket_match_result(self, judge_db: type(User), match_db: type(Match), winner_team_db: type(Team)):
+        set_bracket_match_result_db(self.__db, judge_db, match_db, winner_team_db)
 
-    def raise_exception_if_match_not_related_to_nomination_event(self, data: SetMatchResultSchema):
-        is_match_related = is_match_related_to_nomination_event_db(self.__db, data)
+    def raise_exception_if_match_not_related_to_nomination_event(
+            self,
+            nomination_event_db: type(NominationEvent),
+            match_db: type(Match)
+    ):
+        is_match_related = is_match_related_to_nomination_event_db(nomination_event_db, match_db)
         if not is_match_related:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail={"error": self.__match_not_related_to_group_error}
             )
 
-
-
-    def raise_exception_if_winner_not_in_match(self, match_id: int, winner_team_name: str):
-
-        team_db = self.__db.query(Team).filter(cast("ColumnElement[bool]", Team.name == winner_team_name)).first()
-
-        entity_exists = self.__db.query(
-            exists(
-
-            ).where(
-                cast("ColumnElement[bool]", Match.id == match_id)
-            ).where(or_(
-                Match.team1_id == team_db.id,
-                Match.team2_id == team_db.id
-                )
-            )
-        ).scalar()
-        if not entity_exists:
+    def raise_exception_if_winner_not_in_match(self, match_db: type(Match), winner_team_db: type(Team)):
+        if winner_team_db is not None and match_db.team1 != winner_team_db and match_db.team2 != winner_team_db:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail={"error": self.__team_not_related_to_match_error}
             )
 
-    def raise_exception_if_no_winner_in_bracket_match(self, data: SetMatchResultSchema):
-        winner_exists_in_bracket_match = is_winner_exists_in_bracket_match_db(self.__db, data)
-        if not winner_exists_in_bracket_match:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail={"error": self.__play_off_matches_cannot_result_draw}
-            )
-
-    def raise_exception_if_prev_match_was_not_judged(self, data: SetMatchResultSchema):
-        prev_match_was_judged = is_prev_match_was_judged_db(self.__db, data)
+    def raise_exception_if_prev_match_was_not_judged(
+            self,
+            nomination_event_db: type(NominationEvent),
+            match_db: type(Match)
+    ):
+        prev_match_was_judged = is_prev_match_was_judged_db(nomination_event_db, match_db)
         if not prev_match_was_judged:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,

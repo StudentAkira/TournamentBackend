@@ -3,7 +3,7 @@ from typing import cast
 from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
-from db.crud.event.event import get_events_data, get_all_events_by_owner_db, get_all_events_db
+from db.crud.event.event import get_all_events_by_owner_db, get_all_events_db
 from db.crud.nomination.nomination import get_all_nominations_db
 from db.models.event import Event
 from db.models.group import Group
@@ -17,7 +17,6 @@ from db.models.team import Team
 from db.models.team_participant import TeamParticipant
 from db.models.team_participant_nomination_event import TeamParticipantNominationEvent
 from db.models.user import User
-from db.schemas.event.event_list import EventListSchema
 from db.schemas.nomination_event.nomination_event import NominationEventSchema
 from db.schemas.nomination_event.nomination_event_full_info_schema import NominationEventFullInfoSchema
 from db.schemas.nomination_event.nomination_event_participant_count import NominationEventParticipantCountSchema
@@ -73,16 +72,6 @@ def append_event_nomination_db(
     db.add(nomination_event_db)
     db.commit()
     db.refresh(event_db)
-
-
-def get_list_events_list_nominations_db(db: Session) -> list[EventListSchema]:
-    events_db = db.query(Event).all()
-    return get_events_data(events_db)
-
-
-def get_list_events_list_nominations_by_owner_db(db: Session, owner_id: int):
-    events_db = db.query(Event).filer(cast("ColumnElement[bool]", Event.owner_id == owner_id)).all()
-    return get_events_data(events_db)
 
 
 def get_nomination_event_db(

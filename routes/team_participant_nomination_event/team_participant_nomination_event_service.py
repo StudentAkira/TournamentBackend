@@ -15,6 +15,7 @@ from managers.team_participant import TeamParticipantManager
 from managers.team_participant_nomination_event import TeamParticipantNominationEventManager
 from managers.token import TokenManager
 from managers.user import UserManager
+from utils.retriever_util import Retriever
 from utils.validation_util import Validator
 
 
@@ -33,6 +34,7 @@ class TeamParticipantNominationEventService:
         self.__user_manager = UserManager(db)
 
         self.__validator = Validator(db)
+        self.__retriever = Retriever(db)
 
         self.__team_participant_appended_message = "team participant appended to nomination event"
         self.__team_participant_updated_message = "team participant updated in nomination event"
@@ -45,10 +47,10 @@ class TeamParticipantNominationEventService:
             team_participant_nomination_event: AppendTeamParticipantNominationEventSchema
     ):
         decoded_token, user_db, event_db, nomination_db, nomination_event_db, participant_db = \
-            self.get_decoded_token_user_event_nomination_nomination_event_participant(
+            self.__retriever.get_decoded_token_user_nomination_event_nomination_event(
                 response,
                 token,
-                team_participant_nomination_event
+                team_participant_nomination_event.to_nomination_event_schema()
             )
         team_name = self.__team_manager.get_team_name_from_team_name_or_participant_email(
             team_participant_nomination_event.team_name
@@ -87,12 +89,11 @@ class TeamParticipantNominationEventService:
             team_participant_nomination_event: UpdateTeamParticipantNominationEventSchema
     ):
         decoded_token, user_db, event_db, nomination_db, nomination_event_db, participant_db = \
-            self.get_decoded_token_user_event_nomination_nomination_event_participant(
+            self.__retriever.get_decoded_token_user_nomination_event_nomination_event(
                 response,
                 token,
-                team_participant_nomination_event
+                team_participant_nomination_event.to_nomination_event_schema()
             )
-
         self.__nomination_event_manager.raise_exception_if_participant_not_in_nomination_event(
             participant_db.email,
             nomination_event_db
@@ -116,10 +117,10 @@ class TeamParticipantNominationEventService:
             team_participant_nomination_event: DeleteTeamParticipantNominationEventSchema
     ):
         decoded_token, user_db, event_db, nomination_db, nomination_event_db, participant_db = \
-            self.get_decoded_token_user_event_nomination_nomination_event_participant(
+            self.__retriever.get_decoded_token_user_nomination_event_nomination_event(
                 response,
                 token,
-                team_participant_nomination_event
+                team_participant_nomination_event.to_nomination_event_schema()
             )
         self.__event_manager.raise_exception_if_owner_wrong(
             event_db,
@@ -138,31 +139,3 @@ class TeamParticipantNominationEventService:
             nomination_event_db, participant_db
         )
         return {"message": self.__team_participant_deleted_message}
-
-    def get_decoded_token_user_event_nomination_nomination_event_participant(
-            self,
-            response: Response,
-            token: str,
-            team_participant_nomination_event:
-            DeleteTeamParticipantNominationEventSchema |
-            UpdateTeamParticipantNominationEventSchema |
-            AppendTeamParticipantNominationEventSchema
-    ):
-
-        decoded_token = self.__token_manager.decode_token(token, response)
-        user_db = self.__user_manager.get_user_by_id_or_raise_if_not_found(decoded_token.user_id)
-        event_db = self.__event_manager.get_by_name_or_raise_if_not_found(
-            team_participant_nomination_event.event_name
-        )
-        nomination_db = self.__nomination_manager.get_by_name_or_raise_exception_if_not_found(
-            team_participant_nomination_event.nomination_name
-        )
-        nomination_event_db = self.__nomination_event_manager.get_nomination_event_or_raise_if_not_found(
-            nomination_db,
-            event_db,
-            team_participant_nomination_event.nomination_event_type
-        )
-        participant_db = self.__participant_manager.get_by_email_or_raise_if_not_found(
-            team_participant_nomination_event.participant_email
-        )
-        return decoded_token, user_db, event_db, nomination_db, nomination_event_db, participant_db

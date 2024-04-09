@@ -46,14 +46,14 @@ class TournamentManager:
     def get_groups_of_tournament(self, nomination_event_db: type(NominationEvent)):
         return get_groups_of_tournament_db(nomination_event_db)
 
-    def finish_group_stage(self, nomination_event: OlympycNominationEventSchema):
-        finish_group_stage_db(self.__db, nomination_event)
+    def finish_group_stage(self, nomination_event_db):
+        finish_group_stage_db(self.__db, nomination_event_db)
 
     def start_play_off_tournament(self, nomination_event_db: type(NominationEvent), teams: list[TeamSchema]):
         start_play_off_tournament_db(self.__db, nomination_event_db, teams)
 
-    def finish_play_off_stage(self, nomination_event: OlympycNominationEventSchema):
-        finish_play_off_stage_db(self.__db, nomination_event)
+    def finish_play_off_stage(self, nomination_event_db):
+        finish_play_off_stage_db(self.__db, nomination_event_db)
 
     def validate_group_count(self, group_count: int, nomination_event_db: type(NominationEvent)):
         team_count = get_count_of_participants_of_tournament_db(nomination_event_db)
@@ -87,6 +87,7 @@ class TournamentManager:
             )
 
     def raise_exception_if_group_stage_finished(self, nomination_event_db: type(NominationEvent)):
+        print(type(nomination_event_db))
         if nomination_event_db.group_stage_finished:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
@@ -113,7 +114,7 @@ class TournamentManager:
             )
 
     def raise_exception_if_play_off_stage_not_started(self, nomination_event_db: type(NominationEvent)):
-        if nomination_event_db.bracket is not None:
+        if nomination_event_db.bracket is None:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail={"error": self.__play_off_stage_not_started}
