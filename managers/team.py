@@ -36,26 +36,30 @@ class TeamManager:
     def list_by_owner(self, offset: int, limit: int, owner_id: int) -> list:
         teams_db = get_teams_by_owner_db(self.__db, offset, limit, owner_id)
         teams = [TeamParticipantsSchema.from_orm(team_db) for team_db in teams_db]
-
         return teams
 
     def create(self, team: TeamSchema, creator_id: int):
-        self.raise_exception_if_name_taken(team.name)
+        team_db = get_team_by_name_db(self.__db, team.name)
+        self.raise_exception_if_name_taken(team_db)
         self.raise_exception_if_name_invalid(team)
         create_team_db(self.__db, team, creator_id)
 
-    def update(self, team_data: TeamUpdateSchema):
-        update_team_db(self.__db, team_data)
+    def update(self, team_db: type(Team), team_data: TeamUpdateSchema):
+        update_team_db(self.__db, team_db, team_data)
 
     def check_entities_existence(self, team: TeamSchema, participant_emails: set[EmailStr]):
         self.raise_exception_if_name_taken(team.name)
         for participant_email in participant_emails:
-            self.__participant_manager.raise_exception_if_not_found(participant_email)
+            participant_db = self.__participant_manager.get_by_email_or_raise_if_not_found(participant_email)
 
-    def read_by_name(self, name: str) -> TeamSchema | None:
+    def get_by_name_or_raise_if_not_found(self, name: str) -> type(Team):
         team_db = get_team_by_name_db(self.__db, name)
-        if team_db:
-            return TeamSchema.from_orm(team_db)
+        if not team_db:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={"error": self.__team_not_found_error}
+            )
+        return team_db
 
     def get_emails_of_team(self, team_db: Team):
         emails = set()
@@ -64,36 +68,25 @@ class TeamManager:
         return emails
 
     def get_team_name_from_team_name_or_participant_email(self, team_name_or_participant_email):
-        team = self.read_by_name(team_name_or_participant_email)
-        if team:
-            return team.name
+        team_db = get_team_by_name_db(self.__db, team_name_or_participant_email)
+        if team_db:
+            return team_db.name
         participant = self.__participant_manager.read_by_email(team_name_or_participant_email)
         if participant:
             return f"default_team_{participant.email}"
-        self.raise_exception_if_not_found(team_name_or_participant_email)
 
-    def raise_exception_if_owner_wrong(self, team_name: str, user_id: int):
-        team_db = get_team_by_name_db(self.__db, team_name)
+    def raise_exception_if_owner_wrong(self, team_db: type(Team), user_id: int):
         if team_db.creator_id != user_id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail={"error": self.__wrong_team_owner_error}
             )
 
-    def raise_exception_if_name_taken(self, name: str):
-        team = self.read_by_name(name)
-        if team:
+    def raise_exception_if_name_taken(self, team_db: type(Team)):
+        if team_db:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail={"error": self.__team_name_taken_error}
-            )
-
-    def raise_exception_if_not_found(self, team_name: str):
-        team = self.read_by_name(team_name)
-        if not team:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail={"error": self.__team_not_found_error}
             )
 
     def raise_exception_if_name_invalid(self, team: TeamSchema):

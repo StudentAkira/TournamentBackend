@@ -39,7 +39,7 @@ class MatchService:
             data.nomination_event.event_name,
             NominationEventType.olympyc
         )
-        self.__match_manager.raise_exception_if_not_found(data.match_id)
+        match_db = self.__match_manager.raise_exception_if_not_found(data.match_id)
         self.__match_manager.raise_exception_if_match_not_related_to_nomination_event(data)
         self.__tournament_manger.raise_exception_if_group_stage_finished(data.nomination_event)
 

@@ -77,7 +77,7 @@ class EventsService:
             event_data: EventDeleteSchema
     ):
         decoded_token = self.__token_manager.decode_token(token, response)
-        self.__event_manager.raise_exception_if_not_found(event_data.name)
-        self.__event_manager.raise_exception_if_owner_wrong(event_data.name, decoded_token.user_id)
-        self.__event_manager.delete(event_data)
+        event_db = self.__event_manager.get_by_name_or_raise_if_not_found(event_data.name)
+        self.__event_manager.raise_exception_if_owner_wrong(event_db, decoded_token.user_id)
+        self.__event_manager.delete(event_db)
         return {"message": self.__event_deleted_message}

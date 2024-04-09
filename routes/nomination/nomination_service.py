@@ -1,5 +1,6 @@
 from starlette.responses import Response
 
+from db.crud.nomination.nomination import get_nomination_by_name_db
 from db.schemas.nomination.nomination import NominationSchema
 from managers.event import EventManager
 from managers.nomination import NominationManager
@@ -30,15 +31,10 @@ class NominationsService:
     def create(self,  response: Response, token: str, nomination: NominationSchema):
         decoded_token = self.__token_manager.decode_token(token, response)
         self.__user_manager.raise_exception_if_user_specialist(decoded_token.role)
-        self.__nomination_manager.raise_exception_if_name_taken(nomination.name)
+        nomination_db = get_nomination_by_name_db(self.__db, nomination.name)
+        self.__nomination_manager.raise_exception_if_name_taken(nomination_db)
         self.__nomination_manager.create(nomination)
         return {"message": self.__nomination_created_message}
-
-    def create_many(self,  response: Response, token: str, nominations: list):
-        decoded_token = self.__token_manager.decode_token(token, response)
-        self.__user_manager.raise_exception_if_user_specialist(decoded_token.role)
-        self.__nomination_manager.create_many(nominations)
-        return {"message": self.__nominations_created_message}
 
     def update(
             self,
@@ -48,17 +44,8 @@ class NominationsService:
             new_nomination: NominationSchema
     ):
         self.__token_manager.decode_token(token, response)
-        self.__nomination_manager.raise_exception_if_name_taken(new_nomination.name)
-        self.__nomination_manager.raise_exception_if_not_found(old_nomination.name)
-        self.__nomination_manager.update(old_nomination, new_nomination)
+        nomination_db = self.__nomination_manager.get_by_name_or_raise_exception_if_not_found(old_nomination.name)
+        new_nomination_db = get_nomination_by_name_db(self.__db, new_nomination.name)
+        self.__nomination_manager.raise_exception_if_name_taken(new_nomination_db)
+        self.__nomination_manager.update(nomination_db, new_nomination)
         return {"message": self.__nomination_updated_message}
-
-    def delete(
-            self,
-            response: Response,
-            token: str,
-            nomination_name: str
-    ):
-        self.__token_manager.decode_token(token, response)
-        self.__nomination_manager.raise_exception_if_not_found(nomination_name)
-        self.__nomination_manager.delete(nomination_name)

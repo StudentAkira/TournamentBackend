@@ -5,8 +5,7 @@ from sqlalchemy import and_
 from sqlalchemy.orm import Session
 from starlette import status
 
-from db.crud.nomination_event.nomination_event import close_registration_nomination_event_db, \
-    is_group_stage_finished_db, is_play_off_stage_finished_db
+from db.crud.nomination_event.nomination_event import close_registration_nomination_event_db
 from db.crud.team.team import team_check_existence_in_tournament_db
 from db.crud.tournament.tournaments import create_group_tournament_db, \
     get_groups_of_tournament_db, get_count_of_participants_of_tournament_db, is_all_matches_finished_db, \
@@ -15,8 +14,6 @@ from db.models.event import Event
 from db.models.nomination import Nomination
 from db.models.nomination_event import NominationEvent
 from db.schemas.group_tournament.start_group_tournament import StartGroupTournamentSchema
-from db.schemas.nomination_event.nomination_event import NominationEventSchema
-from db.schemas.nomination_event.nomination_event_type import NominationEventType
 from db.schemas.nomination_event.olympyc_nomination_event import OlympycNominationEventSchema
 from db.schemas.team.team import TeamSchema
 
@@ -130,7 +127,7 @@ class TournamentManager:
             )
         ).first()
 
-        print(nomination_event_db.bracket)
+        # print(nomination_event_db.bracket)
 
         if nomination_event_db is not None:
             raise HTTPException(
@@ -157,8 +154,6 @@ class TournamentManager:
                 NominationEvent.bracket is None
             )
         ).first()
-
-        print(nomination_event_db)
 
         if nomination_event_db is not None:
             raise HTTPException(

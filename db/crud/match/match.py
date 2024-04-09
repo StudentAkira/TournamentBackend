@@ -19,6 +19,11 @@ from db.schemas.nomination_event.olympyc_nomination_event import OlympycNominati
 from db.schemas.team.team import TeamSchema
 
 
+def get_match_by_id(db: Session, match_id: int):
+    match_db = db.query(Match).filter(Match.id == match_id).first()
+    return match_db
+
+
 def get_group_matches_db(db: Session, nomination_event: OlympycNominationEventSchema):
     event_db = db.query(Event).filter(
         cast("ColumnElement[bool]", Event.name == nomination_event.event_name)).first()

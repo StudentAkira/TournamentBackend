@@ -1,17 +1,9 @@
 from typing import cast
 
-from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
 from db.models.event import Event
-from db.models.group import Group
-from db.models.group_team import GroupTeam
-from db.models.match import Match
-from db.models.nomination_event import NominationEvent
-from db.models.nominatuin_event_judge import NominationEventJudge
-from db.models.team_participant_nomination_event import TeamParticipantNominationEvent
 from db.schemas.event.event_create import EventCreateSchema
-from db.schemas.event.event_delete import EventDeleteSchema
 from db.schemas.event.event_list import EventListSchema
 from db.schemas.event.event_update import EventUpdateSchema
 from db.schemas.nomination.nomination import NominationSchema
@@ -92,43 +84,12 @@ def create_event_db(db: Session, event: EventCreateSchema, owner_id: int) -> typ
     return event_db
 
 
-def update_event_db(db: Session, event_data: EventUpdateSchema) -> type(Event):
-    event_db = db.query(Event).filter(cast("ColumnElement[bool]", Event.name == event_data.old_name)).first()
+def update_event_db(db: Session, event_db: type(Event), event_data: EventUpdateSchema) -> type(Event):
     event_db.name = event_data.new_name
     event_db.date = event_data.new_date
     db.add(event_db)
     db.commit()
 
 
-def delete_event_db(db: Session, event_data: EventDeleteSchema):
-    event_db = db.query(Event).filter(cast("ColumnElement[bool]", Event.name == event_data.name)).first()
-    nomination_events_ids = set(nomination_event_db.id
-                                for nomination_event_db in
-                                db.query(NominationEvent).filter(NominationEvent.event_id == event_db.id).all())
-    nomination_events_db = db.query(NominationEvent).filter(NominationEvent.id.in_(nomination_events_ids)).all()
-    for nomination_event_db in nomination_events_db:
-        judges_ids = set(judge_db.id for judge_db in nomination_event_db.judges)
-
-        db.query(NominationEventJudge).filter(NominationEventJudge.judge_id.in_(judges_ids)).delete()
-
-        for group in nomination_event_db.groups:
-            for team in group.teams:
-                db.query(GroupTeam).filter(and_(
-                    GroupTeam.tournament_group_id == group.id,
-                    GroupTeam.team_id == team.id
-                )).delete()
-            for match in group.matches:
-                db.query(Match).filter(Match.id == match.id).delete()
-            db.query(Group).filter(Group.id == group.id).delete()
-
-        db.query(TeamParticipantNominationEvent). \
-            filter(TeamParticipantNominationEvent.nomination_event_id == nomination_event_db.id).all()
-
-        db.query(TeamParticipantNominationEvent). \
-            filter(TeamParticipantNominationEvent.nomination_event_id == nomination_event_db.id).delete()
-        db.query(NominationEvent).filter(cast("ColumnElement[bool]", NominationEvent.id == nomination_event_db.id)).delete()
-    db.query(Event).filter(cast("ColumnElement[bool]", Event.name == event_data.name)).delete()
-
-    db.commit()
-
-
+def delete_event_db(db: Session, event_db: type(Event)):
+    pass

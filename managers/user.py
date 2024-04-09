@@ -1,14 +1,10 @@
-from typing import cast
-
 from fastapi import HTTPException
-from sqlalchemy import exists
 from sqlalchemy.orm import Session
 from starlette import status
 
 from db.crud.user.user import get_users_db, get_user_by_id_db, get_user_by_email_db, create_user_db, pwd_context, \
     edit_user_data_db
 from db.models.user import User
-from db.schemas.nomination_event_judge.nomination_event_judge_data import NominationEventJudgeDataSchema
 from db.schemas.user.edit_user import EditUserSchema
 from db.schemas.user.user import UserSchema
 from db.schemas.user.user_create import UserCreateSchema
@@ -34,31 +30,34 @@ class UserManager:
         users = [UserSchema.from_orm(user_db) for user_db in users_db]
         return users
 
-    def get_user_by_id(self, user_id: int) -> UserSchema | None:
+    def get_user_by_id_or_raise_if_not_found(self, user_id: int) -> type(User):
         user_db = get_user_by_id_db(self.__db, user_id)
-        if user_db:
-            return UserSchema.from_orm(user_db)
+        if not user_db:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={"error": self.__user_not_found_error}
+            )
+        return user_db
 
-    def get_user_by_email(self, email: str) -> UserSchema | None:
+    def get_user_by_email_or_raise_if_not_found(self, email: str) -> type(User):
         user_db = get_user_by_email_db(self.__db, email)
-        if user_db:
-            return UserSchema.from_orm(user_db)
-
-    def get_user_id_associated_with_email(self, user: UserSchema) -> int:
-        user_db = get_user_by_email_db(self.__db, user.email)
-        return user_db.id
+        if not user_db:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={"error": self.__user_not_found_error}
+            )
+        return user_db
 
     def create_user(self, user: UserCreateSchema):
         self.raise_exception_if_email_taken(user)
         create_user_db(self.__db, user)
 
-    def check_user_password(self, user: UserSchema, password: str):
-        user_db = get_user_by_email_db(self.__db, user.email)
+    def check_user_password(self, user_db: type(User), password: str):
         password_check = pwd_context.verify(password, user_db.hashed_password)
         self.raise_exception_if_password_incorrect(password_check)
 
     def edit_user_data(self, user_data: EditUserSchema, user_id: int):
-        if self.get_user_by_id(user_id).email != user_data.email:
+        if self.get_user_by_id_or_raise_if_not_found(user_id).email != user_data.email:
             self.raise_exception_if_email_taken(user_data)
         edit_user_data_db(self.__db, user_data, user_id)
 
@@ -75,25 +74,6 @@ class UserManager:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail={"error": self.__invalid_password_error}
-            )
-
-    def raise_exception_if_user_not_found(
-            self,
-            user:
-                UserSchema |
-                NominationEventJudgeDataSchema
-    ):
-        user_exists = self.__db.query(
-            exists(
-
-            ).where(
-                cast("ColumnElement[bool]", User.email == user.email)
-            )
-        ).scalar()
-        if not user_exists:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail={"error": self.__user_not_found_error}
             )
 
     def raise_exception_if_user_is_not_admin(self, role: str):

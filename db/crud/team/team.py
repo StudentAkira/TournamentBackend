@@ -62,10 +62,7 @@ def get_teams_db(db: Session, offset: int, limit: int) -> list[type(Team)]:
     return teams_db
 
 
-def update_team_db(db:Session, team_data: TeamUpdateSchema):
-    team_db = db.query(Team).filter(
-        cast("ColumnElement[bool]", Team.name == team_data.old_name
-             )).first()
+def update_team_db(db:Session, team_db: type(Team), team_data: TeamUpdateSchema):
     team_db.name = team_data.new_name
     db.add(team_db)
     db.commit()

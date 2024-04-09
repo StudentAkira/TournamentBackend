@@ -48,10 +48,10 @@ class TeamParticipantNominationEventService:
         team_participant_nomination_event_data.team_name = team_name
         decoded_token = self.__token_manager.decode_token(token, response)
 
-        self.__event_manager.raise_exception_if_not_found(
+        get_by_name_or_raise_if_not_found(
             team_participant_nomination_event_data.event_name
         )
-        self.__nomination_manager.raise_exception_if_not_found(
+        get_by_name(
             team_participant_nomination_event_data.nomination_name
         )
         self.__team_manager.raise_exception_if_not_found(
@@ -112,8 +112,8 @@ class TeamParticipantNominationEventService:
             team_participant_nomination_event_data.participant_email
         )
 
-        self.__event_manager.raise_exception_if_not_found(team_participant_nomination_event_data.event_name)
-        self.__nomination_manager.raise_exception_if_not_found(team_participant_nomination_event_data.nomination_name)
+        get_by_name_or_raise_if_not_found(team_participant_nomination_event_data.event_name)
+        get_by_name(team_participant_nomination_event_data.nomination_name)
         self.__nomination_event_manager.raise_exception_if_not_found(
             team_participant_nomination_event_data.nomination_name,
             team_participant_nomination_event_data.event_name,
@@ -158,8 +158,8 @@ class TeamParticipantNominationEventService:
             team_participant_nomination_event_data.participant_email
         )
 
-        self.__event_manager.raise_exception_if_not_found(team_participant_nomination_event_data.event_name)
-        self.__nomination_manager.raise_exception_if_not_found(team_participant_nomination_event_data.nomination_name)
+        get_by_name_or_raise_if_not_found(team_participant_nomination_event_data.event_name)
+        get_by_name(team_participant_nomination_event_data.nomination_name)
         self.__nomination_event_manager.raise_exception_if_not_found(
             team_participant_nomination_event_data.nomination_name,
             team_participant_nomination_event_data.event_name,

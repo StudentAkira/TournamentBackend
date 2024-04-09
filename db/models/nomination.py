@@ -17,6 +17,6 @@ class Nomination(Base):
 
     events: Mapped[list["Event"]] = relationship(
         "Event",
-        back_populates="nominations",
         secondary="nomination_event",
+        back_populates="nominations",
     )

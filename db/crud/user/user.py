@@ -37,8 +37,7 @@ def get_user_by_email_db(db: Session, email: str) -> type(User) | None:
     user_db = db.query(User).filter(
         cast("ColumnElement[bool]", User.email == email)
     ).first()
-    if user_db:
-        return user_db
+    return user_db
 
 
 def get_user_by_id_db(db: Session, user_id: int) -> type(User) | None:

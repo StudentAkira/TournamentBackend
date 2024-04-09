@@ -6,7 +6,6 @@ from sqlalchemy.orm import Session
 from db.models.participant import Participant
 from db.models.team import Team
 from db.schemas.participant.participant import ParticipantSchema
-from db.schemas.participant.participant_hide import ParticipantHideSchema
 from db.schemas.participant.participant_update import ParticipantUpdateSchema
 
 
@@ -43,19 +42,13 @@ def get_participants_by_owner_db(
     return participants
 
 
-def hide_participant_db(db: Session, participant_data: ParticipantHideSchema):
-    participant_db = db.query(Participant).filter(
-        cast("ColumnElement[bool]", Participant.email == participant_data.participant_email)
-    ).first()
+def hide_participant_db(db: Session, participant_db: type(Participant)):
     participant_db.hidden = True
     db.add(participant_db)
     db.commit()
 
 
-def update_participant_db(db: Session, participant_data: ParticipantUpdateSchema):
-    participant_db = db.query(Participant).filter(
-        cast("ColumnElement[bool]", Participant.email == participant_data.old_email)
-    ).first()
+def update_participant_db(db: Session, participant_db: type(Participant), participant_data: ParticipantUpdateSchema):
     team_db = db.query(Team).filter(
         cast("ColumnElement[bool]", Team.name == f"default_team_{participant_data.old_email}")
     ).first()

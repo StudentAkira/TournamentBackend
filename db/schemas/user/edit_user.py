@@ -1,6 +1,6 @@
 import re
 
-from pydantic import BaseModel, EmailStr, Field, validator
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 
 class EditUserSchema(BaseModel):
@@ -15,7 +15,7 @@ class EditUserSchema(BaseModel):
     class Config:
         from_attributes = True
 
-    @validator('phone')
+    @field_validator('phone')
     def validate_unique_phone_number(cls, value: str):
         if value is None:
             return value

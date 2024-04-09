@@ -1,7 +1,6 @@
 from starlette.responses import Response
 
 from db.schemas.nomination_event.nomination_event import NominationEventSchema
-from db.schemas.nomination_event.nomination_event_delete import NominationEventDeleteSchema
 from db.schemas.user.user_role import UserRole
 from managers.event import EventManager
 from managers.nomination import NominationManager
@@ -32,18 +31,20 @@ class NominationEventService:
     def get_nomination_event_pdf(self, response: Response, token: str, data: list[NominationEventSchema]):
         decoded_token = self.__token_manager.decode_token(token, response)
 
+        data_db = []
+
         for item in data:
-            self.__event_manager.raise_exception_if_not_found(item.event_name)
-            self.__nomination_manager.raise_exception_if_not_found(item.nomination_name)
-            self.__nomination_event_manager.raise_exception_if_not_found(
-                item.nomination_name,
-                item.event_name,
+            event_db = self.__event_manager.get_by_name_or_raise_if_not_found(item.event_name)
+            nomination_db = self.__nomination_manager.get_by_name_or_raise_exception_if_not_found(item.nomination_name)
+            nomination_event_db = self.__nomination_event_manager.get_nomination_event_or_raise_if_not_found(
+                nomination_db,
+                event_db,
                 item.type
             )
+            data_db.append((nomination_db, event_db, nomination_event_db))
+            self.__event_manager.raise_exception_if_owner_wrong(event_db, decoded_token.user_id)
 
-            self.__event_manager.raise_exception_if_owner_wrong(item.event_name, decoded_token.user_id)
-
-        return self.__nomination_event_manager.get_nomination_event_pdf(data)
+        return self.__nomination_event_manager.get_nomination_event_pdf(data_db)
 
     def list(self, response: Response, token: str, offset: int, limit: int):
         decoded_token = self.__token_manager.decode_token(token, response)
@@ -91,14 +92,18 @@ class NominationEventService:
     ):
         decoded_token = self.__token_manager.decode_token(token, response)
         self.__user_manager.raise_exception_if_user_specialist(decoded_token.role)
+        user_db = self.__user_manager.get_user_by_id_or_raise_if_not_found(decoded_token.user_id)
 
-        self.__event_manager.raise_exception_if_not_found(nomination_event_data.event_name)
-        self.__nomination_manager.raise_exception_if_not_found(nomination_event_data.nomination_name)
-
-        self.__nomination_event_manager.raise_exception_if_exists(
-            nomination_event_data
+        event_db = self.__event_manager.get_by_name_or_raise_if_not_found(nomination_event_data.event_name)
+        nomination_db = self.__nomination_manager.get_by_name_or_raise_exception_if_not_found(
+            nomination_event_data.nomination_name
         )
-        self.__nomination_event_manager.append(nomination_event_data, decoded_token.user_id)
+        self.__nomination_event_manager.raise_exception_if_exists(
+            event_db,
+            nomination_db,
+            nomination_event_data.type
+        )
+        self.__nomination_event_manager.append(nomination_db, event_db, user_db, nomination_event_data.type)
         return {"message": self.__nominations_appended_message}
 
     def get_nomination_event_data(
@@ -108,20 +113,14 @@ class NominationEventService:
             event_name: str
     ):
         self.__token_manager.decode_token(token, response)
-        self.__event_manager.raise_exception_if_not_found(event_name)
-        return self.__nomination_event_manager.get_nomination_event_data(event_name)
+        event_db = self.__event_manager.get_by_name_or_raise_if_not_found(event_name)
+        return self.__nomination_event_manager.get_nomination_event_data(event_db)
 
-    def delete(self, response: Response, token: str, nomination_event_data: NominationEventDeleteSchema):
-        decoded_token = self.__token_manager.decode_token(token, response)
-        self.__event_manager.raise_exception_if_not_found(nomination_event_data.event_name)
-        self.__nomination_manager.raise_exception_if_not_found(nomination_event_data.nomination_name)
-        self.__nomination_event_manager.raise_exception_if_not_found(
-            nomination_event_data.nomination_name,
-            nomination_event_data.event_name,
-            nomination_event_data.type
-        )
-        self.__event_manager.raise_exception_if_owner_wrong(nomination_event_data.event_name, decoded_token.user_id)
-        self.__nomination_event_manager.delete(nomination_event_data)
+    def delete(self, response: Response, token: str, nomination_event: NominationEventSchema):
+        decoded_token, event_db, nomination_db, nomination_event_db = \
+            self.get_decoded_token_event_nomination_nomination_event(response, token, nomination_event)
+        self.__event_manager.raise_exception_if_owner_wrong(event_db, decoded_token.user_id)
+        self.__nomination_event_manager.delete(nomination_event_db)
         return {"message": self.__nomination_event_deleted_message}
 
     def close_registration(
@@ -130,15 +129,10 @@ class NominationEventService:
             token: str,
             nomination_event: NominationEventSchema
     ):
-        decoded_token = self.__token_manager.decode_token(token, response)
-        self.__validator.validate_event_nomination__nomination_event_existence(
-            nomination_event.nomination_name,
-            nomination_event.event_name,
-            nomination_event.type
-        )
-        self.__event_manager.raise_exception_if_owner_wrong(nomination_event.event_name, decoded_token.user_id)
-        self.__nomination_event_manager.close_registration(nomination_event)
-        self.__nomination_event_manager.raise_exception_if_tournament_started(nomination_event)
+        decoded_token, event_db, nomination_db, nomination_event_db = \
+            self.get_decoded_token_event_nomination_nomination_event(response, token, nomination_event)
+        self.__event_manager.raise_exception_if_owner_wrong(event_db, decoded_token.user_id)
+        self.__nomination_event_manager.close_registration(nomination_event_db)
         return {"message": self.__registration_closed_message}
 
     def open_registration(
@@ -147,13 +141,27 @@ class NominationEventService:
             token: str,
             nomination_event: NominationEventSchema
     ):
+        decoded_token, event_db, nomination_db, nomination_event_db =\
+            self.get_decoded_token_event_nomination_nomination_event(response, token, nomination_event)
+        self.__event_manager.raise_exception_if_owner_wrong(event_db, decoded_token.user_id)
+        self.__nomination_event_manager.raise_exception_if_tournament_started(nomination_event_db)
+        self.__nomination_event_manager.open_registration(nomination_event_db)
+        return {"message": self.__registration_opened_message}
+
+    def get_decoded_token_event_nomination_nomination_event(
+        self,
+        response: Response,
+        token: str,
+        nomination_event: NominationEventSchema
+    ):
         decoded_token = self.__token_manager.decode_token(token, response)
-        self.__validator.validate_event_nomination__nomination_event_existence(
-            nomination_event.nomination_name,
-            nomination_event.event_name,
+        event_db = self.__event_manager.get_by_name_or_raise_if_not_found(nomination_event.event_name)
+        nomination_db = self.__nomination_manager.get_by_name_or_raise_exception_if_not_found(
+            nomination_event.nomination_name
+        )
+        nomination_event_db = self.__nomination_event_manager.get_nomination_event_or_raise_if_not_found(
+            nomination_db,
+            event_db,
             nomination_event.type
         )
-        self.__event_manager.raise_exception_if_owner_wrong(nomination_event.event_name, decoded_token.user_id)
-        self.__nomination_event_manager.raise_exception_if_tournament_started(nomination_event)
-        self.__nomination_event_manager.open_registration(nomination_event)
-        return {"message": self.__registration_opened_message}
+        return decoded_token, event_db, nomination_db, nomination_event_db

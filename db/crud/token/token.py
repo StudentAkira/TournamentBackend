@@ -17,14 +17,8 @@ def save_token_db(db: Session, token: str, user_id: int) -> TokenDatabaseSchema:
     return token_db
 
 
-def delete_token_db(db: Session, token: str):
-    db_token = db.query(Token).filter(
-        cast("ColumnElement[bool]", Token.token == token)
-    ).first()
-    if db_token:
-        db.query(Token).filter(
-            cast("ColumnElement[bool]", Token.token == token)
-        ).delete()
+def delete_token_db(db: Session, token_db: type(Token)):
+    db.delete(token_db)
     db.commit()
 
 

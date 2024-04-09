@@ -1,9 +1,10 @@
 from typing import cast
 
+from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
-from db.crud.event.event import get_event_by_name_db, get_events_data, get_all_events_by_owner_db, get_all_events_db
-from db.crud.nomination.nomination import get_all_nominations_db, create_nominations_missing_in_db, get_nomination_by_name_db
+from db.crud.event.event import get_events_data, get_all_events_by_owner_db, get_all_events_db
+from db.crud.nomination.nomination import get_all_nominations_db
 from db.models.event import Event
 from db.models.group import Group
 from db.models.group_team import GroupTeam
@@ -16,29 +17,21 @@ from db.models.team import Team
 from db.models.team_participant import TeamParticipant
 from db.models.team_participant_nomination_event import TeamParticipantNominationEvent
 from db.models.user import User
-from sqlalchemy import and_
-
-from db.schemas.event.event_get_name import EventGetNameSchema
 from db.schemas.event.event_list import EventListSchema
-from db.schemas.nomination.nomination import NominationSchema
 from db.schemas.nomination_event.nomination_event import NominationEventSchema
-from db.schemas.nomination_event.nomination_event_delete import NominationEventDeleteSchema
 from db.schemas.nomination_event.nomination_event_full_info_schema import NominationEventFullInfoSchema
 from db.schemas.nomination_event.nomination_event_participant_count import NominationEventParticipantCountSchema
 from db.schemas.nomination_event.nomination_event_pdf import NominationEventPDFSchema
 from db.schemas.nomination_event.nomination_event_type import NominationEventType
-from db.schemas.nomination_event.olympyc_nomination_event import OlympycNominationEventSchema
 from db.schemas.participant.participant_pdf import ParticipantPDFSchema
 from db.schemas.team_participant.team_participant import TeamParticipantsSchema
 
 
 def get_nominations_event_participant_count_db(
         db: Session,
-        event_name: str
+        event_db: type(Event)
 ) -> list[NominationEventParticipantCountSchema]:
-    event_db = db.query(Event).filter(
-        cast("ColumnElement[bool]", Event.name == event_name)
-    ).first()
+
     nomination_events_db = db.query(NominationEvent).\
         filter(
         cast("ColumnElement[bool]", NominationEvent.event_id == event_db.id)
@@ -63,38 +56,23 @@ def get_nominations_event_participant_count_db(
     return result
 
 
-def append_nomination_for_event_db(
+def append_event_nomination_db(
         db: Session,
-        nomination_event_data: NominationEventSchema,
-        owner_id: int
+        nomination_db: type(Nomination),
+        event_db: type(Event),
+        user_db: type(User),
+        type_: NominationEventType
 ):
-    user_db = db.query(User).filter(cast("ColumnElement[bool]", User.id == owner_id)).first()
-    nomination_db = get_nomination_by_name_db(db, nomination_event_data.nomination_name)
-    event_db = get_event_by_name_db(db, nomination_event_data.event_name)
     nomination_event_db = NominationEvent(
         event_id=event_db.id,
         nomination_id=nomination_db.id,
         registration_finished=False,
-        type=nomination_event_data.type
+        type=type_
     )
     nomination_event_db.judges.append(user_db)
     db.add(nomination_event_db)
     db.commit()
     db.refresh(event_db)
-
-
-def append_event_nominations_db(
-        db: Session,
-        event: EventGetNameSchema,
-        nominations: list[NominationSchema]
-) -> type(Event):
-    nominations_db = create_nominations_missing_in_db(db, nominations)
-    event_db = get_event_by_name_db(db, event.name)
-    event_db.nominations.extend(set(nominations_db) - set(event_db.nominations))
-    db.add(event_db)
-    db.commit()
-    db.refresh(event_db)
-    return event_db
 
 
 def get_list_events_list_nominations_db(db: Session) -> list[EventListSchema]:
@@ -109,22 +87,15 @@ def get_list_events_list_nominations_by_owner_db(db: Session, owner_id: int):
 
 def get_nomination_event_db(
         db: Session,
-        nomination_name: str,
-        event_name: str,
-        nomination_event_type: str
+        nomination_db: type(Nomination),
+        event_db: type(Event),
+        type_: NominationEventType
 ) -> type(NominationEvent) | None:
-    event_db = db.query(Event).filter(
-        cast("ColumnElement[bool]", Event.name == event_name)
-    ).first()
-    nomination_db = db.query(Nomination).filter(
-        cast("ColumnElement[bool]", Nomination.name == nomination_name)
-    ).first()
-
     nomination_event_db = db.query(NominationEvent). \
         filter(and_(
             NominationEvent.event_id == event_db.id,
             NominationEvent.nomination_id == nomination_db.id,
-            NominationEvent.type == nomination_event_type
+            NominationEvent.type == type_
         )
     ).first()
     return nomination_event_db
@@ -237,17 +208,7 @@ def get_nomination_events_names_db(
     return nomination_events
 
 
-def delete_nomination_event_db(db: Session, nomination_event_data: NominationEventDeleteSchema):
-    event_db = get_event_by_name_db(db, nomination_event_data.event_name)
-    nomination_db = get_nomination_by_name_db(db, nomination_event_data.nomination_name)
-    nomination_event_db = db.query(NominationEvent).\
-        filter(
-            and_(
-                NominationEvent.event_id == event_db.id,
-                NominationEvent.nomination_id == nomination_db.id,
-                NominationEvent.type == nomination_event_data.type
-            )
-    ).first()
+def delete_nomination_event_db(db: Session, nomination_event_db: type(NominationEvent)):
 
     judges_ids = set(judge_db.id for judge_db in nomination_event_db.judges)
 
@@ -268,42 +229,25 @@ def delete_nomination_event_db(db: Session, nomination_event_data: NominationEve
 
     db.query(TeamParticipantNominationEvent).\
         filter(TeamParticipantNominationEvent.nomination_event_id == nomination_event_db.id).delete()
-    db.query(NominationEvent). \
-        filter(
-        and_(
-            NominationEvent.event_id == event_db.id,
-            NominationEvent.nomination_id == nomination_db.id,
-            NominationEvent.type == nomination_event_data.type
-        )
-    ).delete()
+    db.commit()
+    db.delete(nomination_event_db)
     db.commit()
 
 
-def get_nomination_event_pdf_data_db(db: Session, data: list[NominationEventSchema]):
+def get_nomination_event_pdf_data_db(db: Session, data: list[type(Nomination), type(Event), type(NominationEvent)]):
 
     pdf_data = []
 
     for i, item in enumerate(data):
         pdf_data.append(NominationEventPDFSchema(
-                nomination_name=item.nomination_name,
-                event_name=item.event_name,
-                type=item.type,
+                nomination_name=item[0].name,
+                event_name=item[1].name,
+                type=item[2].type,
                 participants=[]
-
             )
         )
-
-        event_db = db.query(Event).filter(cast("ColumnElement[bool]", Event.name == item.event_name)).first()
-        nomination_db = db.query(Nomination).filter(cast("ColumnElement[bool]", Nomination.name == item.nomination_name)).first()
-        nomination_event_db = db.query(NominationEvent).filter(
-            and_(
-               NominationEvent.event_id == event_db.id,
-               NominationEvent.nomination_id == nomination_db.id,
-               NominationEvent.type == item.type
-            )
-        ).first()
         team_participants_nominations_event_db = db.query(TeamParticipantNominationEvent).filter(
-            TeamParticipantNominationEvent.nomination_event_id == nomination_event_db.id
+            TeamParticipantNominationEvent.nomination_event_id == item[2].id
         ).all()
 
         team_participant_id_software = {}
@@ -350,97 +294,17 @@ def get_nomination_event_pdf_data_db(db: Session, data: list[NominationEventSche
     return pdf_data
 
 
-def close_registration_nomination_event_db(db: Session, nomination_event_data: NominationEventSchema):
-    event_db = db.query(Event).filter(
-        cast("ColumnElement[bool]", Event.name == nomination_event_data.event_name)
-    ).first()
-    nomination_db = db.query(Nomination).filter(
-        cast("ColumnElement[bool]", Nomination.name == nomination_event_data.nomination_name)
-    ).first()
-    nomination_event_db = db.query(NominationEvent).filter(
-        and_(
-            NominationEvent.event_id == event_db.id,
-            NominationEvent.nomination_id == nomination_db.id,
-            NominationEvent.type == nomination_event_data.type
-        )
-    ).first()
-
+def close_registration_nomination_event_db(db: Session, nomination_event_db):
     nomination_event_db.registration_finished = True
     db.add(nomination_event_db)
     db.commit()
 
 
-def open_registration_nomination_event_db(db: Session, nomination_event_data: NominationEventSchema):
-    event_db = db.query(Event).filter(cast("ColumnElement[bool]", Event.name == nomination_event_data.event_name)).first()
-    nomination_db = db.query(Nomination).filter(cast("ColumnElement[bool]", Nomination.name == nomination_event_data.nomination_name)).first()
-    nomination_event_db = db.query(NominationEvent).filter(
-        and_(
-            NominationEvent.event_id == event_db.id,
-            NominationEvent.nomination_id == nomination_db.id,
-            NominationEvent.type == nomination_event_data.type
-        )
-    ).first()
-
+def open_registration_nomination_event_db(db: Session, nomination_event_db: type(NominationEvent)):
     nomination_event_db.registration_finished = False
     db.add(nomination_event_db)
     db.commit()
 
 
-def is_tournament_started_db(db: Session, nomination_event: NominationEventSchema):
-    event_db = db.query(Event).filter(
-        cast("ColumnElement[bool]", Event.name == nomination_event.event_name)).first()
-    nomination_db = db.query(Nomination).filter(
-        cast("ColumnElement[bool]", Nomination.name == nomination_event.nomination_name)).first()
-    nomination_event_db = db.query(NominationEvent).filter(
-        and_(
-            NominationEvent.event_id == event_db.id,
-            NominationEvent.nomination_id == nomination_db.id,
-            NominationEvent.type == nomination_event.type
-        )
-    ).first()
-    return nomination_event_db.tournament_started
-
-
-def get_judge_command_ids_db(db: Session, nomination_name: str, event_name: str, nomination_event_type: str):
-    event_db = db.query(Event).filter(
-        cast("ColumnElement[bool]", Event.name == event_name)).first()
-    nomination_db = db.query(Nomination).filter(
-        cast("ColumnElement[bool]", Nomination.name == nomination_name)).first()
-    nomination_event_db = db.query(NominationEvent).filter(
-        and_(
-            NominationEvent.event_id == event_db.id,
-            NominationEvent.nomination_id == nomination_db.id,
-            NominationEvent.type == nomination_event_type
-        )
-    ).first()
+def get_judge_command_ids_db(db: Session, nomination_event_db: type(NominationEvent)):#todo
     return set(judge_db.id for judge_db in nomination_event_db.judges).union({event_db.owner_id})
-
-
-def is_group_stage_finished_db(db: Session, nomination_event: OlympycNominationEventSchema):
-    event_db = db.query(Event).filter(
-        cast("ColumnElement[bool]", Event.name == nomination_event.event_name)).first()
-    nomination_db = db.query(Nomination).filter(
-        cast("ColumnElement[bool]", Nomination.name == nomination_event.nomination_name)).first()
-    nomination_event_db = db.query(NominationEvent).filter(
-        and_(
-            NominationEvent.event_id == event_db.id,
-            NominationEvent.nomination_id == nomination_db.id,
-            NominationEvent.type == NominationEventType.olympyc
-        )
-    ).first()
-    return nomination_event_db.group_stage_finished
-
-
-def is_play_off_stage_finished_db(db: Session, nomination_event: OlympycNominationEventSchema):
-    event_db = db.query(Event).filter(
-        cast("ColumnElement[bool]", Event.name == nomination_event.event_name)).first()
-    nomination_db = db.query(Nomination).filter(
-        cast("ColumnElement[bool]", Nomination.name == nomination_event.nomination_name)).first()
-    nomination_event_db = db.query(NominationEvent).filter(
-        and_(
-            NominationEvent.event_id == event_db.id,
-            NominationEvent.nomination_id == nomination_db.id,
-            NominationEvent.type == NominationEventType.olympyc
-        )
-    ).first()
-    return nomination_event_db.play_off_stage_finished

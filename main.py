@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from config import Settings
+from config import get_settings
 from db import database
 
 from routes.auth.auth import auth
@@ -19,7 +19,7 @@ from routes.tournaments.tournaments import tournaments
 from routes.user.users import users
 
 
-settings = Settings()
+settings = get_settings()
 
 
 app = FastAPI()

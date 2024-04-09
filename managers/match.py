@@ -7,7 +7,7 @@ from starlette import status
 
 from db.crud.match.match import get_group_matches_db, set_group_match_result_db, get_bracket_matches_db, \
     set_bracket_match_result_db, is_match_related_to_nomination_event_db, is_winner_exists_in_bracket_match_db, \
-    is_prev_match_was_judged_db
+    is_prev_match_was_judged_db, get_match_by_id
 from db.models.match import Match
 from db.models.team import Team
 from db.schemas.match.set_match_result_schema import SetMatchResultSchema
@@ -29,6 +29,15 @@ class MatchManager:
         self.__wrong_match_data_error = "wrong match data"
         self.__play_off_matches_cannot_result_draw = "play off match cannot be draw"
         self.__prev_matches_not_finished = "prev matches not finished"
+
+    def get_group_match_or_raise_if_not_found(self, match_id: int) -> type(Match):
+        match_db = get_match_by_id(self.__db, match_id)
+        if not match_db:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={"error": self.__match_not_found_error}
+            )
+        return match_db
 
     def get_group_matches(self, nomination_event: OlympycNominationEventSchema):
         data = get_group_matches_db(self.__db, nomination_event)
@@ -52,20 +61,7 @@ class MatchManager:
                 detail={"error": self.__match_not_related_to_group_error}
             )
 
-    def raise_exception_if_not_found(self, match_id: int):
-        entity_exists = self.__db.query(
-            exists(
 
-            ).where(
-                cast("ColumnElement[bool]", Match.id == match_id)
-            )
-        ).scalar()
-
-        if not entity_exists:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail={"error": self.__match_not_found_error}
-            )
 
     def raise_exception_if_winner_not_in_match(self, match_id: int, winner_team_name: str):
 

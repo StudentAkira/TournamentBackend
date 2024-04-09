@@ -24,13 +24,27 @@ class ParticipantManager:
         self.__participant_not_found_error = "participant does not exist"
         self.__wrong_participant_owner_error = "participant does not belongs to owner"
 
+    def get_by_email_or_raise_if_not_found(self, email: EmailStr):
+        participant_db = get_participant_by_email_db(self.__db, email)
+        if not participant_db:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={"error": self.__participant_not_found_error}
+            )
+        return participant_db
+
     def list_by_owner(self, offset: int, limit: int, user_id: int) -> list[ParticipantSchema]:
         participants_db = get_participants_by_owner_db(self.__db, offset, limit, user_id)
         participants = [ParticipantSchema.from_orm(participant_db) for participant_db in participants_db]
         return participants
 
     def create(self, participant: ParticipantSchema, creator_id):
-        self.raise_exception_if_email_taken(participant.email)
+        participant_db = get_participant_by_email_db(self.__db,participant.email)
+        if participant_db:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail={"error": self.__email_taken_error}
+            )
         create_participant_db(self.__db, participant, creator_id)
 
     def read_by_email(self, email: EmailStr) -> ParticipantSchema | None:
@@ -38,39 +52,22 @@ class ParticipantManager:
         if participant_db:
             return ParticipantSchema.from_orm(participant_db)
 
-    def hide(self, participant_data: ParticipantHideSchema):
-        hide_participant_db(self.__db, participant_data)
+    def hide(self, participant_db: type(Participant)):
+        hide_participant_db(self.__db, participant_db)
 
-    def update(self, participant_data: ParticipantUpdateSchema):
-        update_participant_db(self.__db, participant_data)
+    def update(self, participant_db: type(Participant), participant_data: ParticipantUpdateSchema):
+        update_participant_db(self.__db, participant_db, participant_data)
 
-    def raise_exception_if_email_taken(self, email: EmailStr):
-        entity_exists = self.__db.query(
-            exists().where(cast("ColumnElement[bool]", Participant.email == email))).scalar()
-        if entity_exists:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail={"error": self.__email_taken_error}
-            )
-
-    def raise_exception_if_owner_wrong(self, participant_email: EmailStr, creator_id: int):
-        participant_db = get_participant_by_email_db(self.__db, participant_email)
+    def raise_exception_if_owner_wrong(self, participant_db: type(Participant), creator_id: int):
         if participant_db.creator_id != creator_id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail={"error": self.__wrong_participant_owner_error}
             )
 
-    def raise_exception_if_not_found(self, email: EmailStr):
-        entity_exists = self.__db.query(
-            exists().where(
-                cast("ColumnElement[bool]", Participant.email == email)
-            ).where(
-                cast("ColumnElement[bool]", Participant.hidden == "f")
-            )
-        ).scalar()
-        if not entity_exists:
+    def raise_exception_if_email_taken(self, participant_db: type(Participant)):
+        if participant_db:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail={"error": self.__participant_not_found_error}
+                status_code=status.HTTP_409_CONFLICT,
+                detail={"error": self.__email_taken_error}
             )

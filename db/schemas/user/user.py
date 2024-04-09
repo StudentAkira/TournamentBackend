@@ -1,6 +1,6 @@
 import re
 
-from pydantic import BaseModel, EmailStr, validator
+from pydantic import BaseModel, EmailStr, validator, field_validator
 
 from db.schemas.user.user_role import UserRole
 
@@ -17,7 +17,7 @@ class UserSchema(BaseModel):
     class Config:
         from_attributes = True
 
-    @validator('phone')
+    @field_validator('phone')
     def validate_unique_phone_number(cls, value: str):
         pattern = re.compile(r'^\+\d{3}-\d{2}-\d{3}-\d{2}-\d{2}$')
         if pattern.match(value) is not None:

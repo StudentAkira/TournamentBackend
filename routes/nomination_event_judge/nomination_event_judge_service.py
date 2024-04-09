@@ -49,7 +49,7 @@ class NominationEventJudgeService:
         )
         self.__user_manager.raise_exception_if_user_not_found(nomination_event_judge_data)
         self.__user_manager.raise_exception_if_user_specialist(nomination_event_judge_data.email)
-        judge = self.__user_manager.get_user_by_email(nomination_event_judge_data.email)
+        judge = self.__user_manager.get_user_by_email_or_raise_if_not_found(nomination_event_judge_data.email)
         self.__user_manager.raise_exception_if_user_specialist(judge.role)
         self.__nomination_event_manager.raise_exception_if_registration_finished(
             nomination_event_judge_data.nomination_name,

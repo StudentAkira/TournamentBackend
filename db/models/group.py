@@ -1,10 +1,9 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Column, Integer, ForeignKey, String
-from sqlalchemy.orm import Mapped, relationship, mapped_column
+from sqlalchemy import Column, Integer, ForeignKey
+from sqlalchemy.orm import Mapped, relationship
 
 from db.database import Base
-
 
 if TYPE_CHECKING:
     from db.models.nomination_event import NominationEvent

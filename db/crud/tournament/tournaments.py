@@ -171,7 +171,6 @@ def finish_play_off_stage_db(db: Session, nomination_event: OlympycNominationEve
     db.commit()
 
 
-
 def start_play_off_tournament_db(db: Session, nomination_event: OlympycNominationEventSchema, teams: list[TeamSchema]):
     event_db = db.query(Event).filter(
         cast("ColumnElement[bool]", Event.name == nomination_event.event_name)).first()
@@ -208,7 +207,8 @@ def start_play_off_tournament_db(db: Session, nomination_event: OlympycNominatio
     teams_to_create_matches = sorted(
         [
             (k, team_score[k])
-            for k in team_score.keys() if k in received_team_ids],
+            for k in team_score.keys() if k in received_team_ids
+        ],
         key=lambda item: item[1],
         reverse=True
     )

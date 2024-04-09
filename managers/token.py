@@ -8,9 +8,13 @@ from sqlalchemy.orm import Session
 from starlette import status
 from starlette.responses import Response
 
-from config import settings
+from config import get_settings
 from db.crud.token.token import save_token_db, delete_token_db, get_token_db
+from db.models.token import Token
 from db.schemas.token.token_decoded import TokenDecodedSchema
+
+
+settings = get_settings()
 
 
 class TokenManager:
@@ -30,12 +34,18 @@ class TokenManager:
     def save_token_db(self, token: str, user_id: int):
         save_token_db(self.__db, token, user_id)
 
-    def delete_token_from_db(self, token: str):
-        delete_token_db(self.__db, token)
+    def delete_token_from_db(self, token_db: type(Token)):
+        delete_token_db(self.__db, token_db)
 
-    def check_if_token_exists_in_db(self, token: str):
-        db_token = get_token_db(self.__db, token)
-        self.raise_exception_if_token_not_found(db_token)
+    def get_or_raise_if_not_found(self, token: str, headers: dict):
+        token_db = get_token_db(self.__db, token)
+        if not token_db:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={"error": self.__token_not_found_error},
+                headers=headers
+            )
+        return token_db
 
     def generate_token(self, user_id: int, role: str) -> str:
         to_encode = {
@@ -61,29 +71,23 @@ class TokenManager:
             response.delete_cookie(key="token")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail={"error": self.__token_signature_error}
+                detail={"error": self.__token_signature_error},
+                headers={'set-cookie': response.headers["set-cookie"]}
             )
         except DecodeError:
             response.delete_cookie(key="token")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail={"error": self.__invalid_token_error}
+                detail={"error": self.__invalid_token_error},
+                headers={'set-cookie': response.headers["set-cookie"]}
             )
         except jwt.ExpiredSignatureError:
             response.delete_cookie(key="token")
             delete_token_db(self.__db, token)
-            headers = {"set-cookie": response.headers["set-cookie"]}
             raise HTTPException(
-                headers=headers,
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail={"error": self.__token_expired_error}
+                detail={"error": self.__token_expired_error},
+                headers={'set-cookie': response.headers["set-cookie"]}
             )
         decoded = TokenDecodedSchema(**decoded)
         return decoded
-
-    def raise_exception_if_token_not_found(self, token):
-        if not token:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail={"error": self.__token_not_found_error}
-            )

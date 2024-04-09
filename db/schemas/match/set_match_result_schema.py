@@ -1,4 +1,4 @@
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, validator, field_validator
 
 from db.schemas.nomination_event.olympyc_nomination_event import OlympycNominationEventSchema
 
@@ -9,7 +9,7 @@ class SetMatchResultSchema(BaseModel):
     match_id: int
     winner_team_name: str | None = None
 
-    @validator('winner_team_name')
+    @field_validator('winner_team_name')
     def validate_winner_team_name(cls, value: str | None):
         if value is None:
             return value

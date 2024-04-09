@@ -1,5 +1,6 @@
 from starlette.responses import Response
 
+from db.crud.participant.participant import get_participant_by_email_db
 from db.schemas.participant.participant import ParticipantSchema
 from db.schemas.participant.participant_hide import ParticipantHideSchema
 from db.schemas.participant.participant_update import ParticipantUpdateSchema
@@ -42,17 +43,21 @@ class ParticipantsService:
 
     def hide(self, response: Response, token: str, participant_data: ParticipantHideSchema):
         decoded_token = self.__token_manager.decode_token(token, response)
-        self.__participant_manager.raise_exception_if_not_found(participant_data.participant_email)
-        self.__participant_manager.raise_exception_if_owner_wrong(
-            participant_data.participant_email, decoded_token.user_id
+        participant_db = self.__participant_manager.get_by_email_or_raise_if_not_found(
+            participant_data.participant_email
         )
-        self.__participant_manager.hide(participant_data)
+        self.__participant_manager.raise_exception_if_owner_wrong(
+            participant_db, decoded_token.user_id
+        )
+        self.__participant_manager.hide(participant_db)
         return {"message": self.__participant_hidden_message}
 
     def update(self, response: Response, token: str, participant_data: ParticipantUpdateSchema):
         decoded_token = self.__token_manager.decode_token(token, response)
-        self.__participant_manager.raise_exception_if_not_found(participant_data.old_email)
-        self.__participant_manager.raise_exception_if_email_taken(participant_data.new_email)
-        self.__participant_manager.raise_exception_if_owner_wrong(participant_data.old_email, decoded_token.user_id)
-        self.__participant_manager.update(participant_data)
+        participant_db = self.__participant_manager.get_by_email_or_raise_if_not_found(participant_data.old_email)
+        existing_participant_db = get_participant_by_email_db(self.__db, participant_data.new_email)
+        self.__participant_manager.raise_exception_if_email_taken(existing_participant_db)
+
+        self.__participant_manager.raise_exception_if_owner_wrong(participant_db, decoded_token.user_id)
+        self.__participant_manager.update(participant_db, participant_data)
         return {"message": self.__participant_updated_message}

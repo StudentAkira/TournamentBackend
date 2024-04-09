@@ -64,7 +64,7 @@ async def append_nomination_for_event(
 @nomination_event.delete("/delete_nomination_from_event")
 async def delete_nomination_from_event(
     response: Response,
-    nomination_event_data: NominationEventDeleteSchema,
+    nomination_event_data: NominationEventSchema,
     token: str = Depends(authorized_only),
     db: Session = Depends(get_db)
 ):

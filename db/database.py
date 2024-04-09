@@ -1,7 +1,8 @@
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-from config import settings
+from sqlalchemy.orm import sessionmaker, declarative_base
+from config import get_settings
+
+settings = get_settings()
 
 SQLALCHEMY_DATABASE_URL = f"{settings.db}://{settings.db_user}:{settings.db_password}@{settings.db_host}/{settings.db_name}"
 

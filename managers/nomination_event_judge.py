@@ -48,7 +48,7 @@ class NominationEventJudgeManager:
             self.__db,
             GenNominationEventJudgeSchema(**nomination_event_judge_data.model_dump())
         )
-        judge = self.__user_manager.get_user_by_email(nomination_event_judge_data.email)
+        judge = self.__user_manager.get_user_by_email_or_raise_if_not_found(nomination_event_judge_data.email)
 
         if judge.email not in set(judge.email for judge in judges):
             raise HTTPException(
