@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from db.models.participant import Participant
     from db.models.group import Group
     from db.models.bracket import Bracket
+    from db.models.race_round import RaceRound
 
 
 class Team(Base):
@@ -40,3 +41,5 @@ class Team(Base):
         back_populates="teams",
         secondary="bracket_team"
     )
+
+    race_rounds: Mapped[list["RaceRound"]] = relationship("RaceRound", back_populates="team")

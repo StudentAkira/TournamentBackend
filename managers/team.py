@@ -107,3 +107,4 @@ class TeamManager:
                 status_code=status.HTTP_409_CONFLICT,
                 detail={"error": self.__default_team_error}
             )
+

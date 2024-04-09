@@ -11,6 +11,7 @@ from routes.nomination_event.nomination_event import nomination_event
 from routes.nomination.nomination import nominations
 from routes.nomination_event_judge.nomination_event_judge import nomination_event_judge
 from routes.participant.participants import participants
+from routes.race_round.race_round import race_rounds
 from routes.team.teams import teams
 from routes.team_nomination_event.team_nomination_event import team_nomination_event
 from routes.team_participant.team_participant import team_participant
@@ -30,6 +31,7 @@ from db.models.bracket import Bracket
 from db.models.group_team import GroupTeam
 from db.models.bracket_team import BracketTeam
 from db.models.match import Match
+from db.models.race_round import RaceRound
 
 
 database.Base.metadata.create_all(bind=database.engine)
@@ -68,3 +70,4 @@ app.include_router(nomination_event_judge)
 app.include_router(tournaments)
 app.include_router(nomination_event)
 app.include_router(match)
+app.include_router(race_rounds)

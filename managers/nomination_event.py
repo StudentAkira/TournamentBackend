@@ -48,6 +48,7 @@ class NominationEventManager:
         self.__registration_finished_error = "registration finished"
         self.__participant_already_in_nomination_event = "participant already in nomination event"
         self.__user_not_in_judge_command_error = "user not in judge command"
+        self.__invalid_race_round_length = "race round length should be at least 1"
 
     def get_nomination_event_pdf(self, data: list[type(Event), type(Nomination), type(NominationEvent)]):
 
@@ -113,7 +114,7 @@ class NominationEventManager:
             event_db: type(Event),
             type_: NominationEventType
     ):
-        nomination_event_db = get_nomination_event_db(self.__db, nomination_db, event_db,  type_)
+        nomination_event_db = get_nomination_event_db(self.__db, nomination_db, event_db, type_)
         if not nomination_event_db:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -145,8 +146,14 @@ class NominationEventManager:
         nominations_events = get_nomination_events_full_info_by_owner_db(self.__db, offset, limit, owner_id)
         return nominations_events
 
-    def append(self,  nomination_db: type(Nomination), event_db: type(Event), user_db, type_: NominationEventType):
-        append_event_nomination_db(self.__db, nomination_db, event_db, user_db, type_)
+    def append(
+            self,
+            nomination_db: type(Nomination),
+            event_db: type(Event),
+            user_db,
+            nomination_event: NominationEventSchema
+    ):
+        append_event_nomination_db(self.__db, nomination_db, event_db, user_db, nomination_event)
 
     def delete(self, nomination_event_db: type(NominationEvent)):
         delete_nomination_event_db(self.__db, nomination_event_db)
@@ -237,13 +244,19 @@ class NominationEventManager:
 
     def raise_exception_if_user_not_in_judge_command(
             self,
-            event_db: type(Event),
             nomination_event_db: type(NominationEvent),
             user_db: type(User)
     ):
-        judge_command_ids = get_judge_command_ids_db(event_db.owner_id, nomination_event_db)
+        judge_command_ids = get_judge_command_ids_db(nomination_event_db)
         if user_db.id not in judge_command_ids:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail={"error": self.__user_not_in_judge_command_error}
+            )
+
+    def raise_exception_if_nomination_event_time_race_round_length_invalid(self, race_round_length: int):
+        if race_round_length is None or race_round_length <= 0:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail={"error": self.__invalid_race_round_length}
             )

@@ -5,10 +5,9 @@ from sqlalchemy.orm import mapped_column, Mapped, relationship
 
 from db.database import Base
 
-
 if TYPE_CHECKING:
     from db.models.nomination_event import NominationEvent
-    from db.models.match import Match
+    from db.models.race_round import RaceRound
 
 
 class TeamParticipant(Base):

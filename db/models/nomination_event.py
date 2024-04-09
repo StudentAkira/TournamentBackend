@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from db.models.user import User
     from db.models.group import Group
     from db.models.bracket import Bracket
+    from db.models.race_round import RaceRound
 
 
 class NominationEvent(Base):
@@ -27,6 +28,8 @@ class NominationEvent(Base):
 
     group_stage_finished: bool = Column(Boolean, nullable=False, default=False)
     play_off_stage_finished: bool = Column(Boolean, nullable=False, default=False)
+
+    race_round_length: int = Column(Integer, nullable=False, default=3)
 
     groups: Mapped[list["Group"]] = relationship(
         "Group",
@@ -48,5 +51,7 @@ class NominationEvent(Base):
         back_populates="nomination_events",
         secondary="team_participant_nomination_event",
     )
+
+    race_rounds: Mapped[list["RaceRound"]] = relationship("RaceRound", back_populates="nomination_event")
 
     __table_args__ = (UniqueConstraint('event_id', 'nomination_id', 'type', name='_event_id__nomination_id__type'),)

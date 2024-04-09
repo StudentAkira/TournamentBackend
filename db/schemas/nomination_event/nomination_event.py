@@ -6,3 +6,4 @@ class NominationEventSchema(BaseModel):
     event_name: str
     nomination_name: str
     type: NominationEventType
+    race_round_length: int | None = None

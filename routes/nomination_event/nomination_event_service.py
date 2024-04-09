@@ -1,6 +1,7 @@
 from starlette.responses import Response
 
 from db.schemas.nomination_event.nomination_event import NominationEventSchema
+from db.schemas.nomination_event.nomination_event_type import NominationEventType
 from db.schemas.user.user_role import UserRole
 from managers.event import EventManager
 from managers.nomination import NominationManager
@@ -88,22 +89,27 @@ class NominationEventService:
             self,
             response: Response,
             token: str,
-            nomination_event_data: NominationEventSchema
+            nomination_event: NominationEventSchema
     ):
         decoded_token = self.__token_manager.decode_token(token, response)
         self.__user_manager.raise_exception_if_user_specialist(decoded_token.role)
         user_db = self.__user_manager.get_user_by_id_or_raise_if_not_found(decoded_token.user_id)
 
-        event_db = self.__event_manager.get_by_name_or_raise_if_not_found(nomination_event_data.event_name)
+        event_db = self.__event_manager.get_by_name_or_raise_if_not_found(nomination_event.event_name)
         nomination_db = self.__nomination_manager.get_by_name_or_raise_exception_if_not_found(
-            nomination_event_data.nomination_name
+            nomination_event.nomination_name
         )
         self.__nomination_event_manager.raise_exception_if_exists(
             event_db,
             nomination_db,
-            nomination_event_data.type
+            nomination_event.type
         )
-        self.__nomination_event_manager.append(nomination_db, event_db, user_db, nomination_event_data.type)
+        if nomination_event.type == NominationEventType.time:
+            self.__nomination_event_manager.raise_exception_if_nomination_event_time_race_round_length_invalid(
+                nomination_event.race_round_length
+            )
+        self.__event_manager.raise_exception_if_owner_wrong(event_db, user_db.id)
+        self.__nomination_event_manager.append(nomination_db, event_db, user_db, nomination_event)
         return {"message": self.__nominations_appended_message}
 
     def get_nomination_event_data(

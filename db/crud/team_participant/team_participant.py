@@ -1,7 +1,19 @@
+from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
 from db.models.participant import Participant
 from db.models.team import Team
+from db.models.team_participant import TeamParticipant
+
+
+def get_team_participant_db(db: Session, team_db: type(Team), participant_db: type(Participant)):
+    team_participant_db = db.query(TeamParticipant).filter(
+        and_(
+            TeamParticipant.team_id == team_db.id,
+            TeamParticipant.participant_id == participant_db.id
+        )
+    ).first()
+    return team_participant_db
 
 
 def get_emails_of_teams_participants_db(teams: list[type(Team)]) -> list[str]:

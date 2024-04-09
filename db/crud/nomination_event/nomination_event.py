@@ -60,13 +60,14 @@ def append_event_nomination_db(
         nomination_db: type(Nomination),
         event_db: type(Event),
         user_db: type(User),
-        type_: NominationEventType
+        nomination_event: NominationEventSchema
 ):
     nomination_event_db = NominationEvent(
         event_id=event_db.id,
         nomination_id=nomination_db.id,
         registration_finished=False,
-        type=type_
+        type=nomination_event.type,
+        race_round_length=nomination_event.race_round_length if nomination_event.race_round_length else None
     )
     nomination_event_db.judges.append(user_db)
     db.add(nomination_event_db)
@@ -295,5 +296,5 @@ def open_registration_nomination_event_db(db: Session, nomination_event_db: type
     db.commit()
 
 
-def get_judge_command_ids_db(event_owner_id: int, nomination_event_db: type(NominationEvent)):
-    return set(judge_db.id for judge_db in nomination_event_db.judges).union({event_owner_id})
+def get_judge_command_ids_db(nomination_event_db: type(NominationEvent)):
+    return set(judge_db.id for judge_db in nomination_event_db.judges)

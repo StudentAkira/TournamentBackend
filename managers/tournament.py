@@ -8,8 +8,6 @@ from db.crud.tournament.tournaments import get_groups_of_tournament_db, get_coun
     is_all_matches_finished_db, \
     finish_group_stage_db, start_play_off_tournament_db, finish_play_off_stage_db, start_group_stage_db
 from db.models.nomination_event import NominationEvent
-from db.schemas.group_tournament.start_group_tournament import StartGroupTournamentSchema
-from db.schemas.nomination_event.olympyc_nomination_event import OlympycNominationEventSchema
 from db.schemas.team.team import TeamSchema
 
 

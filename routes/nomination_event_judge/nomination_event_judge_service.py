@@ -62,7 +62,6 @@ class NominationEventJudgeService:
             self.get_decoded_token_user_event_nomination_nomination_event(response, token, nomination_event_judge)
         self.__user_manager.raise_exception_if_user_specialist(decoded_token.role)
         self.__nomination_event_manager.raise_exception_if_user_not_in_judge_command(
-            event_db,
             nomination_event_db,
             user_db
         )

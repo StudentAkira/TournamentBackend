@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 
-from db.models.nomination_event import NominationEvent
+from db.schemas.nomination_event.nomination_event import NominationEventSchema
 from db.schemas.nomination_event.olympyc_nomination_event import OlympycNominationEventSchema
 from managers.event import EventManager
 from managers.nomination import NominationManager
@@ -24,7 +24,7 @@ class Retriever:
             self,
             response: Response,
             token: str,
-            nomination_event: NominationEvent
+            nomination_event: NominationEventSchema
     ):
         decoded_token = self.__token_manager.decode_token(token, response)
         user_db = self.__user_manager.get_user_by_id_or_raise_if_not_found(decoded_token.user_id)
@@ -54,7 +54,6 @@ class Retriever:
                 nomination_event.to_nomination_event_schema()
             )
         self.__nomination_event_manager.raise_exception_if_user_not_in_judge_command(
-            event_db,
             nomination_event_db,
             user_db
         )
