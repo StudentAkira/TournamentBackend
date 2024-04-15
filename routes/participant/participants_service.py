@@ -8,6 +8,7 @@ from managers.participant import ParticipantManager
 from managers.team import TeamManager
 from managers.team_participant import TeamParticipantManager
 from managers.token import TokenManager
+from managers.user import UserManager
 from utils.validation_util import Validator
 
 
@@ -21,6 +22,7 @@ class ParticipantsService:
         self.__team_manager = TeamManager(db)
         self.__team_participant = TeamParticipantManager(db)
         self.__validator = Validator(db)
+        self.__user_manager = UserManager(db)
 
         self.__participant_created_message = "participant created"
         self.__participant_updated_message = "participant updated"
@@ -46,8 +48,9 @@ class ParticipantsService:
         participant_db = self.__participant_manager.get_by_email_or_raise_if_not_found(
             participant_data.participant_email
         )
+        user_db = self.__user_manager.get_user_by_id_or_raise_if_not_found(decoded_token.user_id)
         self.__participant_manager.raise_exception_if_owner_wrong(
-            participant_db, decoded_token.user_id
+            participant_db, user_db
         )
         self.__participant_manager.hide(participant_db)
         return {"message": self.__participant_hidden_message}
