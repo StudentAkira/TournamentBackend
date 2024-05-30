@@ -17,8 +17,8 @@ events = APIRouter(prefix="/api/event", tags=["event"])
 @events.get("/event")
 async def get_events_by_owner(
         response: Response,
-        offset: Annotated[int, Query(gte=0, lt=50)] = 0,
-        limit: Annotated[int, Query(lt=50, gt=0)] = 10,
+        offset: Annotated[int, Query(gte=0)] = 0,
+        limit: Annotated[int, Query(lt=50, gt=0)] = 49,
         token: str = Depends(authorized_only),
         db: Session = Depends(get_db)
 ) -> list[EventSchema]:
@@ -29,8 +29,8 @@ async def get_events_by_owner(
 @events.get("/events_with_nominations")
 async def get_events_with_nominations(
     response: Response,
-        offset: Annotated[int, Query(gte=0, lt=50)] = 0,
-        limit: Annotated[int, Query(lt=50, gt=0)] = 10,
+        offset: Annotated[int, Query(gte=0)] = 0,
+        limit: Annotated[int, Query(lt=50, gt=0)] = 49,
         token: str = Depends(authorized_only),
         db: Session = Depends(get_db)
 ):
