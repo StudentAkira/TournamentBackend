@@ -37,11 +37,13 @@ class TokenManager:
     def delete_token_from_db(self, token_db: type(Token)):
         delete_token_db(self.__db, token_db)
 
-    def get_or_raise_if_not_found(self, token: str):
+    def get_or_raise_if_not_found(self, response: Response, token: str):
         token_db = get_token_db(self.__db, token)
         if not token_db:
+            response.delete_cookie(key="token")
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
+                headers={'set-cookie': response.headers["set-cookie"]},
                 detail={"error": self.__token_not_found_error},
             )
         return token_db
@@ -60,11 +62,20 @@ class TokenManager:
         return token
 
     def decode_token(self, token, response: Response) -> TokenDecodedSchema:
+        token_db = self.get_or_raise_if_not_found(response, token)
         try:
             decoded = jwt.decode(
                 token,
                 key=self.__jwt_token_secret,
                 algorithms=[self.__jwt_algorithm]
+            )
+        except jwt.exceptions.ExpiredSignatureError:
+            response.delete_cookie(key="token")
+            delete_token_db(self.__db, token_db)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail={"error": self.__token_expired_error},
+                headers={'set-cookie': response.headers["set-cookie"]}
             )
         except jwt.InvalidSignatureError:
             response.delete_cookie(key="token")
@@ -80,13 +91,6 @@ class TokenManager:
                 detail={"error": self.__invalid_token_error},
                 headers={'set-cookie': response.headers["set-cookie"]}
             )
-        except jwt.ExpiredSignatureError:
-            response.delete_cookie(key="token")
-            delete_token_db(self.__db, token)
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail={"error": self.__token_expired_error},
-                headers={'set-cookie': response.headers["set-cookie"]}
-            )
+
         decoded = TokenDecodedSchema(**decoded)
         return decoded

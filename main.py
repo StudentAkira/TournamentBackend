@@ -1,5 +1,10 @@
 from fastapi import FastAPI
+from fastapi.encoders import jsonable_encoder
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from starlette import status
+from starlette.requests import Request
+from starlette.responses import JSONResponse
 
 from config import get_settings
 from db import database
@@ -51,6 +56,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    details = exc.errors()
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content=jsonable_encoder({"detail": {"error": details[0]['msg']}}),
+    )
 
 @app.get('/')
 async def main():

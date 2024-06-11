@@ -13,10 +13,10 @@ services:
     container_name: db
     env_file:
       - .db_env
-#  nginx:
-#    image: sha256:4900b3b015c807b67
-#    container_name: nginx
-#    ports:
-#      - "127.0.0.1:80:80"
-#    depends_on:
-#      - backend
+ nginx:
+   image: sha256:4900b3b015c807b67
+   container_name: nginx
+   ports:
+     - "127.0.0.1:80:80"
+   depends_on:
+     - backend
