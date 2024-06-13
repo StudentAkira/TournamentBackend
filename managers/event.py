@@ -91,14 +91,18 @@ class EventManager:
             )
         return EventByIdSchema(
             edit_access=decoded_token.user_id == event_db.owner_id,
-            event_data=EventListSchema(
-                name=event_db.name,
-                date=event_db.date,
-                nominations=[
-                    NominationSchema(
-                        name=nomination_db.name
-                    )
-                    for nomination_db in event_db.nominations
-                ]
-            )
+            event_data=EventListSchema.from_orm(event_db)
         )
+        # return EventByIdSchema(
+        #     edit_access=decoded_token.user_id == event_db.owner_id,
+        #     event_data=EventListSchema(
+        #         name=event_db.name,
+        #         date=event_db.date,
+        #         nominations=[
+        #             NominationSchema(
+        #                 name=nomination_db.name
+        #             )
+        #             for nomination_db in event_db.nominations
+        #         ]
+        #     )
+        # )
