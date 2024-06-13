@@ -89,7 +89,6 @@ class EventManager:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail={"error": self.__event_does_not_exist_error}
             )
-        print(event_db.nominations)
         return EventByIdSchema(
             edit_access=decoded_token.user_id == event_db.owner_id,
             event_data=EventListSchema(
