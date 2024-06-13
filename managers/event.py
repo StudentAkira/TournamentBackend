@@ -4,11 +4,15 @@ from starlette import status
 
 from db.crud.event.event import create_event_db, \
     get_events_by_owner_db, get_events_db, get_events_with_nominations_db, \
-    get_events_with_nominations_by_owner_db, get_event_by_name_db, update_event_db, delete_event_db
+    get_events_with_nominations_by_owner_db, get_event_by_name_db, update_event_db, delete_event_db, get_event_by_id_db
 from db.models.event import Event
 from db.schemas.event.event import EventSchema
+from db.schemas.event.event_by_id import EventByIdSchema
 from db.schemas.event.event_create import EventCreateSchema
+from db.schemas.event.event_list import EventListSchema
 from db.schemas.event.event_update import EventUpdateSchema
+from db.schemas.nomination.nomination import NominationSchema
+from db.schemas.token.token_decoded import TokenDecodedSchema
 
 
 class EventManager:
@@ -76,3 +80,26 @@ class EventManager:
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail={"error": self.__wrong_event_owner_error}
             )
+
+    def get_by_id_or_raise_exception_if_not_found(self,  decoded_token: TokenDecodedSchema, event_id: int) \
+            -> EventByIdSchema:
+        event_db = get_event_by_id_db(self.__db, event_id)
+        if not event_db:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={"error": self.__event_does_not_exist_error}
+            )
+        print(event_db.nominations)
+        return EventByIdSchema(
+            edit_access=decoded_token.user_id == event_db.owner_id,
+            event_data=EventListSchema(
+                name=event_db.name,
+                date=event_db.date,
+                nominations=[
+                    NominationSchema(
+                        name=nomination_db.name
+                    )
+                    for nomination_db in event_db.nominations
+                ]
+            )
+        )

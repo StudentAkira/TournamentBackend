@@ -49,6 +49,12 @@ def get_event_by_name_db(db: Session, name: str) -> type(Event) | None:
     ).first()
     return event_db
 
+def get_event_by_id_db(db: Session, event_id: int) -> type(Event) | None:
+    event_db = db.query(Event).filter(
+        cast("ColumnElement[bool]", Event.id == event_id)
+    ).first()
+    return event_db
+
 
 def get_events_by_owner_db(db: Session, offset: int, limit: int, owner_id: int) -> list[type(Event)]:
     events_db = db.query(Event).filter(

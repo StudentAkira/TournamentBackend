@@ -5,13 +5,26 @@ from sqlalchemy.orm import Session
 from starlette.responses import Response
 
 from db.schemas.event.event import EventSchema
+from db.schemas.event.event_by_id import EventByIdSchema
 from db.schemas.event.event_create import EventCreateSchema
 from db.schemas.event.event_delete import EventDeleteSchema
+from db.schemas.event.event_list import EventListSchema
 from db.schemas.event.event_update import EventUpdateSchema
 from dependencies import get_db, authorized_only
 from routes.event.events_service import EventsService
 
 events = APIRouter(prefix="/api/event", tags=["event"])
+
+
+@events.get("/event/get_by_id")
+async def get_event_by_id(
+        response: Response,
+        event_id: Annotated[int, Query()],
+        token: str = Depends(authorized_only),
+        db: Session = Depends(get_db)
+) -> EventByIdSchema:
+    service = EventsService(db)
+    return service.get_by_id(response, token, event_id)
 
 
 @events.get("/event")
