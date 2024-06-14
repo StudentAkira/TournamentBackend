@@ -13,7 +13,7 @@ from urls import URLs
 race_rounds = APIRouter(prefix=URLs.race_round_prefix.value, tags=URLs.race_round_tags.value)
 
 
-@race_rounds.get(URLs.race_round.value)
+@race_rounds.get(URLs.race_round.value, deprecated=True)
 async def get_race_rounds(
         response: Response,
         event_name: Annotated[str, Query()],
@@ -25,7 +25,7 @@ async def get_race_rounds(
     return service.get_race_rounds(response, token, event_name, nomination_name)
 
 
-@race_rounds.post(URLs.race_round.value)
+@race_rounds.post(URLs.race_round.value, deprecated=True)
 async def create_race_round(
         response: Response,
         race_round: RaceRoundCreateSchema,
@@ -36,7 +36,7 @@ async def create_race_round(
     return service.set_race_rounds(response, token, race_round)
 
 
-@race_rounds.put(URLs.race_round.value)
+@race_rounds.put(URLs.race_round.value, deprecated=True)
 async def update_race_round(
         response: Response,
         race_round: RaceRoundUpdateSchema,
