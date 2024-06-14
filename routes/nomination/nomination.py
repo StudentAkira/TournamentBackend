@@ -44,6 +44,30 @@ async def get_nominations_not_related_to_event(
     return service.get_nominations_not_related_to_event(event_id, offset, limit)
 
 
+@nominations.get(URLs.get_nominations_related_to_event_starts_with.value)
+async def get_nominations_related_to_event_starts_with(
+        event_id: Annotated[int, Query()],
+        title: Annotated[str, Query()],
+        offset: Annotated[int, Query(gte=0, lt=50)] = 0,
+        limit: Annotated[int, Query(lt=50, gt=0)] = 10,
+        db: Session = Depends(get_db)
+):
+    service = NominationsService(db)
+    return service.get_nominations_related_to_event_starts_with(event_id, title, offset, limit)
+
+
+@nominations.get(URLs.get_nominations_not_related_to_event_starts_with.value)
+async def get_nominations_not_related_to_event_starts_with(
+        event_id: Annotated[int, Query()],
+        title: Annotated[str, Query()],
+        offset: Annotated[int, Query(gte=0, lt=50)] = 0,
+        limit: Annotated[int, Query(lt=50, gt=0)] = 10,
+        db: Session = Depends(get_db)
+):
+    service = NominationsService(db)
+    return service.get_nominations_not_related_to_event_starts_with(event_id, title, offset, limit)
+
+
 @nominations.post(URLs.nomination.value)
 async def create_nomination(
         response: Response,
@@ -65,3 +89,6 @@ async def update_nomination(
 ):
     service = NominationsService(db)
     return service.update(response, token, old_nomination, new_nomination)
+
+
+

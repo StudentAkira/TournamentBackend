@@ -60,4 +60,16 @@ class NominationsService:
         event_db = self.__event_manager.get_by_id(event_id)
         self.__event_manager.raise_exception_if_event_not_found(event_db)
         return [NominationSchema.from_orm(nomination_db) for nomination_db in
-                self.__nomination_manager.get_event_non_related_nominations(event_db, offset, limit)]
+                self.__nomination_manager.get_event_not_related_nominations(event_db, offset, limit)]
+
+    def get_nominations_related_to_event_starts_with(self, event_id: int, title: str, offset: int, limit: int):
+        event_db = self.__event_manager.get_by_id(event_id)
+        self.__event_manager.raise_exception_if_event_not_found(event_db)
+        return [NominationSchema.from_orm(nomination_db) for nomination_db in
+                self.__nomination_manager.get_event_related_nominations_starts_with(event_db, title, offset, limit)]
+
+    def get_nominations_not_related_to_event_starts_with(self, event_id: int, title: str, offset: int, limit: int):
+        event_db = self.__event_manager.get_by_id(event_id)
+        self.__event_manager.raise_exception_if_event_not_found(event_db)
+        return [NominationSchema.from_orm(nomination_db) for nomination_db in
+                self.__nomination_manager.get_event_not_related_nominations_starts_with(event_db, title, offset, limit)]

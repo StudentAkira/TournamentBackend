@@ -4,7 +4,9 @@ from starlette import status
 
 from db.crud.nomination.nomination import get_nominations_db, \
     get_nomination_by_name_db, \
-    update_nomination_db, create_nomination_db, get_event_related_nominations, get_event_non_related_nominations
+    update_nomination_db, create_nomination_db, get_event_related_nominations, \
+    get_event_related_nominations_starts_with, get_event_not_related_nominations_starts_with, \
+    get_event_not_related_nominations
 from db.models.nomination import Nomination
 from db.schemas.nomination.nomination import NominationSchema
 
@@ -42,8 +44,16 @@ class NominationManager:
         nominations_db = get_event_related_nominations(self.__db, event_db, offset, limit)
         return nominations_db
 
-    def get_event_non_related_nominations(self, event_db, offset, limit):
-        nominations_db = get_event_non_related_nominations(self.__db, event_db, offset, limit)
+    def get_event_not_related_nominations(self, event_db, offset, limit):
+        nominations_db = get_event_not_related_nominations(self.__db, event_db, offset, limit)
+        return nominations_db
+
+    def get_event_related_nominations_starts_with(self, event_db, title, offset, limit):
+        nominations_db = get_event_related_nominations_starts_with(self.__db, event_db, title, offset, limit)
+        return nominations_db
+
+    def get_event_not_related_nominations_starts_with(self, event_db, title, offset, limit):
+        nominations_db = get_event_not_related_nominations_starts_with(self.__db, event_db, title, offset, limit)
         return nominations_db
 
     def raise_exception_if_name_taken(self, nomination_db: Nomination):

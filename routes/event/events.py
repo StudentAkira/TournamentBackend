@@ -13,7 +13,7 @@ from dependencies import get_db, authorized_only
 from routes.event.events_service import EventsService
 from urls import URLs
 
-events = APIRouter(prefix=URLs.event_prefix.value, tags=URLs.event.auth_tags.value)
+events = APIRouter(prefix=URLs.event_prefix.value, tags=URLs.event.event_tags.value)
 
 
 @events.get(URLs.get_event_by_id.value)

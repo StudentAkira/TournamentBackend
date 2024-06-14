@@ -29,6 +29,8 @@ class URLs(Enum):
     nomination = "/nomination"
     get_nominations_related_to_event = "/get_nominations_related_to_event"
     get_nominations_not_related_to_event = "/get_nominations_not_related_to_event"
+    get_nominations_related_to_event_starts_with = "/get_nominations_related_to_event_starts_with"
+    get_nominations_not_related_to_event_starts_with = "/get_nominations_not_related_to_event_starts_with"
 
     #nomination_event
     nomination_event_prefix = "/api/nomination_event"
