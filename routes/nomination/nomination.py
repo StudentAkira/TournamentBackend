@@ -21,6 +21,28 @@ async def get_nominations(
     return service.list(offset, limit)
 
 
+@nominations.get("/get_nominations_related_to_event")
+async def get_nominations_related_to_event(
+        event_id: Annotated[int, Query()],
+        offset: Annotated[int, Query(gte=0, lt=50)] = 0,
+        limit: Annotated[int, Query(lt=50, gt=0)] = 10,
+        db: Session = Depends(get_db)
+):
+    service = NominationsService(db)
+    return service.get_nominations_related_to_event(event_id, offset, limit)
+
+
+@nominations.get("/get_nominations_not_related_to_event")
+async def get_nominations_not_related_to_event(
+        event_id: Annotated[int, Query()],
+        offset: Annotated[int, Query(gte=0, lt=50)] = 0,
+        limit: Annotated[int, Query(lt=50, gt=0)] = 10,
+        db: Session = Depends(get_db)
+):
+    service = NominationsService(db)
+    return service.get_nominations_not_related_to_event(event_id, offset, limit)
+
+
 @nominations.post("/nomination")
 async def create_nomination(
         response: Response,
