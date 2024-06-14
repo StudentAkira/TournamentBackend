@@ -11,7 +11,6 @@ from db.schemas.event.event_by_id import EventByIdSchema
 from db.schemas.event.event_create import EventCreateSchema
 from db.schemas.event.event_list import EventListSchema
 from db.schemas.event.event_update import EventUpdateSchema
-from db.schemas.nomination.nomination import NominationSchema
 from db.schemas.token.token_decoded import TokenDecodedSchema
 
 
@@ -91,14 +90,5 @@ class EventManager:
             )
         return EventByIdSchema(
             edit_access=decoded_token.user_id == event_db.owner_id,
-            event_data=EventListSchema(
-                name=event_db.name,
-                date=event_db.date,
-                nominations=[
-                    NominationSchema(
-                        name=nomination_db.name
-                    )
-                    for nomination_db in event_db.nominations
-                ]
-            )
+            event_data=EventListSchema.from_orm(event_db)
         )
