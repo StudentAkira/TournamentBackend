@@ -1,6 +1,6 @@
 from typing import cast
 from db.database import *
-from sqlalchemy import and_
+from sqlalchemy import and_, not_
 from db.models.event import Event
 from db.models.nomination import Nomination
 from db.models.nomination_event import NominationEvent
@@ -29,3 +29,9 @@ from db.schemas.nomination.nomination import NominationSchema
 from db.schemas.nomination_event.nomination_event_type import NominationEventType
 
 db = SessionLocal()
+
+teams_db = db.query(Team).filter(and_(
+        cast("ColumnElement[bool]", Team.creator_id == 1),
+        cast("ColumnElement[bool]", not_(Team.name.ilike("%@%")))
+        )
+    ).all()

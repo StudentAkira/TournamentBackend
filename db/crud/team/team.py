@@ -1,7 +1,7 @@
 from typing import cast
 
 from pydantic import EmailStr
-from sqlalchemy import and_
+from sqlalchemy import and_, not_
 from sqlalchemy.orm import Session
 
 from db.crud.nomination_event.nomination_event import get_nomination_event_db
@@ -34,25 +34,29 @@ def get_team_participants_emails_db(db: Session, team_name: str) -> list[EmailSt
 
 
 def get_teams_by_owner_db(db: Session, offset: int, limit: int, owner_id: int) -> list[type(Team)]:
-    teams_db = db.query(Team).filter(
-        cast("ColumnElement[bool]", Team.creator_id == owner_id)
+    teams_db = db.query(Team).filter(and_(
+        cast("ColumnElement[bool]", Team.creator_id == owner_id),
+        cast("ColumnElement[bool]", not_(Team.name.ilike("%default_team%")))
+    )
     ).offset(offset).limit(limit).all()
     return teams_db
 
 
 def get_teams_db(db: Session, offset: int, limit: int) -> list[type(Team)]:
-    teams_db = db.query(Team).offset(offset).limit(limit).all()
+    teams_db = db.query(Team).filter(
+        cast("ColumnElement[bool]",
+             not_(Team.name.ilike("%default_team%")))
+    ).offset(offset).limit(limit).all()
     return teams_db
 
 
-def update_team_db(db:Session, team_db: type(Team), team_data: TeamUpdateSchema):
+def update_team_db(db: Session, team_db: type(Team), team_data: TeamUpdateSchema):
     team_db.name = team_data.new_name
     db.add(team_db)
     db.commit()
 
 
 def set_software_equipment_db(db, nomination_event_db: type(NominationEvent), software: str, equipment: str):
-
     team_participant_nomination_events_db = db.query(TeamParticipantNominationEvent).filter(
         and_(
             TeamParticipantNominationEvent.nomination_event_id == nomination_event_db.id,

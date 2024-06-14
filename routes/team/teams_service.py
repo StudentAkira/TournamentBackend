@@ -43,6 +43,7 @@ class TeamsService:
 
         team_db = self.__team_manager.get_by_name_or_raise_if_not_found(team_data.old_name)
         existing_team_db = get_team_by_name_db(self.__db, team_data.new_name)
+        self.__team_manager.raise_exception_if_name_invalid(TeamSchema(name=team_data.new_name))
         self.__team_manager.raise_exception_if_name_taken(existing_team_db)
         self.__team_manager.raise_exception_if_owner_wrong(team_db, decoded_token.user_id)
         self.__team_manager.update(team_db, team_data)
