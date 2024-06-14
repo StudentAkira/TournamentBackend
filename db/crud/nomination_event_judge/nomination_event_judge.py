@@ -35,3 +35,7 @@ def delete_nomination_event_judge_db(
     nomination_event_db.judges.remove(judge_db)
     db.add(nomination_event_db)
     db.commit()
+
+
+def user_in_judge_team_db(nomination_event_db: NominationEvent, user_db: User):
+    return user_db in nomination_event_db.judges

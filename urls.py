@@ -66,6 +66,11 @@ class URLs(Enum):
     team_participant_tags = ["team_participant"]
     team_participant = "/team_participant"
 
+    #team_nomination_event
+    team_nomination_event_prefix = "/api/team_nomination_event"
+    team_nomination_event_tags = ["team_nomination_event"]
+    team_nomination_event = "/team_participant"
+
     #team_participant_nomination_event
     team_participant_nomination_event_prefix = "/api/team_participant_nomination_event"
     team_participant_nomination_event_tags = ["team_participant_nomination_event"]
