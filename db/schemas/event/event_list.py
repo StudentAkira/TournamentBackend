@@ -1,5 +1,3 @@
-from pydantic import BaseModel
-
 from db.schemas.event.event import EventSchema
 from db.schemas.nomination.nomination import NominationSchema
 
