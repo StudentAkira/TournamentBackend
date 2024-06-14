@@ -9,11 +9,12 @@ from db.schemas.user.user_create import UserCreateSchema
 from db.schemas.user.user_role import UserRole
 from dependencies import get_db, authorized_only
 from routes.user.users_service import UsersService
+from urls import URLs
 
-users = APIRouter(prefix="/api/user", tags=["user"])
+users = APIRouter(prefix=URLs.user_prefix.value, tags=URLs.user_tags.value)
 
 
-@users.get("/profile")
+@users.get(URLs.profile.value)
 async def get_my_profile(
         response: Response,
         token: str = Depends(authorized_only),
@@ -23,7 +24,7 @@ async def get_my_profile(
     return service.get_user_data(response, token)
 
 
-@users.get("/users")
+@users.get(URLs.users.value)
 async def list_users(
         response: Response,
         token: str = Depends(authorized_only),
@@ -33,7 +34,7 @@ async def list_users(
     return service.list(response, token)
 
 
-@users.patch("/profile")
+@users.patch(URLs.profile.value)
 async def edit_profile(
         response: Response,
         user_data: EditUserSchema,
@@ -43,7 +44,7 @@ async def edit_profile(
     return service.edit_user_data(response, token, user_data)
 
 
-@users.get('/create_admin')
+@users.get(URLs.create_admin.value)
 async def create_super_admin(db: Session = Depends(get_db)):
     user = UserCreateSchema(
         email="test@mail.ru",
@@ -60,7 +61,7 @@ async def create_super_admin(db: Session = Depends(get_db)):
     return {"message": "admin created"}
 
 
-@users.post("/create_user")
+@users.post(URLs.create_user.value)
 async def create_user(
         response: Response,
         user: UserCreateSchema,

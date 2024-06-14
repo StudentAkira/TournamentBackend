@@ -11,11 +11,12 @@ from db.schemas.event.event_delete import EventDeleteSchema
 from db.schemas.event.event_update import EventUpdateSchema
 from dependencies import get_db, authorized_only
 from routes.event.events_service import EventsService
+from urls import URLs
 
-events = APIRouter(prefix="/api/event", tags=["event"])
+events = APIRouter(prefix=URLs.event_prefix.value, tags=URLs.event.auth_tags.value)
 
 
-@events.get("/event/get_by_id")
+@events.get(URLs.get_event_by_id.value)
 async def get_event_by_id(
         response: Response,
         event_id: Annotated[int, Query()],
@@ -26,7 +27,7 @@ async def get_event_by_id(
     return service.get_by_id(response, token, event_id)
 
 
-@events.get("/event")
+@events.get(URLs.event.value)
 async def get_events_by_owner(
         response: Response,
         offset: Annotated[int, Query(gte=0)] = 0,
@@ -38,7 +39,7 @@ async def get_events_by_owner(
     return service.list_by_owner(response, token, offset, limit)
 
 
-@events.get("/events_with_nominations")
+@events.get(URLs.get_event_with_nominations.value)
 async def get_events_with_nominations(
     response: Response,
         offset: Annotated[int, Query(gte=0)] = 0,
@@ -50,7 +51,7 @@ async def get_events_with_nominations(
     return service.list_with_nominations(response, token, offset, limit)
 
 
-@events.post("/event")
+@events.post(URLs.event.value)
 async def create_event(
         response: Response,
         event: EventCreateSchema,
@@ -61,7 +62,7 @@ async def create_event(
     return service.create(response, token, event)
 
 
-@events.put("/event")
+@events.put(URLs.event.value)
 async def update_event(
         response: Response,
         event_data: EventUpdateSchema,
@@ -72,7 +73,7 @@ async def update_event(
     return service.update(response, token, event_data)
 
 
-@events.delete("/event")
+@events.delete(URLs.event.value)
 async def delete_event(
         response: Response,
         event_data: EventDeleteSchema,
