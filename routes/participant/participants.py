@@ -9,11 +9,12 @@ from db.schemas.participant.participant_hide import ParticipantHideSchema
 from db.schemas.participant.participant_update import ParticipantUpdateSchema
 from dependencies import get_db, authorized_only
 from routes.participant.participants_service import ParticipantsService
+from urls import URLs
 
-participants = APIRouter(prefix="/api/participant", tags=["participant"])
+participants = APIRouter(prefix=URLs.participant_prefix.value, tags=URLs.participant_tags.value)
 
 
-@participants.get("/participant")
+@participants.get(URLs.participant.value)
 async def get_my_participants(
         response: Response,
         offset: Annotated[int, Query(gte=0, lt=50)] = 0,
@@ -25,7 +26,7 @@ async def get_my_participants(
     return service.list_by_owner(response, token, offset, limit)
 
 
-@participants.post("/participant")
+@participants.post(URLs.participant.value)
 async def create_participant(
         response: Response,
         participant: ParticipantSchema,
@@ -36,7 +37,7 @@ async def create_participant(
     return service.create(response, token, participant)
 
 
-@participants.put("/participant")
+@participants.put(URLs.participant.value)
 async def update_participant(
         response: Response,
         participant_data: ParticipantUpdateSchema,
@@ -47,7 +48,7 @@ async def update_participant(
     return service.update(response, token, participant_data)
 
 
-@participants.post("/hide_participant")
+@participants.post("/hide_participant", deprecated=True)
 async def hide_participant(
         response: Response,
         participant_data: ParticipantHideSchema,

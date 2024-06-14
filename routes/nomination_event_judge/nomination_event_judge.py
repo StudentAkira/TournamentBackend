@@ -9,11 +9,12 @@ from db.schemas.nomination_event_judge.get_nomination_event_judge import GetNomi
 from db.schemas.nomination_event_judge.nomination_event_judge_data import NominationEventJudgeDataSchema
 from dependencies import authorized_only, get_db
 from routes.nomination_event_judge.nomination_event_judge_service import NominationEventJudgeService
+from urls import URLs
 
-nomination_event_judge = APIRouter(prefix="/api/nomination_event_judge", tags=["nomination_event_judge"])
+nomination_event_judge = APIRouter(prefix=URLs.nomination_evnet_judge.value, tags=URLs.nomination_event_judge_tags.value)
 
 
-@nomination_event_judge.post("/nomination_event_judge")
+@nomination_event_judge.post(URLs.nomination_event_judge.value)
 async def crete_nomination_event_judge(
         response: Response,
         data: NominationEventJudgeDataSchema,
@@ -24,7 +25,7 @@ async def crete_nomination_event_judge(
     return service.append_judge_to_nomination_event(response, token, data)
 
 
-@nomination_event_judge.get("/nomination_event_judge")
+@nomination_event_judge.get(URLs.nomination_event_judge.value)
 async def get_nomination_event_judges(
         response: Response,
         nomination_name: Annotated[str, Query()],
@@ -46,7 +47,7 @@ async def get_nomination_event_judges(
     )
 
 
-@nomination_event_judge.delete("/nomination_event_judge")
+@nomination_event_judge.delete(URLs.nomination_event_judge.value)
 async def delete_nomination_event_judge(
         response: Response,
         data: NominationEventJudgeDataSchema,

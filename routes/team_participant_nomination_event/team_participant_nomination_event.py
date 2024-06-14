@@ -11,14 +11,15 @@ from db.schemas.team_nomination_event.update_team_participant_nomination_event i
 from dependencies import get_db, authorized_only
 from routes.team_participant_nomination_event.team_participant_nomination_event_service import \
     TeamParticipantNominationEventService
+from urls import URLs
 
 team_participant_nomination_event = APIRouter(
-    prefix="/api/team_participant_nomination_event",
-    tags=["team_participant_nomination_event"]
+    prefix=URLs.team_participant_nomination_event_prefix.value,
+    tags=URLs.team_participant_nomination_event_tags.value
 )
 
 
-@team_participant_nomination_event.post("/team_participant")
+@team_participant_nomination_event.post(URLs.team_participant.value)
 async def append_team_participant_nomination_event(
         response: Response,
         team_participant_nomination_event_data: AppendTeamParticipantNominationEventSchema,
@@ -33,7 +34,7 @@ async def append_team_participant_nomination_event(
     )
 
 
-@team_participant_nomination_event.put("/team_participant")
+@team_participant_nomination_event.put(URLs.team_participant.value)
 async def update_team_participant_nomination_event(
         response: Response,
         team_participant_nomination_event_data: UpdateTeamParticipantNominationEventSchema,

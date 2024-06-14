@@ -7,11 +7,12 @@ from db.schemas.team.team import TeamSchema
 from db.schemas.team.team_update import TeamUpdateSchema
 from dependencies import get_db, authorized_only
 from routes.team.teams_service import TeamsService
+from urls import URLs
 
-teams = APIRouter(prefix="/api/team", tags=["team"])
+teams = APIRouter(prefix=URLs.team_prefix.value, tags=URLs.team_tags.value)
 
 
-@teams.post("/teams")
+@teams.post(URLs.teams.value)
 async def create_team(
         response: Response,
         team: TeamSchema,
@@ -22,7 +23,7 @@ async def create_team(
     return service.create_team(response, token, team)
 
 
-@teams.get("/teams")
+@teams.get(URLs.teams.value)
 async def get_teams(
         response: Response,
         offset: Annotated[int, Query(gte=0, lt=50)] = 0,
@@ -34,7 +35,7 @@ async def get_teams(
     return service.list_by_owner(response, token, offset, limit)
 
 
-@teams.put("/teams")
+@teams.put(URLs.teams.value)
 async def update_team(
         response: Response,
         team_data: TeamUpdateSchema,
