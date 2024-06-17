@@ -67,7 +67,6 @@ def append_event_nomination_db(
         nomination_id=nomination_db.id,
         registration_finished=False,
         type=nomination_event.type,
-        # race_round_length=nomination_event.race_round_length if nomination_event.race_round_length else None
     )
     nomination_event_db.judges.append(user_db)
     db.add(nomination_event_db)
