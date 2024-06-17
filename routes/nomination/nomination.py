@@ -89,6 +89,3 @@ async def update_nomination(
 ):
     service = NominationsService(db)
     return service.update(response, token, old_nomination, new_nomination)
-
-
-
