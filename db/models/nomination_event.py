@@ -29,8 +29,6 @@ class NominationEvent(Base):
     group_stage_finished: bool = Column(Boolean, nullable=False, default=False)
     play_off_stage_finished: bool = Column(Boolean, nullable=False, default=False)
 
-    race_round_length: int = Column(Integer, nullable=False, default=3)
-
     groups: Mapped[list["Group"]] = relationship(
         "Group",
         back_populates="nomination_event"

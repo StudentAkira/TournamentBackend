@@ -1,4 +1,6 @@
 from typing import cast
+
+from sqlalchemy import and_, not_
 from sqlalchemy.orm import Session
 
 from db.models.event import Event
@@ -34,13 +36,49 @@ def get_event_related_nominations(db: Session, event_db: Event, offset: int, lim
     return nominations_db
 
 
-def get_event_non_related_nominations(db: Session, event_db: Event, offset: int, limit: int) -> list[type(Nomination)]:
+def get_event_not_related_nominations(db: Session, event_db: Event, offset: int, limit: int) -> list[type(Nomination)]:
     nominations_db = db.query(Nomination).filter(
         cast("ColumnElement[bool]",
              Nomination.id.notin_(
                         set([nomination_db.id for nomination_db in event_db.nominations])
                     )
             )
+    ).offset(offset).limit(limit).all()
+    return nominations_db
+
+
+def get_event_related_nominations_starts_with(
+        db: Session,
+        event_db: Event,
+        title: str,
+        offset: int,
+        limit: int
+) -> list[type(Nomination)]:
+    nominations_db = db.query(Nomination).filter(
+        and_(
+             Nomination.id.in_(
+                 set([nomination_db.id for nomination_db in event_db.nominations])
+                ),
+            Nomination.name.ilike(f"%{title}%")
+        )
+    ).offset(offset).limit(limit).all()
+    return nominations_db
+
+
+def get_event_not_related_nominations_starts_with(
+        db: Session,
+        event_db: Event,
+        title: str,
+        offset: int,
+        limit: int
+) -> list[type(Nomination)]:
+    nominations_db = db.query(Nomination).filter(
+        and_(
+             Nomination.id.notin_(
+                 set([nomination_db.id for nomination_db in event_db.nominations])
+                ),
+             Nomination.name.ilike(f"%{title}%")
+        )
     ).offset(offset).limit(limit).all()
     return nominations_db
 
