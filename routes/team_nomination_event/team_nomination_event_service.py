@@ -33,7 +33,7 @@ class TeamNominationEventService:
     ) -> list:
         decoded_token = self.__token_manager.decode_token(token, response)
 
-        nomination_db = self.__nomination_manager.get_by_name_or_raise_exception_if_not_found(
+        nomination_db = self.__nomination_manager.get_by_name_and_user_id_or_raise_exception_if_not_found(
             nomination_event.nomination_name
         )
         event_db = self.__event_manager.get_by_name_or_raise_if_not_found(nomination_event.event_name)

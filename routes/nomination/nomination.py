@@ -14,12 +14,14 @@ nominations = APIRouter(prefix=URLs.nomination_prefix.value, tags=URLs.nominatio
 
 @nominations.get(URLs.nomination.value)
 async def get_nominations(
+        response: Response,
         offset: Annotated[int, Query(gte=0, lt=50)] = 0,
         limit: Annotated[int, Query(lt=50, gt=0)] = 10,
+        token: str = Depends(authorized_only),
         db: Session = Depends(get_db)
 ):
     service = NominationsService(db)
-    return service.list(offset, limit)
+    return service.list(response, token, offset, limit)
 
 
 @nominations.get(URLs.get_nominations_related_to_event.value)
