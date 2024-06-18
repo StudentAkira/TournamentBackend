@@ -8,7 +8,7 @@ from db.schemas.annotation.annotation_create import AnnotationCreateSchema
 from db.schemas.annotation.annotation_delete import AnnotationDeleteSchema
 from db.schemas.annotation.annotation_get import AnnotationGetSchema
 from db.schemas.annotation.annotation_update import AnnotationUpdateSchema
-from dependencies import get_db, authorized_only
+from dependencies.dependencies import get_db, authorized_only
 from routes.annotation.annotation_service import AnnotationService
 
 annotation = APIRouter(prefix="/api/annotation", tags=["annotation"])

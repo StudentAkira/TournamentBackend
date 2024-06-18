@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from starlette.responses import Response
 
 from db.schemas.nomination_event.nomination_event import NominationEventSchema
-from dependencies import authorized_only, get_db
+from dependencies.dependencies import authorized_only, get_db
 from routes.team_nomination_event.team_nomination_event_service import TeamNominationEventService
 from urls import URLs
 

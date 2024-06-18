@@ -7,7 +7,7 @@ from starlette.responses import Response
 from db.schemas.participant.participant import ParticipantSchema
 from db.schemas.participant.participant_hide import ParticipantHideSchema
 from db.schemas.participant.participant_update import ParticipantUpdateSchema
-from dependencies import get_db, authorized_only
+from dependencies.dependencies import get_db, authorized_only
 from routes.participant.participants_service import ParticipantsService
 from urls import URLs
 
