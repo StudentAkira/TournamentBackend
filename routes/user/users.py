@@ -7,7 +7,7 @@ from db.schemas.user.edit_user import EditUserSchema
 from db.schemas.user.user import UserSchema
 from db.schemas.user.user_create import UserCreateSchema
 from db.schemas.user.user_role import UserRole
-from dependencies import get_db, authorized_only
+from dependencies.dependencies import get_db, authorized_only
 from routes.user.users_service import UsersService
 from urls import URLs
 

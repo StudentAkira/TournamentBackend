@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from starlette.responses import Response
 
 from db.schemas.nomination_event.nomination_event import NominationEventSchema
-from dependencies import authorized_only, get_db
+from dependencies.dependencies import authorized_only, get_db
 from routes.nomination_event.nomination_event_service import NominationEventService
 from urls import URLs
 

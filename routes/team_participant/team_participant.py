@@ -3,7 +3,7 @@ from pydantic import EmailStr
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 
-from dependencies import authorized_only, get_db
+from dependencies.dependencies import authorized_only, get_db
 from routes.team_participant.team_participant_service import TeamParticipantService
 from urls import URLs
 

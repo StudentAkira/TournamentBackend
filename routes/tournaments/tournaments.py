@@ -4,7 +4,7 @@ from starlette.responses import Response
 
 from db.schemas.nomination_event.olympyc_nomination_event import OlympycNominationEventSchema
 from db.schemas.team.team import TeamSchema
-from dependencies import authorized_only, get_db
+from dependencies.dependencies import authorized_only, get_db
 from routes.tournaments.tournaments_service import TournamentService
 from urls import URLs
 

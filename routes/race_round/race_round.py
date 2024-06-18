@@ -6,7 +6,7 @@ from starlette.responses import Response
 
 from db.schemas.race_round.race_round_create import RaceRoundCreateSchema
 from db.schemas.race_round.race_round_update import RaceRoundUpdateSchema
-from dependencies import get_db, authorized_only
+from dependencies.dependencies import get_db, authorized_only
 from routes.race_round.race_round_service import RaceRoundService
 from urls import URLs
 
