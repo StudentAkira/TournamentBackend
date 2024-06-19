@@ -11,7 +11,6 @@ from db.schemas.event.event_by_id import EventByIdSchema
 from db.schemas.event.event_create import EventCreateSchema
 from db.schemas.event.event_list import EventListSchema
 from db.schemas.event.event_update import EventUpdateSchema
-from db.schemas.nomination.nomination import NominationSchema
 from db.schemas.token.token_decoded import TokenDecodedSchema
 
 
@@ -74,16 +73,12 @@ class EventManager:
     def delete(self, event_db: type(Event)):
         delete_event_db(self.__db, event_db)
 
-    def raise_exception_if_owner_wrong(self, event_db: type(Event), user_id: int):
-        if event_db.owner_id != user_id:#todo with judge command
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail={"error": self.__wrong_event_owner_error}
-            )
+    def get_by_id(self, event_id: int) -> Event | None:
+        return get_event_by_id_db(self.__db, event_id)
 
     def get_by_id_or_raise_exception_if_not_found(self,  decoded_token: TokenDecodedSchema, event_id: int) \
             -> EventByIdSchema:
-        event_db = get_event_by_id_db(self.__db, event_id)
+        event_db = self.get_by_id(event_id)
         if not event_db:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -91,14 +86,19 @@ class EventManager:
             )
         return EventByIdSchema(
             edit_access=decoded_token.user_id == event_db.owner_id,
-            event_data=EventListSchema(
-                name=event_db.name,
-                date=event_db.date,
-                nominations=[
-                    NominationSchema(
-                        name=nomination_db.name
-                    )
-                    for nomination_db in event_db.nominations
-                ]
-            )
+            event_data=EventListSchema.from_orm(event_db)
         )
+
+    def raise_exception_if_event_not_found(self, event_db: Event | None ):
+        if not event_db:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={"error": self.__event_does_not_exist_error}
+            )
+
+    def raise_exception_if_owner_wrong(self, event_db: type(Event), user_id: int):
+        if event_db.owner_id != user_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail={"error": self.__wrong_event_owner_error}
+            )

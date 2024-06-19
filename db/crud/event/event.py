@@ -31,15 +31,7 @@ def get_events_with_nominations_by_owner_db(db: Session, offset: int, limit: int
 def get_events_with_nominations(events_db: list[type(Event)]):
     result = []
     for event_db in events_db:
-        result.append(
-            EventListSchema(
-                name=event_db.name,
-                date=event_db.date,
-                nominations=[
-                    NominationSchema.from_orm(nomination_db) for nomination_db in event_db.nominations
-                ]
-            )
-        )
+        result.append(EventListSchema.from_orm(event_db))
     return result
 
 

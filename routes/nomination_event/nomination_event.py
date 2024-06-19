@@ -5,15 +5,14 @@ from sqlalchemy.orm import Session
 from starlette.responses import Response
 
 from db.schemas.nomination_event.nomination_event import NominationEventSchema
-from db.schemas.nomination_event.nomination_event_delete import NominationEventDeleteSchema
-from dependencies import authorized_only, get_db
+from dependencies.dependencies import authorized_only, get_db
 from routes.nomination_event.nomination_event_service import NominationEventService
+from urls import URLs
+
+nomination_event = APIRouter(prefix=URLs.nomination_event_prefix.value, tags=URLs.nomination_event_tags.value)
 
 
-nomination_event = APIRouter(prefix="/api/nomination_event", tags=["nomination_event"])
-
-
-@nomination_event.post("/nomination_event_pdf")
+@nomination_event.post(URLs.nomination_event_pdf.value)
 async def get_event_pdf(
     response: Response,
     data: list[NominationEventSchema],
@@ -26,7 +25,7 @@ async def get_event_pdf(
     return Response(bytes(out), headers=headers, media_type='application/pdf')
 
 
-@nomination_event.get("/nomination_event_data")
+@nomination_event.get(URLs.nomination_event_data.value)
 async def get_nomination_event_data(
     response: Response,
     event_name: Annotated[str, Query()],
@@ -37,7 +36,7 @@ async def get_nomination_event_data(
     return service.get_nomination_event_data(response, token, event_name)
 
 
-@nomination_event.get("/nomination_event_full_info")
+@nomination_event.get(URLs.nomination_event_full_info.value)
 async def get_nominations_events_full_info(
         response: Response,
         offset: Annotated[int, Query(gte=0, lt=50)] = 0,
@@ -50,7 +49,7 @@ async def get_nominations_events_full_info(
     return service.get_nomination_events_full_info(response, token, offset, limit)
 
 
-@nomination_event.post("/append_nomination_for_event")
+@nomination_event.post(URLs.append_nomination_for_event.value)
 async def append_nomination_for_event(
         response: Response,
         nomination_event_data: NominationEventSchema,
@@ -61,7 +60,7 @@ async def append_nomination_for_event(
     return service.append_nomination_for_event(response, token, nomination_event_data)
 
 
-@nomination_event.delete("/delete_nomination_from_event")
+@nomination_event.delete(URLs.delete_nomination_from_event.value)
 async def delete_nomination_from_event(
     response: Response,
     nomination_event_data: NominationEventSchema,
@@ -72,7 +71,7 @@ async def delete_nomination_from_event(
     return service.delete(response, token, nomination_event_data)
 
 
-@nomination_event.post("/close_registration")
+@nomination_event.post(URLs.close_registration.value)
 async def close_registration(
         response: Response,
         nomination_event_data: NominationEventSchema,
@@ -83,7 +82,7 @@ async def close_registration(
     return service.close_registration(response, token, nomination_event_data)
 
 
-@nomination_event.post("/open_registration")
+@nomination_event.post(URLs.open_registration.value)
 async def open_registration(
         response: Response,
         nomination_event_data: NominationEventSchema,

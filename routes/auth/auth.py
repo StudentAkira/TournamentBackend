@@ -3,13 +3,15 @@ from sqlalchemy.orm import Session
 from starlette.responses import Response
 
 from db.schemas.user.user_login import UserLoginSchema
-from dependencies import get_db, authorized_only
+from dependencies.dependencies import get_db, authorized_only
 from routes.auth.auth_service import AuthService
+from urls import URLs
 
-auth = APIRouter(prefix="/api/auth", tags=["auth"])
+
+auth = APIRouter(prefix=URLs.auth_prefix.value, tags=URLs.auth_tags.value)
 
 
-@auth.post("/login")
+@auth.post(URLs.login.value)
 async def login(
         response: Response,
         user: UserLoginSchema,
@@ -19,7 +21,7 @@ async def login(
     return service.login(response, user)
 
 
-@auth.post("/logout")
+@auth.post(URLs.logout.value)
 async def logout(
         response: Response,
         token: str = Depends(authorized_only),

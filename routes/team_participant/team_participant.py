@@ -3,13 +3,14 @@ from pydantic import EmailStr
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 
-from dependencies import authorized_only, get_db
+from dependencies.dependencies import authorized_only, get_db
 from routes.team_participant.team_participant_service import TeamParticipantService
+from urls import URLs
 
-team_participant = APIRouter(prefix="/api/team_participant", tags=["team_participant"])
+team_participant = APIRouter(prefix=URLs.team_participant_prefix.value, tags=URLs.team_participant_tags.value)
 
 
-@team_participant.post("/team_participant")
+@team_participant.post(URLs.team_participant.value)
 async def append_participant_to_team(
         response: Response,
         participant_email: EmailStr,
