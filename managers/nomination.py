@@ -68,6 +68,3 @@ class NominationManager:
                 status_code=status.HTTP_409_CONFLICT,
                 detail={"error": self.__nomination_name_taken_error}
             )
-
-
-

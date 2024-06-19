@@ -36,7 +36,10 @@ class NominationEventService:
 
         for item in data:
             event_db = self.__event_manager.get_by_name_or_raise_if_not_found(item.event_name)
-            nomination_db = self.__nomination_manager.get_by_name_and_user_id_or_raise_exception_if_not_found(item.nomination_name)
+            nomination_db = self.__nomination_manager.get_by_name_and_user_id_or_raise_exception_if_not_found(
+                decoded_token.user_id,
+                item.nomination_name
+            )
             nomination_event_db = self.__nomination_event_manager.get_nomination_event_or_raise_if_not_found(
                 nomination_db,
                 event_db,
@@ -96,6 +99,7 @@ class NominationEventService:
         user_db = self.__user_manager.get_user_by_id_or_raise_if_not_found(decoded_token.user_id)
 
         event_db = self.__event_manager.get_by_name_or_raise_if_not_found(nomination_event.event_name)
+
         nomination_db = self.__nomination_manager.get_or_create(
             decoded_token.user_id,
             nomination_event.nomination_name

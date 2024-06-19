@@ -2,11 +2,9 @@ from typing import TYPE_CHECKING
 
 from pydantic import EmailStr
 from sqlalchemy import Column, Integer, String
-from phonenumbers import PhoneNumber
 from sqlalchemy.orm import Mapped, relationship
 
 from db.database import Base
-
 
 if TYPE_CHECKING:
     from db.models.token import Token
@@ -16,6 +14,7 @@ if TYPE_CHECKING:
     from db.models.nomination_event import NominationEvent
     from db.models.match import Match
     from db.models.nomination import Nomination
+    from db.models.annotations import Annotation
 
 
 class User(Base):
@@ -36,6 +35,7 @@ class User(Base):
     tokens: Mapped[list["Token"]] = relationship("Token", back_populates="owner")
     events: Mapped[list["Event"]] = relationship("Event", back_populates="owner")
     nominations: Mapped[list["Nomination"]] = relationship("Nomination", back_populates="owner")
+    annotations: Mapped[list["Annotation"]] = relationship("Annotation", back_populates="owner")
     created_teams: Mapped[list["Team"]] = relationship("Team", back_populates="creator")
     participants: Mapped[list["Participant"]] = relationship("Participant", back_populates="creator")
     judged_events: Mapped[list["NominationEvent"]] = relationship(
