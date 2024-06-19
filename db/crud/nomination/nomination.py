@@ -6,9 +6,11 @@ from sqlalchemy.orm import Session
 from db.models.event import Event
 from db.models.nomination import Nomination
 from db.schemas.nomination.nomination import NominationSchema
+from db.schemas.nomination.nomination_create import NominationCreateSchema
+from db.schemas.nomination.nomination_update import NominationUpdateSchema
 
 
-def create_nomination_db(db: Session, user_id: int, nomination: NominationSchema):
+def create_nomination_db(db: Session, user_id: int, nomination: NominationCreateSchema):
     nomination_db = Nomination(
         name=nomination.name,
         owner_id=user_id
@@ -97,7 +99,17 @@ def get_nomination_by_name_and_user_id_db(db: Session, user_id: int, name: str) 
     return nomination_db
 
 
-def update_nomination_db(db: Session, nomination_db: type(Nomination), new_nomination: NominationSchema):
-    nomination_db.name = new_nomination.name
+def update_nomination_db(db: Session, nomination_db: type(Nomination), nomination_data: NominationUpdateSchema):
+    nomination_db.name = nomination_data.new_name
     db.add(nomination_db)
     db.commit()
+
+
+def get_nomination_by_id_and_user_id_db(db: Session, user_id: int, nomination_id: int) -> Nomination | None:
+    nomination_db = db.query(Nomination).filter(
+        and_(
+            Nomination.id == nomination_id,
+            Nomination.owner_id == user_id
+        )
+    ).first()
+    return nomination_db

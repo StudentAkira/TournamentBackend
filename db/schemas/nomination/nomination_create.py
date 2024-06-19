@@ -1,8 +1,7 @@
 from pydantic import BaseModel, Field
 
 
-class NominationSchema(BaseModel):
-    id: int
+class NominationCreateSchema(BaseModel):
     name: str = Field(min_length=5)
 
     class Config:
