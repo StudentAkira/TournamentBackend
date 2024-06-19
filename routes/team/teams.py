@@ -5,7 +5,7 @@ from starlette.responses import Response
 
 from db.schemas.team.team import TeamSchema
 from db.schemas.team.team_update import TeamUpdateSchema
-from dependencies import get_db, authorized_only
+from dependencies.dependencies import get_db, authorized_only
 from routes.team.teams_service import TeamsService
 from urls import URLs
 

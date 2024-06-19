@@ -8,7 +8,7 @@ from db.schemas.team_nomination_event.delete_team_participant_nomination_event i
     DeleteTeamParticipantNominationEventSchema
 from db.schemas.team_nomination_event.update_team_participant_nomination_event import \
     UpdateTeamParticipantNominationEventSchema
-from dependencies import get_db, authorized_only
+from dependencies.dependencies import get_db, authorized_only
 from routes.team_participant_nomination_event.team_participant_nomination_event_service import \
     TeamParticipantNominationEventService
 from urls import URLs

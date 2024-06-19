@@ -97,7 +97,7 @@ class EventManager:
             )
 
     def raise_exception_if_owner_wrong(self, event_db: type(Event), user_id: int):
-        if event_db.owner_id != user_id:#todo with judge command
+        if event_db.owner_id != user_id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail={"error": self.__wrong_event_owner_error}

@@ -56,7 +56,7 @@ class NominationEventManager:
 
         pdf = FPDF(orientation='L')
         pdf.add_page()
-        pdf.add_font('fontF', 'B', os.path.join(".", 'Roman.ttf'))
+        pdf.add_font('fontF', 'B', os.path.join(".", 'static/Roman.ttf'))
         pdf.set_font('fontF', 'B', 12)
         pdf.write(text='''
                                                                                                                         
