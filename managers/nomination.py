@@ -27,6 +27,13 @@ class NominationManager:
         nominations = [NominationSchema.from_orm(nomination_db) for nomination_db in nominations_db]
         return nominations
 
+    def get_or_create(self, user_id: int, nomination_name: str):
+        nomination_db = get_nomination_by_name_and_user_id_db(self.__db, user_id, nomination_name)
+        if nomination_db is None:
+            self.create(user_id, NominationSchema(name=nomination_name))
+            nomination_db = self.get_by_name_and_user_id_or_raise_exception_if_not_found(user_id, nomination_name)
+        return nomination_db
+
     def get_by_name_and_user_id_or_raise_exception_if_not_found(self, user_id: int, name: str) -> type(Nomination):
         nomination_db = get_nomination_by_name_and_user_id_db(self.__db, user_id, name)
         if not nomination_db:
@@ -61,6 +68,3 @@ class NominationManager:
                 status_code=status.HTTP_409_CONFLICT,
                 detail={"error": self.__nomination_name_taken_error}
             )
-
-
-

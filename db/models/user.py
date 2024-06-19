@@ -2,11 +2,9 @@ from typing import TYPE_CHECKING
 
 from pydantic import EmailStr
 from sqlalchemy import Column, Integer, String
-from phonenumbers import PhoneNumber
 from sqlalchemy.orm import Mapped, relationship
 
 from db.database import Base
-
 
 if TYPE_CHECKING:
     from db.models.token import Token
