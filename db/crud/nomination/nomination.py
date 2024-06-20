@@ -112,3 +112,8 @@ def get_nomination_by_id_and_user_id_db(db: Session, user_id: int, nomination_id
         )
     ).first()
     return nomination_db
+
+
+def get_nomination_by_id(db: Session, nomination_id: int) -> Nomination | None:
+    nomination_db = db.query(Nomination).filter(Nomination.id == nomination_id).first()
+    return nomination_db

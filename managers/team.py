@@ -82,6 +82,10 @@ class TeamManager:
         self.raise_exception_if_not_found(team_db)
         return team_db
 
+    def get_by_id(self, team_id: int) -> type(Team) | None:
+        team_db = get_team_by_id_db(self.__db, team_id)
+        return team_db
+
     def raise_exception_if_not_found(self, team_db: Team):
         if team_db is None:
             raise HTTPException(

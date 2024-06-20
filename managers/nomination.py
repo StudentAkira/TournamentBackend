@@ -5,7 +5,8 @@ from starlette import status
 from db.crud.nomination.nomination import get_nominations_db, \
     update_nomination_db, create_nomination_db, get_event_related_nominations, \
     get_event_related_nominations_starts_with, get_event_not_related_nominations_starts_with, \
-    get_event_not_related_nominations, get_nomination_by_name_and_user_id_db, get_nomination_by_id_and_user_id_db
+    get_event_not_related_nominations, get_nomination_by_name_and_user_id_db, get_nomination_by_id_and_user_id_db, \
+    get_nomination_by_id
 from db.models.nomination import Nomination
 from db.schemas.nomination.nomination_create import NominationCreateSchema
 from db.schemas.nomination.nomination_get import NominationGetSchema
@@ -62,6 +63,10 @@ class NominationManager:
 
     def get_by_id_and_user_id(self, user_id: int, nomination_id: int) -> Nomination | None:
         nomination_db = get_nomination_by_id_and_user_id_db(self.__db, user_id, nomination_id)
+        return nomination_db
+
+    def get_by_id(self, nomination_id: int) -> Nomination | None:
+        nomination_db = get_nomination_by_id(self.__db, nomination_id)
         return nomination_db
 
     def get_by_id_and_user_id_or_raise_exception_if_not_found(self, user_id: int, nomination_id: int) -> Nomination:
