@@ -1,21 +1,13 @@
-from typing import cast
-
-from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
 from db.crud.general import round_robin
 from db.models.bracket import Bracket
-from db.models.event import Event
 from db.models.group import Group
 from db.models.match import Match
-from db.models.nomination import Nomination
 from db.models.nomination_event import NominationEvent
 from db.models.team import Team
 from db.schemas.group_tournament.get_groups_of_tournament import GetGroupsOfTournamentSchema
 from db.schemas.group_tournament.group import GroupSchema
-from db.schemas.group_tournament.start_group_tournament import StartGroupTournamentSchema
-from db.schemas.nomination_event.nomination_event_type import NominationEventType
-from db.schemas.nomination_event.olympyc_nomination_event import OlympycNominationEventSchema
 from db.schemas.team.team import TeamSchema
 
 
@@ -65,6 +57,7 @@ def get_groups_of_tournament_db(nomination_event_db: type(NominationEvent)):
                 id=group_db.id,
                 teams=[
                     TeamSchema(
+                        id=team_db.id,
                         name=team_db.name,
                     ) for team_db in group_db.teams
                 ]
@@ -74,7 +67,7 @@ def get_groups_of_tournament_db(nomination_event_db: type(NominationEvent)):
     return result
 
 
-def is_all_matches_finished_db(db: Session, nomination_event_db: type(NominationEvent)):
+def is_all_matches_finished_db(nomination_event_db: type(NominationEvent)):
     for group in nomination_event_db.groups:
         for match in group.matches:
             if match.last_result_creator is None and match.team1 is not None and match.team2 is not None:
@@ -113,8 +106,7 @@ def start_play_off_tournament_db(db: Session, nomination_event_db: type(Nominati
                                                 match.winner is not None and match.winner.id == match.team2.id
                                                 else 0)
 
-    receive_team_names = set(team_db.name for team_db in teams)
-    received_team_ids = set(team_db.id for team_db in db.query(Team).filter(Team.name.in_(receive_team_names)))
+    received_team_ids = set([team.id for team in teams])
     teams_to_create_matches = sorted(
         [
             (k, team_score[k])

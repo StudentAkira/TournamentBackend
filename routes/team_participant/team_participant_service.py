@@ -5,6 +5,8 @@ from starlette.responses import Response
 from db.models.participant import Participant
 from db.models.team import Team
 from db.models.user import User
+from db.schemas.team.team import TeamSchema
+from db.schemas.team_participant.team_participant_append import TeamParticipantAppendSchema
 from db.schemas.token.token_decoded import TokenDecodedSchema
 from db.schemas.user.user_role import UserRole
 from managers.participant import ParticipantManager
@@ -35,15 +37,16 @@ class TeamParticipantService:
             self,
             response: Response,
             token: str,
-            participant_email: EmailStr,
-            team_name: str,
+            team_participant_data: TeamParticipantAppendSchema
     ) -> dict[str, str]:
         decoded_token = self.__token_manager.decode_token(token, response)
         user_db = self.__user_manager.get_user_by_id_or_raise_if_not_found(decoded_token.user_id)
-        team_name = self.__team_manager.get_team_name_from_team_name_or_participant_email(team_name)
 
-        team_db = self.__team_manager.get_by_name_or_raise_if_not_found(team_name)
-        participant_db = self.__participant_manager.get_by_email_or_raise_if_not_found(participant_email)
+        team_db = self.__team_manager.get_by_id_or_raise_if_not_found(team_participant_data.team_id)
+        self.__team_manager.raise_exception_if_team_default(team_db.name)
+        participant_db = self.__participant_manager.get_by_id_or_raise_if_not_found(
+            team_participant_data.participant_id
+        )
 
         self.check_ownership_for_not_admin(decoded_token, participant_db, team_db, user_db)
 

@@ -4,6 +4,7 @@ from db.schemas.participant.participant_get import ParticipantGetSchema
 
 
 class TeamParticipantsSchema(BaseModel):
+    id: int
     name: str
     participants: list[ParticipantGetSchema]
 

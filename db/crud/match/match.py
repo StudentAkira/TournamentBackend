@@ -10,8 +10,7 @@ from db.schemas.bracket.bracket_tournament import BracketMatchesSchema
 from db.schemas.group_tournament.group_matches import GroupMatchesSchema
 from db.schemas.match.bracket_match_schema import BracketMatchSchema
 from db.schemas.match.group_match_schema import GroupMatchSchema
-from db.schemas.match.set_match_result_schema import SetMatchResultSchema
-from db.schemas.team.team import TeamSchema
+from db.schemas.team.team_get import TeamGetSchema
 
 
 def get_match_by_id(db: Session, match_id: int):
@@ -26,9 +25,9 @@ def get_group_matches_db(nomination_event_db: type(NominationEvent)):
             matches=[
                 GroupMatchSchema(
                     match_id=match_db.id,
-                    team1=TeamSchema(name=match_db.team1.name) if match_db.team1 else None,
-                    team2=TeamSchema(name=match_db.team2.name) if match_db.team2 else None,
-                    winner=TeamSchema(name=match_db.winner.name) if match_db.winner else None,
+                    team1=TeamGetSchema(id=match_db.team1.id, name=match_db.team1.name) if match_db.team1 else None,
+                    team2=TeamGetSchema(id=match_db.team2.id, name=match_db.team2.name) if match_db.team2 else None,
+                    winner=TeamGetSchema(id=match_db.winner.id, name=match_db.winner.name) if match_db.winner else None,
                     last_result_creator_email=
                     match_db.last_result_creator.email
                     if match_db.last_result_creator else None,
@@ -43,9 +42,9 @@ def get_group_matches_db(nomination_event_db: type(NominationEvent)):
 def get_bracket_matches_db(nomination_event_db: type(NominationEvent)):
     result = BracketMatchesSchema(matches=[BracketMatchSchema(
         match_id=match.id,
-        team1=TeamSchema.from_orm(match.team1) if match.team1 else None,
-        team2=TeamSchema.from_orm(match.team2) if match.team2 else None,
-        winner=TeamSchema.from_orm(match.winner) if match.winner else None,
+        team1=TeamGetSchema.from_orm(match.team1) if match.team1 else None,
+        team2=TeamGetSchema.from_orm(match.team2) if match.team2 else None,
+        winner=TeamGetSchema.from_orm(match.winner) if match.winner else None,
         last_result_creator_email=match.last_result_creator.email if match.last_result_creator else None,
         next_match_id=match.next_bracket_match_id
     ) for match in nomination_event_db.bracket.matches])

@@ -25,12 +25,15 @@ class ParticipantManager:
 
     def get_by_email_or_raise_if_not_found(self, email: EmailStr):
         participant_db = get_participant_by_email_db(self.__db, email)
-        if not participant_db:
+        self.raise_exception_if_not_found(participant_db)
+        return participant_db
+
+    def raise_exception_if_not_found(self, participant_db: Participant | None):
+        if participant_db is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail={"error": self.__participant_not_found_error}
             )
-        return participant_db
 
     def get_by_id_or_raise_if_not_found(self, participant_id: int) -> Participant:
         participant_db = get_participant_by_id_db(self.__db, participant_id)

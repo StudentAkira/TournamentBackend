@@ -95,6 +95,7 @@ class NominationEventJudgeService:
             nomination_event_judge.event_name
         )
         nomination_db = self.__nomination_manager.get_by_name_and_user_id_or_raise_exception_if_not_found(
+            decoded_token.user_id,
             nomination_event_judge.nomination_name
         )
         nomination_event_db = self.__nomination_event_manager.get_nomination_event_or_raise_if_not_found(
