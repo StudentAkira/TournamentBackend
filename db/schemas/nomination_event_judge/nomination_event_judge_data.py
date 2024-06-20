@@ -8,4 +8,4 @@ class NominationEventJudgeDataSchema(BaseModel):
     event_id: int
     nomination_event_type: NominationEventType | None = NominationEventType.olympyc
 
-    email: EmailStr
+    judge_id: int

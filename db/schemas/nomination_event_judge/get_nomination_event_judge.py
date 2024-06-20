@@ -10,3 +10,5 @@ class GetNominationEventJudgeSchema(BaseModel):
     nomination_id: Annotated[int, Query()]
     event_id: Annotated[int, Query()]
     nomination_event_type: Annotated[NominationEventType | None, Query(default=NominationEventType.olympyc)]
+
+    judge_id: int

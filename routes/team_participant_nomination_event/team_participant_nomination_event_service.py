@@ -36,7 +36,7 @@ class TeamParticipantNominationEventService:
         self.__validator = Validator(db)
         self.__retriever = Retriever(db)
 
-        self.__team_participant_appended_message = "team participant appended to nomination event"
+        self.__team_participant_appended_message = "team participants appended to nomination event"
         self.__team_participant_updated_message = "team participant updated in nomination event"
         self.__team_participant_deleted_message = "team participant deleted from nomination event"
 
@@ -63,41 +63,11 @@ class TeamParticipantNominationEventService:
 
         self.__team_participant_nomination_event_manager.validate_received_schema(
             team_participant_nomination_event,
+            nomination_event_db,
             user_db
         )
         self.__team_participant_nomination_event_manager.refresh(team_participant_nomination_event, nomination_event_db)
-
-
-        #validate_data
-
-        # team_name = self.__team_manager.get_team_name_from_team_name_or_participant_email(
-        #     team_participant_nomination_event.team_name
-        # )
-        # team_participant_nomination_event.team_name = team_name
-        # team_db = self.__team_manager.get_by_name_or_raise_if_not_found(team_name)
-        # participant_db = self.__participant_manager.get_by_email_or_raise_if_not_found(
-        #     team_participant_nomination_event.participant_email
-        # )
-        # self.__validator.validate_user_entity_ownership(
-        #     decoded_token,
-        #     team_db,
-        #     event_db
-        # )
-        # self.__nomination_event_manager.raise_exception_if_registration_finished(nomination_event_db)
-        # self.__nomination_event_manager.raise_exception_if_participant_in_nomination_event(
-        #     participant_db, nomination_event_db
-        # )
-        # self.__participant_manager.raise_exception_if_owner_wrong(
-        #     participant_db,
-        #     user_db
-        # )
-        # self.__team_participant_nomination_event_manager.append_team_participant_nomination_event(
-        #     nomination_event_db,
-        #     team_db,
-        #     participant_db,
-        #     team_participant_nomination_event
-        # )
-        # return {"message": self.__team_participant_appended_message}
+        return {'message': self.__team_participant_appended_message}
 
     def update_team_participant_nomination_event(
             self,

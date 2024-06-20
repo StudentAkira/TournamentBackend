@@ -1,10 +1,7 @@
-from typing import Annotated
-
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 
-from db.schemas.nomination_event.nomination_event_type import NominationEventType
 from db.schemas.nomination_event_judge.get_nomination_event_judge import GetNominationEventJudgeSchema
 from db.schemas.nomination_event_judge.nomination_event_judge_data import NominationEventJudgeDataSchema
 from dependencies.dependencies import authorized_only, get_db

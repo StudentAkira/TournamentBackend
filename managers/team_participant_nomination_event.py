@@ -15,6 +15,7 @@ from db.schemas.team_nomination_event.update_team_participant_nomination_event i
 from db.schemas.team_participant_nomination_event.append_teams_participants_nomination_event import \
     TeamParticipantNominationEventAppendSchema
 from db.schemas.user.user_role import UserRole
+from managers.nomination_event import NominationEventManager
 from managers.participant import ParticipantManager
 from managers.team import TeamManager
 from managers.team_participant import TeamParticipantManager
@@ -29,6 +30,7 @@ class TeamParticipantNominationEventManager:
         self.__participant_manager = ParticipantManager(db)
         self.__team_manager = TeamManager(db)
         self.__team_participant_manager = TeamParticipantManager(db)
+        self.__nomination_event_manger = NominationEventManager(db)
 
         self.__team_present_more_then_one_time = "team present more then one time"
         self.__participant_present_more_then_one_time = "participant present more then one time"
@@ -78,6 +80,7 @@ class TeamParticipantNominationEventManager:
     def validate_received_schema(
             self,
             team_participant_nomination_event: TeamParticipantNominationEventAppendSchema,
+            nomination_event_db: NominationEvent,
             user_db: User
     ):
         participant_ids = [tp.participant_id for tp in team_participant_nomination_event.team_participants]
@@ -95,6 +98,10 @@ class TeamParticipantNominationEventManager:
             if user_db.role != UserRole.admin:
                 self.__participant_manager.raise_exception_if_owner_wrong(participant_db, user_db)
             self.__team_participant_manager.raise_exception_if_participant_not_in_team(participant_db, team_db)
+            self.__nomination_event_manger.raise_exception_if_participant_in_nomination_event(
+                participant_db,
+                nomination_event_db
+            )
 
     def raise_exception_if_participant_present_more_then_one_time(self, participant_ids: list[int]):
         if len(participant_ids) != len(set(participant_ids)):

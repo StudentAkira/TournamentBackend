@@ -1,6 +1,6 @@
 from typing import cast
 
-from sqlalchemy import and_
+from sqlalchemy import and_, delete
 from sqlalchemy.orm import Session
 
 from db.crud.event.event import get_event_by_id_db
@@ -96,7 +96,31 @@ def refresh_db(
         team_participant_nomination_event: TeamParticipantNominationEventAppendSchema
 ):
     team_participants_db = []
-    team_db = db.query(Team).filter(Team.id == team_participant_nomination_event.team_id).first()
+    team_db = db.query(Team).filter(
+        cast('ColumnElement[bool]', Team.id == team_participant_nomination_event.team_id)
+    ).first()
+
+    team_participants_to_delete = [
+        team_participant_db.id for team_participant_db in
+        db.query(TeamParticipant).filter(TeamParticipant.team_id == team_db.id).all()
+    ]
+    to_delete_team_participants_nomination_event_db = db.query(TeamParticipantNominationEvent).filter(
+        and_(
+            TeamParticipantNominationEvent.nomination_event_id == nomination_event_db.id,
+            TeamParticipantNominationEvent.team_participant_id.in_(team_participants_to_delete)
+        )
+    ).all()
+
+    for tpne in to_delete_team_participants_nomination_event_db:
+        tpne.softwares.clear()
+        tpne.equipments.clear()
+        db.add(tpne)
+    db.commit()
+    delete_tpne = delete(TeamParticipantNominationEvent).where(TeamParticipantNominationEvent.id.in_(
+        tpne.id for tpne in to_delete_team_participants_nomination_event_db
+    ))
+    db.execute(delete_tpne)
+    db.commit()
 
     for tp in team_participant_nomination_event.team_participants:
 
@@ -107,12 +131,14 @@ def refresh_db(
             )
         ).first()
         team_participants_db.append(team_participant_db)
+
         team_participant_nomination_event_db = db.query(TeamParticipantNominationEvent).filter(
             and_(
                 TeamParticipantNominationEvent.team_participant_id == team_participant_db.id,
                 TeamParticipantNominationEvent.nomination_event_id == nomination_event_db.id
             )
         ).first()
+
         if team_participant_nomination_event_db is None:
             team_participant_nomination_event_db = TeamParticipantNominationEvent(
                 team_participant_id=team_participant_db.id,
@@ -120,7 +146,6 @@ def refresh_db(
                 softwares=[],
                 equipments=[]
             )
-        db.add(team_participant_nomination_event_db)
 
         team_participant_nomination_event_db.softwares.clear()
         for software in tp.softwares:
@@ -145,30 +170,8 @@ def refresh_db(
                 db.add(equipment_db)
                 db.commit()
             team_participant_nomination_event_db.equipments.append(equipment_db)
+
         db.add(team_participant_db)
+
+        db.add(team_participant_nomination_event_db)
     db.commit()
-
-    participants_of_team_in_nomination_event_db = db.query(TeamParticipantNominationEvent).filter(
-        and_(
-            TeamParticipantNominationEvent.nomination_event_id == nomination_event_db.nomination_id,
-            TeamParticipantNominationEvent.team_participant_id.in_(
-                [
-                    team_participant_db.id for team_participant_db in
-                    nomination_event_db.team_participants if team_participant_db.team_id == team_db.id
-                ]
-            )
-        )
-    ).all()
-    for tp in participants_of_team_in_nomination_event_db:
-        if tp not in team_participants_db:
-            db.delete(tp)
-    db.commit()
-
-
-
-
-
-
-
-
-

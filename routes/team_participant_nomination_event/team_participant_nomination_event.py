@@ -25,7 +25,7 @@ async def append_team_participant_nomination_event(
         team_participant_nomination_event_data: TeamParticipantNominationEventAppendSchema,
         token: str = Depends(authorized_only),
         db: Session = Depends(get_db)
-):
+) -> dict[str, str]:
     service = TeamParticipantNominationEventService(db)
     return service.append_team_participant_nomination_event(
         response,

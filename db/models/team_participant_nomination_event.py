@@ -22,11 +22,13 @@ class TeamParticipantNominationEvent(Base):
         relationship(
             "Software",
             back_populates="team_participants_nomination_events",
-            secondary="team_participants_nomination_event_software"
+            secondary="team_participants_nomination_event_software",
+            cascade="all,delete",
         )
     equipments: Mapped[list["Equipment"]] = \
         relationship(
             "Equipment",
             back_populates="team_participants_nomination_events",
-            secondary="team_participants_nomination_event_equipment"
+            secondary="team_participants_nomination_event_equipment",
+            cascade="all,delete",
         )
