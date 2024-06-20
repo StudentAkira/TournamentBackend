@@ -86,17 +86,17 @@ class NominationEventJudgeService:
             response: Response,
             token: str,
             nomination_event_judge:
-            NominationEventJudgeDataSchema | NominationEventJudgeDataSchema | GetNominationEventJudgeSchema
+            NominationEventJudgeDataSchema | GetNominationEventJudgeSchema
     ):
         decoded_token = self.__token_manager.decode_token(token, response)
         self.__user_manager.raise_exception_if_user_specialist(decoded_token.role)
         user_db = self.__user_manager.get_user_by_id_or_raise_if_not_found(decoded_token.user_id)
-        event_db = self.__event_manager.get_by_name_or_raise_if_not_found(
-            nomination_event_judge.event_name
+        event_db = self.__event_manager.get_by_id_or_raise_if_not_found(
+            nomination_event_judge.event_id
         )
-        nomination_db = self.__nomination_manager.get_by_name_and_user_id_or_raise_exception_if_not_found(
+        nomination_db = self.__nomination_manager.get_by_id_and_user_id_or_raise_exception_if_not_found(
             decoded_token.user_id,
-            nomination_event_judge.nomination_name
+            nomination_event_judge.nomination_id
         )
         nomination_event_db = self.__nomination_event_manager.get_nomination_event_or_raise_if_not_found(
             nomination_db,

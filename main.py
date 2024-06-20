@@ -37,6 +37,10 @@ from db.models.group_team import GroupTeam
 from db.models.bracket_team import BracketTeam
 from db.models.match import Match
 from db.models.race_round import RaceRound
+from db.models.software import Software
+from db.models.equipment import Equipment
+from db.models.team_participant_nomination_event_software import TeamParticipantNominationEventSoftware
+from db.models.team_participant_nomination_event_equipment import TeamParticipantNominationEventEquipment
 
 
 database.Base.metadata.create_all(bind=database.engine)

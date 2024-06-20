@@ -64,6 +64,11 @@ class NominationManager:
         nomination_db = get_nomination_by_id_and_user_id_db(self.__db, user_id, nomination_id)
         return nomination_db
 
+    def get_by_id_and_user_id_or_raise_exception_if_not_found(self, user_id: int, nomination_id: int) -> Nomination:
+        nomination_db = self.get_by_id_and_user_id(user_id, nomination_id)
+        self.raise_exception_if_not_found(nomination_db)
+        return nomination_db
+
     def raise_exception_if_name_taken(self, nomination_db: Nomination | None):
         if nomination_db:
             raise HTTPException(
@@ -77,3 +82,5 @@ class NominationManager:
                 status_code=status.HTTP_409_CONFLICT,
                 detail={"error": self.__nomination_does_not_exist_error}
             )
+
+

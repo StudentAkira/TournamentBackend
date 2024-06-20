@@ -4,8 +4,8 @@ from db.schemas.nomination_event.nomination_event_type import NominationEventTyp
 
 
 class NominationEventJudgeDataSchema(BaseModel):
-    nomination_name: str
-    event_name: str
-    nomination_event_type: NominationEventType
+    nomination_id: int
+    event_id: int
+    nomination_event_type: NominationEventType | None = NominationEventType.olympyc
 
     email: EmailStr
