@@ -7,10 +7,12 @@ from sqlalchemy.orm import Session
 from starlette import status
 
 from db.crud.participant.participant import get_participants_by_owner_db, create_participant_db, \
-    get_participant_by_email_db, hide_participant_db, update_participant_db
+    get_participant_by_email_db, hide_participant_db, update_participant_db, get_participant_by_id_db
 from db.models.participant import Participant
 from db.models.user import User
 from db.schemas.participant.participant import ParticipantSchema
+from db.schemas.participant.participant_create import ParticipantCreateSchema
+from db.schemas.participant.participant_get import ParticipantGetSchema
 from db.schemas.participant.participant_hide import ParticipantHideSchema
 from db.schemas.participant.participant_update import ParticipantUpdateSchema
 from db.schemas.user.user_role import UserRole
@@ -35,13 +37,18 @@ class ParticipantManager:
             )
         return participant_db
 
-    def list_by_owner(self, offset: int, limit: int, user_id: int) -> list[ParticipantSchema]:
+    def get_by_id_or_raise_if_not_found(self, participant_id: int) -> Participant:
+        participant_db = get_participant_by_id_db(self.__db, participant_id)
+        self.raise_exception_if_not_found(participant_db)
+        return participant_db
+
+    def list_by_owner(self, offset: int, limit: int, user_id: int) -> list[ParticipantGetSchema]:
         participants_db = get_participants_by_owner_db(self.__db, offset, limit, user_id)
-        participants = [ParticipantSchema.from_orm(participant_db) for participant_db in participants_db]
+        participants = [ParticipantGetSchema.from_orm(participant_db) for participant_db in participants_db]
         return participants
 
-    def create(self, participant: ParticipantSchema, creator_id):
-        participant_db = get_participant_by_email_db(self.__db,participant.email)
+    def create(self, participant: ParticipantCreateSchema, creator_id):
+        participant_db = get_participant_by_email_db(self.__db, participant.email)
         if participant_db:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
@@ -72,4 +79,11 @@ class ParticipantManager:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail={"error": self.__email_taken_error}
+            )
+
+    def raise_exception_if_not_found(self, participant: Participant | None):
+        if participant is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={"error": self.__participant_not_found_error}
             )

@@ -29,8 +29,6 @@ class Participant(Base):
     supervisor_second_name: str = Column(String, nullable=False)
     supervisor_third_name: str = Column(String, nullable=False)
 
-    hidden: bool = Column(Boolean, nullable=False, default=False)
-
     creator_id: int = Column(Integer, ForeignKey("users.id"), nullable=False)
 
     creator: Mapped["User"] = relationship("User", back_populates="participants")

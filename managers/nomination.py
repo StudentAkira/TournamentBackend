@@ -7,7 +7,6 @@ from db.crud.nomination.nomination import get_nominations_db, \
     get_event_related_nominations_starts_with, get_event_not_related_nominations_starts_with, \
     get_event_not_related_nominations, get_nomination_by_name_and_user_id_db, get_nomination_by_id_and_user_id_db
 from db.models.nomination import Nomination
-from db.schemas.nomination.nomination import NominationSchema
 from db.schemas.nomination.nomination_create import NominationCreateSchema
 from db.schemas.nomination.nomination_get import NominationGetSchema
 from db.schemas.nomination.nomination_update import NominationUpdateSchema

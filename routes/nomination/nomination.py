@@ -4,7 +4,6 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 
-from db.schemas.nomination.nomination import NominationSchema
 from db.schemas.nomination.nomination_create import NominationCreateSchema
 from db.schemas.nomination.nomination_get import NominationGetSchema
 from db.schemas.nomination.nomination_update import NominationUpdateSchema

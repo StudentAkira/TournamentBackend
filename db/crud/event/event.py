@@ -6,7 +6,6 @@ from db.models.event import Event
 from db.schemas.event.event_create import EventCreateSchema
 from db.schemas.event.event_list import EventListSchema
 from db.schemas.event.event_update import EventUpdateSchema
-from db.schemas.nomination.nomination import NominationSchema
 
 
 def get_all_events_db(db: Session):

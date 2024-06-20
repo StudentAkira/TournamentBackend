@@ -1,11 +1,10 @@
 from typing import cast
 
-from sqlalchemy import and_, not_
+from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
 from db.models.event import Event
 from db.models.nomination import Nomination
-from db.schemas.nomination.nomination import NominationSchema
 from db.schemas.nomination.nomination_create import NominationCreateSchema
 from db.schemas.nomination.nomination_update import NominationUpdateSchema
 
