@@ -1,8 +1,5 @@
-from typing import cast
-
 from fastapi import HTTPException
 from pydantic import EmailStr
-from sqlalchemy import exists, and_
 from sqlalchemy.orm import Session
 from starlette import status
 
@@ -10,10 +7,8 @@ from db.crud.participant.participant import get_participants_by_owner_db, create
     get_participant_by_email_db, hide_participant_db, update_participant_db, get_participant_by_id_db
 from db.models.participant import Participant
 from db.models.user import User
-from db.schemas.participant.participant import ParticipantSchema
 from db.schemas.participant.participant_create import ParticipantCreateSchema
 from db.schemas.participant.participant_get import ParticipantGetSchema
-from db.schemas.participant.participant_hide import ParticipantHideSchema
 from db.schemas.participant.participant_update import ParticipantUpdateSchema
 from db.schemas.user.user_role import UserRole
 
@@ -56,10 +51,10 @@ class ParticipantManager:
             )
         create_participant_db(self.__db, participant, creator_id)
 
-    def read_by_email(self, email: EmailStr) -> ParticipantSchema | None:
+    def read_by_email(self, email: EmailStr) -> ParticipantGetSchema | None:
         participant_db = get_participant_by_email_db(self.__db, email)
         if participant_db:
-            return ParticipantSchema.from_orm(participant_db)
+            return ParticipantGetSchema.from_orm(participant_db)
 
     def hide(self, participant_db: type(Participant)):
         hide_participant_db(self.__db, participant_db)

@@ -4,10 +4,8 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 
-from db.schemas.participant.participant import ParticipantSchema
 from db.schemas.participant.participant_create import ParticipantCreateSchema
 from db.schemas.participant.participant_get import ParticipantGetSchema
-from db.schemas.participant.participant_hide import ParticipantHideSchema
 from db.schemas.participant.participant_update import ParticipantUpdateSchema
 from dependencies.dependencies import get_db, authorized_only
 from routes.participant.participants_service import ParticipantsService
@@ -48,14 +46,3 @@ async def update_participant(
 ):
     service = ParticipantsService(db)
     return service.update(response, token, participant_data)
-
-
-@participants.post("/hide_participant", deprecated=True)
-async def hide_participant(
-        response: Response,
-        participant_data: ParticipantHideSchema,
-        token: str = Depends(authorized_only),
-        db: Session = Depends(get_db)
-):
-    service = ParticipantsService(db)
-    return service.hide(response, token, participant_data)

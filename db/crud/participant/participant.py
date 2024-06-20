@@ -5,7 +5,6 @@ from sqlalchemy.orm import Session
 
 from db.models.participant import Participant
 from db.models.team import Team
-from db.schemas.participant.participant import ParticipantSchema
 from db.schemas.participant.participant_create import ParticipantCreateSchema
 from db.schemas.participant.participant_update import ParticipantUpdateSchema
 
