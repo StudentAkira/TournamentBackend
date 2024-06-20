@@ -28,12 +28,12 @@ async def get_event_pdf(
 @nomination_event.get(URLs.nomination_event_data.value)
 async def get_nomination_event_data(
     response: Response,
-    event_name: Annotated[str, Query()],
+    event_id: Annotated[int, Query()],
     token: str = Depends(authorized_only),
     db: Session = Depends(get_db)
 ):
     service = NominationEventService(db)
-    return service.get_nomination_event_data(response, token, event_name)
+    return service.get_nomination_event_data(response, token, event_id)
 
 
 @nomination_event.get(URLs.nomination_event_full_info.value)

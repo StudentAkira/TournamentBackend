@@ -51,23 +51,15 @@ class EventManager:
     def list_with_nominations_by_owner(self, offset, limit, owner_id):
         return get_events_with_nominations_by_owner_db(self.__db, offset, limit, owner_id)
 
-    def get_by_name_or_raise_if_not_found(self, name: str) -> type(Event):
-        event_db = get_event_by_name_db(self.__db, name)
-        if not event_db:
-            raise HTTPException(
-               status_code=status.HTTP_404_NOT_FOUND,
-               detail={"error": self.__event_does_not_exist_error}
-            )
+    def get_by_id_or_raise_if_not_found(self, event_id: int) -> type(Event):
+        event_db = get_event_by_id_db(self.__db, event_id)
+        self.raise_exception_if_event_not_found(event_db)
         return event_db
 
     def update(self, event_data: EventUpdateSchema):
         event_db = get_event_by_name_db(self.__db, event_data.new_name)
-        if event_db:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail={"error": self.__event_name_taken_error}
-            )
-        event_db = self.get_by_name_or_raise_if_not_found(event_data.old_name)
+        self.raise_exception_if_name_taken(event_db)
+        event_db = self.get_by_id_or_raise_if_not_found(event_data.id)
         update_event_db(self.__db, event_db, event_data)
 
     def delete(self, event_db: type(Event)):
@@ -79,11 +71,7 @@ class EventManager:
     def get_by_id_or_raise_exception_if_not_found(self,  decoded_token: TokenDecodedSchema, event_id: int) \
             -> EventByIdSchema:
         event_db = self.get_by_id(event_id)
-        if not event_db:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail={"error": self.__event_does_not_exist_error}
-            )
+        self.raise_exception_if_event_not_found(event_db)
         return EventByIdSchema(
             edit_access=decoded_token.user_id == event_db.owner_id,
             event_data=EventListSchema.from_orm(event_db)
@@ -101,4 +89,11 @@ class EventManager:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail={"error": self.__wrong_event_owner_error}
+            )
+
+    def raise_exception_if_name_taken(self, event_db: Event | None):
+        if event_db:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail={"error": self.__event_name_taken_error}
             )

@@ -120,10 +120,10 @@ class NominationEventService:
             self,
             response: Response,
             token: str,
-            event_name: str
+            event_id: int
     ):
         self.__token_manager.decode_token(token, response)
-        event_db = self.__event_manager.get_by_name_or_raise_if_not_found(event_name)
+        event_db = self.__event_manager.get_by_id_or_raise_if_not_found(event_id)
         return self.__nomination_event_manager.get_nomination_event_data(event_db)
 
     def delete(self, response: Response, token: str, nomination_event: NominationEventSchema):
