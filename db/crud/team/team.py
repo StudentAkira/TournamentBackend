@@ -5,6 +5,7 @@ from sqlalchemy import and_, not_
 from sqlalchemy.orm import Session
 
 from db.models.nomination_event import NominationEvent
+from db.models.participant import Participant
 from db.models.team import Team
 from db.models.team_participant_nomination_event import TeamParticipantNominationEvent
 from db.schemas.team.team import TeamSchema
@@ -12,9 +13,10 @@ from db.schemas.team.team_create import TeamCreateSchema
 from db.schemas.team.team_update import TeamUpdateSchema
 
 
-def create_team_db(db: Session, team: TeamCreateSchema, creator_id: int):
+def create_team_db(db: Session, team: TeamCreateSchema, participants_db: list[Participant], creator_id: int):
     team_db = Team(name=team.name)
     team_db.creator_id = creator_id
+    team_db.participants.extend(participants_db)
     db.add(team_db)
     db.commit()
     return team_db
@@ -32,6 +34,7 @@ def get_team_by_id_db(db: Session, team_id: int) -> type(Team) | None:
         cast("ColumnElement[bool]", Team.id == team_id)
     ).first()
     return team_db
+
 
 def get_team_participants_emails_db(db: Session, team_name: str) -> list[EmailStr]:
     team_db = get_team_by_name_db(db, team_name)

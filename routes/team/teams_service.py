@@ -8,6 +8,7 @@ from db.schemas.user.user_role import UserRole
 from managers.event import EventManager
 from managers.team import TeamManager
 from managers.token import TokenManager
+from managers.user import UserManager
 from utils.validation_util import Validator
 
 
@@ -17,6 +18,7 @@ class TeamsService:
         self.__token_manager = TokenManager(db)
         self.__team_manager = TeamManager(db)
         self.__event_manager = EventManager(db)
+        self.__user_manager = UserManager(db)
 
         self.__validator = Validator(db)
 
@@ -27,9 +29,11 @@ class TeamsService:
 
     def create_team(self, response, token: str, team: TeamCreateSchema) -> dict[str, str]:
         decoded_token = self.__token_manager.decode_token(token, response)
+        user_db = self.__user_manager.get_user_by_id_or_raise_if_not_found(decoded_token.user_id)
+
         self.__team_manager.create(
             team,
-            decoded_token.user_id
+            user_db
         )
         return {"message": self.__team_created_message}
 

@@ -7,6 +7,7 @@ from starlette import status
 from db.crud.team.team import get_teams_db, get_teams_by_owner_db, create_team_db, update_team_db, get_team_by_name_db, \
     get_team_by_id_db
 from db.models.team import Team
+from db.models.user import User
 from db.schemas.team.team_create import TeamCreateSchema
 from db.schemas.team.team_update import TeamUpdateSchema
 from db.schemas.team_participant.team_participant import TeamParticipantsSchema
@@ -38,11 +39,21 @@ class TeamManager:
         teams = [TeamParticipantsSchema.from_orm(team_db) for team_db in teams_db]
         return teams
 
-    def create(self, team: TeamCreateSchema, creator_id: int):
+    def create(self, team: TeamCreateSchema, user_db: User):
+
+        participants_db = [
+            self.__participant_manager.get_by_id_or_raise_if_not_found(participant_id)
+            for participant_id in team.participants_ids
+        ]
+        [
+            self.__participant_manager.raise_exception_if_owner_wrong(participant_db, user_db)
+            for participant_db in participants_db
+        ]
+
         team_db = get_team_by_name_db(self.__db, team.name)
         self.raise_exception_if_name_taken(team_db)
         self.raise_exception_if_name_invalid(team.name)
-        create_team_db(self.__db, team, creator_id)
+        create_team_db(self.__db, team, participants_db, user_db.id)
 
     def update(self, team_db: type(Team), team_data: TeamUpdateSchema):
         update_team_db(self.__db, team_db, team_data)
