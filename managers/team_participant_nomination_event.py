@@ -99,6 +99,7 @@ class TeamParticipantNominationEventManager:
                 self.__participant_manager.raise_exception_if_owner_wrong(participant_db, user_db)
             self.__team_participant_manager.raise_exception_if_participant_not_in_team(participant_db, team_db)
             self.__nomination_event_manger.raise_exception_if_participant_in_nomination_event(
+                team_db,
                 participant_db,
                 nomination_event_db
             )

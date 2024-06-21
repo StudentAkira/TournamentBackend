@@ -119,6 +119,7 @@ def refresh_db(
     delete_tpne = delete(TeamParticipantNominationEvent).where(TeamParticipantNominationEvent.id.in_(
         tpne.id for tpne in to_delete_team_participants_nomination_event_db
     ))
+    print([tpne.id for tpne in to_delete_team_participants_nomination_event_db])
     db.execute(delete_tpne)
     db.commit()
 
