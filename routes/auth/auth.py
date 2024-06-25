@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 
@@ -13,12 +13,14 @@ auth = APIRouter(prefix=URLs.auth_prefix.value, tags=URLs.auth_tags.value)
 
 @auth.post(URLs.login.value)
 async def login(
+        request: Request,
         response: Response,
         user: UserLoginSchema,
         db: Session = Depends(get_db)
 ) -> dict[str, str]:
+    client_host = request.headers.get("Host")
     service = AuthService(db)
-    return service.login(response, user)
+    return service.login(response, user, client_host)
 
 
 @auth.post(URLs.logout.value)
