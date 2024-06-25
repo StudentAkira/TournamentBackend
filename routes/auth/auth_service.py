@@ -32,7 +32,7 @@ class AuthService:
             samesite="lax",
             secure=False,
             expires=expires.strftime("%a, %d %b %Y %H:%M:%S GMT"),
-            domain=client_host
+            domain="127.0.0.1"
         )
         return {"message": self.__logged_in_message}
 
