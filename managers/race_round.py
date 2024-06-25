@@ -6,10 +6,7 @@ from starlette.responses import Response
 from db.crud.race_round.race_round import get_race_rounds_db, set_race_round_result_db
 from db.models.nomination_event import NominationEvent
 from db.models.team import Team
-from db.models.team_participant import TeamParticipant
 from db.schemas.race_round.race_roun_result import RaceRoundResultSchema
-from db.schemas.race_round.race_round import RaceRoundSchema
-from db.schemas.race_round.race_round_create import RaceRoundCreateSchema
 from db.schemas.race_round.race_round_update import RaceRoundUpdateSchema
 
 

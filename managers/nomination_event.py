@@ -153,9 +153,8 @@ class NominationEventManager:
             nomination_db: type(Nomination),
             event_db: type(Event),
             user_db,
-            nomination_event: NominationEventSchema
     ):
-        append_event_nomination_db(self.__db, nomination_db, event_db, user_db, nomination_event)
+        append_event_nomination_db(self.__db, nomination_db, event_db, user_db)
 
     def delete(self, nomination_event_db: type(NominationEvent)):
         delete_nomination_event_db(self.__db, nomination_event_db)

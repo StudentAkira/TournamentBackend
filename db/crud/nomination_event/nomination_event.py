@@ -60,13 +60,12 @@ def append_event_nomination_db(
         nomination_db: type(Nomination),
         event_db: type(Event),
         user_db: type(User),
-        nomination_event: NominationEventSchema
 ):
     nomination_event_db = NominationEvent(
         event_id=event_db.id,
         nomination_id=nomination_db.id,
         registration_finished=False,
-        type=nomination_event.type,
+        type="olympic",
     )
     nomination_event_db.judges.append(user_db)
     db.add(nomination_event_db)
