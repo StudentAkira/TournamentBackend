@@ -13,11 +13,13 @@ from db.crud.nomination_event.nomination_event import get_nomination_event_pdf_d
     get_nomination_events_full_info_by_owner_db, append_event_nomination_db, \
     delete_nomination_event_db, close_registration_nomination_event_db, open_registration_nomination_event_db, \
     get_nomination_event_db, get_judge_command_ids_db
-from db.crud.participant_nomination_event.participant_nomination_event import get_participants_of_nomination_event_db
+from db.crud.participant_nomination_event.participant_nomination_event import get_participants_of_nomination_event_db, \
+    get_participants_of_nomination_event_exclude_team_db
 from db.models.event import Event
 from db.models.nomination import Nomination
 from db.models.nomination_event import NominationEvent
 from db.models.participant import Participant
+from db.models.team import Team
 from db.models.user import User
 from db.schemas.nomination_event.nomination_event import NominationEventSchema
 from db.schemas.nomination_event.nomination_event_participant_count import NominationEventParticipantCountSchema
@@ -220,10 +222,13 @@ class NominationEventManager:
 
     def raise_exception_if_participant_in_nomination_event(
             self,
+            team_db: Team,
             participant_db: type(Participant),
             nomination_event_db: type(NominationEvent)
     ):
-        nomination_event_participant_emails = self.get_nomination_event_participant_emails(
+        nomination_event_participant_emails = get_participants_of_nomination_event_exclude_team_db(
+            self.__db,
+            team_db,
             nomination_event_db
         )
         if participant_db.email in nomination_event_participant_emails:

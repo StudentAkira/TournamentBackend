@@ -104,7 +104,7 @@ def get_nomination_events_info_db(db: Session, events_db: list[type(Event)]):
             nomination_db = db.query(Nomination).filter(
                 Nomination.id == nomination_event_db.nomination_id
             ).first()
-            nomination_event_full_info = NominationEventFullInfoSchema(
+            nomination_event_full_info = NominationEventFullInfoSchema(#todo
                 event_name=event_db.name,
                 nomination_name=nomination_db.name,
                 type=nomination_event_db.type,

@@ -70,7 +70,7 @@ class TournamentManager:
         )
 
     def raise_exception_if_not_all_matches_finished(self, nomination_event_db: type(NominationEvent)):
-        all_matches_finished = is_all_matches_finished_db(self.__db, nomination_event_db)
+        all_matches_finished = is_all_matches_finished_db(nomination_event_db)
         if not all_matches_finished:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -97,7 +97,7 @@ class TournamentManager:
             teams: list[TeamSchema],
             nomination_event_db: type(NominationEvent)
     ):
-        teams_in_tournament = team_check_existence_in_tournament_db(self.__db, teams, nomination_event_db)
+        teams_in_tournament = team_check_existence_in_tournament_db(teams, nomination_event_db)
         if not teams_in_tournament:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,

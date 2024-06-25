@@ -4,13 +4,13 @@ from sqlalchemy.orm import Session
 
 from db.models.nomination import Nomination
 from db.models.team import Team
-from db.schemas.nomination.nomination import NominationSchema
+from db.schemas.nomination.nomination_get import NominationGetSchema
 
 
 def create_missing_items(
         db: Session,
         model_name: type(Nomination),
-        items: list[NominationSchema]
+        items: list[NominationGetSchema]
 ) -> list[type(Nomination)] | None:
     if not items:
         return None

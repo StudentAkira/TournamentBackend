@@ -5,7 +5,7 @@ from db.schemas.nomination_event.nomination_event_type import NominationEventTyp
 
 
 class AppendTeamParticipantNominationEventSchema(BaseModel):
-    team_name: str | EmailStr
+    team_id: int
     participant_email: EmailStr
     nomination_name: str
     event_name: str

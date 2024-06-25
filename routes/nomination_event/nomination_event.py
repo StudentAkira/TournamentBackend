@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from starlette.responses import Response
 
 from db.schemas.nomination_event.nomination_event import NominationEventSchema
+from db.schemas.nomination_event.nomination_eventappend import NominationEventAppendSchema
 from dependencies.dependencies import authorized_only, get_db
 from routes.nomination_event.nomination_event_service import NominationEventService
 from urls import URLs
@@ -28,12 +29,12 @@ async def get_event_pdf(
 @nomination_event.get(URLs.nomination_event_data.value)
 async def get_nomination_event_data(
     response: Response,
-    event_name: Annotated[str, Query()],
+    event_id: Annotated[int, Query()],
     token: str = Depends(authorized_only),
     db: Session = Depends(get_db)
 ):
     service = NominationEventService(db)
-    return service.get_nomination_event_data(response, token, event_name)
+    return service.get_nomination_event_data(response, token, event_id)
 
 
 @nomination_event.get(URLs.nomination_event_full_info.value)
@@ -52,7 +53,7 @@ async def get_nominations_events_full_info(
 @nomination_event.post(URLs.append_nomination_for_event.value)
 async def append_nomination_for_event(
         response: Response,
-        nomination_event_data: NominationEventSchema,
+        nomination_event_data: NominationEventAppendSchema,
         token: str = Depends(authorized_only),
         db: Session = Depends(get_db)
 ):

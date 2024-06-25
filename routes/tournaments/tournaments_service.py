@@ -84,9 +84,6 @@ class TournamentService:
                 token,
                 nomination_event
             )
-        teams = [TeamSchema(
-            name=self.__team_manager.get_team_name_from_team_name_or_participant_email(team.name)
-        ) for team in teams]
 
         self.__tournament_manager.raise_exception_if_teams_not_in_tournament(teams, nomination_event_db)
         self.__tournament_manager.raise_exception_if_group_stage_not_finished(nomination_event_db)

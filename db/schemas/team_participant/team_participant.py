@@ -1,11 +1,12 @@
 from pydantic import BaseModel
 
-from db.schemas.participant.participant import ParticipantSchema
+from db.schemas.participant.participant_get import ParticipantGetSchema
 
 
 class TeamParticipantsSchema(BaseModel):
+    id: int
     name: str
-    participants: list[ParticipantSchema]
+    participants: list[ParticipantGetSchema]
 
     class Config:
         from_attributes = True

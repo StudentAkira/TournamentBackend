@@ -2,12 +2,12 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 
-from db.schemas.team_nomination_event.append_team_participant_nomination_event import \
-    AppendTeamParticipantNominationEventSchema
 from db.schemas.team_nomination_event.delete_team_participant_nomination_event import \
     DeleteTeamParticipantNominationEventSchema
 from db.schemas.team_nomination_event.update_team_participant_nomination_event import \
     UpdateTeamParticipantNominationEventSchema
+from db.schemas.team_participant_nomination_event.append_teams_participants_nomination_event import \
+    TeamParticipantNominationEventAppendSchema
 from dependencies.dependencies import get_db, authorized_only
 from routes.team_participant_nomination_event.team_participant_nomination_event_service import \
     TeamParticipantNominationEventService
@@ -22,10 +22,10 @@ team_participant_nomination_event = APIRouter(
 @team_participant_nomination_event.post(URLs.team_participant.value)
 async def append_team_participant_nomination_event(
         response: Response,
-        team_participant_nomination_event_data: AppendTeamParticipantNominationEventSchema,
+        team_participant_nomination_event_data: TeamParticipantNominationEventAppendSchema,
         token: str = Depends(authorized_only),
         db: Session = Depends(get_db)
-):
+) -> dict[str, str]:
     service = TeamParticipantNominationEventService(db)
     return service.append_team_participant_nomination_event(
         response,
@@ -34,7 +34,7 @@ async def append_team_participant_nomination_event(
     )
 
 
-@team_participant_nomination_event.put(URLs.team_participant.value)
+@team_participant_nomination_event.put(URLs.team_participant.value, deprecated=True)
 async def update_team_participant_nomination_event(
         response: Response,
         team_participant_nomination_event_data: UpdateTeamParticipantNominationEventSchema,
@@ -49,7 +49,7 @@ async def update_team_participant_nomination_event(
     )
 
 
-@team_participant_nomination_event.delete("/team_participant")
+@team_participant_nomination_event.delete("/team_participant", deprecated=True)
 async def delete_team_participant_nomination_event(
         response: Response,
         team_participant_nomination_event_data: DeleteTeamParticipantNominationEventSchema,

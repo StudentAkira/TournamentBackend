@@ -1,0 +1,48 @@
+{
+  "nomination_event": {
+    "event_id": 1,
+    "nomination_id": 1,
+    "type": "olympyc"
+  },
+  "team_id": 15,
+  "team_participants": [
+    {
+      "participant_id": 2,
+      "softwares": [
+        {
+          "name": "string"
+        }
+      ],
+      "equipments": [
+        {
+          "name": "string"
+        }
+      ]
+    },
+{
+      "participant_id": 3,
+      "softwares": [
+        {
+          "name": "string"
+        }
+      ],
+      "equipments": [
+        {
+          "name": "string"
+        }
+      ]
+    },
+{
+      "participant_id": 4,
+      "softwares": [
+        {
+          "name": "string"
+        }
+      ],
+      "equipments": [
+        {
+          "name": "string"
+        }
+      ]
+    }
+  ]

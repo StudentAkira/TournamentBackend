@@ -7,6 +7,8 @@ from db.schemas.nomination_event.nomination_event_type import NominationEventTyp
 
 
 class GetNominationEventJudgeSchema(BaseModel):
-    nomination_name: Annotated[str, Query()]
-    event_name: Annotated[str, Query()]
-    nomination_event_type: Annotated[NominationEventType, Query()]
+    nomination_id: Annotated[int, Query()]
+    event_id: Annotated[int, Query()]
+    nomination_event_type: Annotated[NominationEventType | None, Query(default=NominationEventType.olympyc)]
+
+    judge_id: int

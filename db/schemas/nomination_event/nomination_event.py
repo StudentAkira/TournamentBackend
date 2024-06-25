@@ -3,6 +3,6 @@ from db.schemas.nomination_event.nomination_event_type import NominationEventTyp
 
 
 class NominationEventSchema(BaseModel):
-    event_name: str
-    nomination_name: str
-    type: NominationEventType
+    event_id: int
+    nomination_id: int
+    type: NominationEventType | None = NominationEventType.olympyc

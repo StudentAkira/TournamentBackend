@@ -3,7 +3,8 @@ import datetime
 from pydantic import BaseModel, EmailStr
 
 
-class ParticipantSchema(BaseModel):
+class ParticipantGetSchema(BaseModel):
+    id: int
     email: EmailStr
     first_name: str
     second_name: str
@@ -15,8 +16,6 @@ class ParticipantSchema(BaseModel):
     supervisor_first_name: str
     supervisor_second_name: str
     supervisor_third_name: str
-
-    hidden: bool = False
 
     class Config:
         from_attributes = True

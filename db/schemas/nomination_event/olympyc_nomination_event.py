@@ -5,8 +5,8 @@ from db.schemas.nomination_event.nomination_event_type import NominationEventTyp
 
 
 class OlympycNominationEventSchema(BaseModel):
-    event_name: str
-    nomination_name: str
+    event_id: int
+    nomination_id: int
 
     def to_nomination_event_schema(self):
         return NominationEventSchema(
