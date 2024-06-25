@@ -8,6 +8,7 @@ from starlette.responses import JSONResponse
 
 from config import get_settings
 from db import database
+from routes.annotation.annotation import annotation
 
 from routes.auth.auth import auth
 from routes.event.events import events
@@ -41,6 +42,7 @@ from db.models.software import Software
 from db.models.equipment import Equipment
 from db.models.team_participant_nomination_event_software import TeamParticipantNominationEventSoftware
 from db.models.team_participant_nomination_event_equipment import TeamParticipantNominationEventEquipment
+from db.models.annotations import Annotation
 
 
 database.Base.metadata.create_all(bind=database.engine)
@@ -88,3 +90,4 @@ app.include_router(tournaments)
 app.include_router(nomination_event)
 app.include_router(match)
 app.include_router(race_rounds)
+app.include_router(annotation)

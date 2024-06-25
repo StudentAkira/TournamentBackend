@@ -99,7 +99,12 @@ class NominationEventService:
         self.__user_manager.raise_exception_if_user_specialist(decoded_token.role)
         user_db = self.__user_manager.get_user_by_id_or_raise_if_not_found(decoded_token.user_id)
 
+<<<<<<< HEAD
         event_db = self.__event_manager.get_by_id_or_raise_if_not_found(nomination_event.event_id)
+=======
+        event_db = self.__event_manager.get_by_name_or_raise_if_not_found(nomination_event.event_name)
+
+>>>>>>> 53e696f0b4b653ee060e073b01ae317a74ce138c
         nomination_db = self.__nomination_manager.get_or_create(
             decoded_token.user_id,
             nomination_event.nomination_name

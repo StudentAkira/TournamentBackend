@@ -80,6 +80,7 @@ class NominationManager:
                 status_code=status.HTTP_409_CONFLICT,
                 detail={"error": self.__nomination_name_taken_error}
             )
+<<<<<<< HEAD
 
     def raise_exception_if_not_found(self, nomination_db: Nomination | None):
         if nomination_db is None:
@@ -89,3 +90,5 @@ class NominationManager:
             )
 
 
+=======
+>>>>>>> 53e696f0b4b653ee060e073b01ae317a74ce138c
