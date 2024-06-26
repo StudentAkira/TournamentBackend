@@ -36,7 +36,7 @@ class NominationEventService:
         data_db = []
 
         for item in data:
-            event_db = self.__event_manager.get_by_name_or_raise_if_not_found(item.event_name)
+            event_db = self.__event_manager.get_by_id_or_raise_if_not_found(item.event_name)
             nomination_db = self.__nomination_manager.get_by_name_and_user_id_or_raise_exception_if_not_found(
                 decoded_token.user_id,
                 item.nomination_name
@@ -99,12 +99,8 @@ class NominationEventService:
         self.__user_manager.raise_exception_if_user_specialist(decoded_token.role)
         user_db = self.__user_manager.get_user_by_id_or_raise_if_not_found(decoded_token.user_id)
 
-<<<<<<< HEAD
         event_db = self.__event_manager.get_by_id_or_raise_if_not_found(nomination_event.event_id)
-=======
-        event_db = self.__event_manager.get_by_name_or_raise_if_not_found(nomination_event.event_name)
 
->>>>>>> 53e696f0b4b653ee060e073b01ae317a74ce138c
         nomination_db = self.__nomination_manager.get_or_create(
             decoded_token.user_id,
             nomination_event.nomination_name
@@ -119,7 +115,11 @@ class NominationEventService:
                 nomination_event.race_round_length
             )
         self.__event_manager.raise_exception_if_owner_wrong(event_db, user_db.id)
-        self.__nomination_event_manager.append(nomination_db, event_db, user_db, nomination_event)
+        self.__nomination_event_manager.append(
+            nomination_db,
+            event_db,
+            user_db,
+        )
         return {"message": self.__nominations_appended_message}
 
     def get_nomination_event_data(

@@ -46,5 +46,3 @@ class AnnotationManager:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail={"error": self.__annotation_not_found_error}
             )
-
-
