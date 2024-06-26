@@ -10,7 +10,12 @@ class MacrosHandler:
         self.client = client
         self.event_data = {"name": "string", "date": "2024-06-25"}
         self.user_data = {"email": "test@mail.ru", "password": "7689462"}
-        self.nomination_data = {"name": "string", "type": "olympyc"}
+        self.nomination_data = {"name": "string", "type": "olympic"}
+
+    def __get_participant_schema(self, participant_id):
+        return {
+            
+        }
 
     def __get_id_by_name(self, event_name):
         response = self.client.get(url='http://127.0.0.1:8000/api/event/event?offset=0&limit=10', cookies=self.cookie)
@@ -25,24 +30,16 @@ class MacrosHandler:
         cookie = Cookies()
         cookie.set(name="token", value=token, domain='127.0.0.1', path='/')
         self.cookie = cookie
-
         print(response.text)
 
     def create_event(self):
         print('create event :: ', end='')
-
         response = self.client.post(url='http://127.0.0.1:8000/api/event/event', json=self.event_data, cookies=self.cookie)
-
         print(response.text)
 
     def append_nomination(self):
-        print('appen nomination :: ', end='')
+        print('append nomination :: ', end='')
         event_id = self.__get_id_by_name(self.event_data["name"])
-        print({
-                "event_id": event_id,
-                "nomination_name": self.nomination_data["name"],
-                "type": self.nomination_data["type"]
-            })
         response = self.client.post(
             url='http://127.0.0.1:8000/api/nomination_event/append_nomination_for_event',
             json={
@@ -53,6 +50,9 @@ class MacrosHandler:
             cookies=self.cookie
         )
         print(response.text)
+
+    def create_participants(self):
+        print('create participants :: ', end='')
 
 
 
