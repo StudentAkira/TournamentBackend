@@ -79,7 +79,6 @@ def get_nomination_event_db(
         event_db: type(Event),
         type_: NominationEventType
 ) -> type(NominationEvent) | None:
-    print(event_db.id, nomination_db.id, type_.value)
     nomination_event_db = db.query(NominationEvent). \
         filter(and_(
             NominationEvent.event_id == event_db.id,
@@ -87,7 +86,6 @@ def get_nomination_event_db(
             NominationEvent.type == type_.value
         )
     ).first()
-    print(nomination_event_db.type == type_.value, nomination_event_db.type, type_.value)
     return nomination_event_db
 
 

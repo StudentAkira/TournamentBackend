@@ -23,6 +23,9 @@ class Match(Base):
     team2_id: int = Column(Integer, ForeignKey("team.id"), nullable=True)
     team2: Mapped["Team"] = relationship("Team", foreign_keys="[Match.team2_id]")
 
+    team1_score: int = Column(Integer, nullable=False, default=0)
+    team2_score: int = Column(Integer, nullable=False, default=0)
+
     winner_id: int = Column(Integer, ForeignKey("team.id"))
     winner: Mapped["Team"] = relationship("Team", foreign_keys="[Match.winner_id]")
 

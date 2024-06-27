@@ -1,4 +1,6 @@
+from sqlalchemy.orm import Session
 from starlette.responses import Response
+
 
 from db.schemas.event.event import EventSchema
 from db.schemas.event.event_by_id import EventByIdSchema
@@ -13,7 +15,7 @@ from managers.user import UserManager
 
 class EventsService:
 
-    def __init__(self, db):
+    def __init__(self, db: Session):
         self.__db = db
         self.__token_manager = TokenManager(db)
         self.__user_manager = UserManager(db)

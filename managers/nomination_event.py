@@ -206,7 +206,7 @@ class NominationEventManager:
         if nomination_event_db.tournament_started:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail={"message": self.__tournament_started_error}
+                detail={"error": self.__tournament_started_error}
             )
 
     def raise_exception_if_tournament_not_started(
@@ -216,7 +216,7 @@ class NominationEventManager:
         if not nomination_event_db.tournament_started:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail={"message": self.__tournament_not_started_error}
+                detail={"error": self.__tournament_not_started_error}
             )
 
     def raise_exception_if_participant_in_nomination_event(

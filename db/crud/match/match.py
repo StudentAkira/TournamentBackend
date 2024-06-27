@@ -27,10 +27,13 @@ def get_group_matches_db(nomination_event_db: type(NominationEvent)):
                     match_id=match_db.id,
                     team1=TeamGetSchema(id=match_db.team1.id, name=match_db.team1.name) if match_db.team1 else None,
                     team2=TeamGetSchema(id=match_db.team2.id, name=match_db.team2.name) if match_db.team2 else None,
-                    winner=TeamGetSchema(id=match_db.winner.id, name=match_db.winner.name) if match_db.winner else None,
+
+                    team1_score=match_db.team1_score,
+                    team2_score=match_db.team2_score,
+
                     last_result_creator_email=
-                    match_db.last_result_creator.email
-                    if match_db.last_result_creator else None,
+                        match_db.last_result_creator.email
+                        if match_db.last_result_creator else None,
                     match_queue_number=match_db.match_queue_number
                 ) for match_db in group_db.matches
             ]
