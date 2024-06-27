@@ -9,6 +9,7 @@ from db.models.match import Match
 from db.models.nomination_event import NominationEvent
 from db.models.team import Team
 from db.models.user import User
+from db.schemas.match.set_group_match_result_schema import SetGroupMatchResultSchema
 from managers.team import TeamManager
 
 
@@ -44,8 +45,8 @@ class MatchManager:
         data = get_bracket_matches_db(nomination_event_db)
         return data
 
-    def set_group_match_result(self, judge_db: type(User), match_db: type(Match), team_db: type(Team)):
-        set_group_match_result_db(self.__db, judge_db, match_db, team_db)
+    def set_group_match_result(self, judge_db: type(User), match_db: type(Match), data: SetGroupMatchResultSchema):
+        set_group_match_result_db(self.__db, judge_db, match_db, data)
 
     def set_bracket_match_result(self, judge_db: type(User), match_db: type(Match), winner_team_db: type(Team)):
         set_bracket_match_result_db(self.__db, judge_db, match_db, winner_team_db)

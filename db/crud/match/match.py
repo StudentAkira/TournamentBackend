@@ -10,6 +10,7 @@ from db.schemas.bracket.bracket_tournament import BracketMatchesSchema
 from db.schemas.group_tournament.group_matches import GroupMatchesSchema
 from db.schemas.match.bracket_match_schema import BracketMatchSchema
 from db.schemas.match.group_match_schema import GroupMatchSchema
+from db.schemas.match.set_group_match_result_schema import SetGroupMatchResultSchema
 from db.schemas.team.team_get import TeamGetSchema
 
 
@@ -55,10 +56,10 @@ def get_bracket_matches_db(nomination_event_db: type(NominationEvent)):
     return result
 
 
-def set_group_match_result_db(db: Session, judge_db: type(User), match_db: type(Match), team_db: type(Team)):
-    if team_db:
-        match_db.winner = team_db
+def set_group_match_result_db(db: Session, judge_db: type(User), match_db: type(Match), data: SetGroupMatchResultSchema):
     match_db.last_result_creator = judge_db
+    match_db.team1_score = data.team1_score
+    match_db.team2_score = data.team2_score
     db.add(match_db)
     db.commit()
 

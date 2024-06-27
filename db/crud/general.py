@@ -53,7 +53,7 @@ def round_robin(teams: list[Team | None]):
         matches.extend(round_)
         teams.insert(1, teams.pop())
 
-    return matches
+    return [match for match in matches if match[0] is not None and match[1] is not None]
 
 
 def get_person_age(birth_date: datetime.datetime):

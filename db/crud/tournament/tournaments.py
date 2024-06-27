@@ -9,6 +9,7 @@ from db.models.team import Team
 from db.schemas.group_tournament.get_groups_of_tournament import GetGroupsOfTournamentSchema
 from db.schemas.group_tournament.group import GroupSchema
 from db.schemas.team.team import TeamSchema
+from db.schemas.team.team_get import TeamGetSchema
 
 
 def start_group_stage_db(db: Session, nomination_event_db: type(NominationEvent), group_count: int):
@@ -56,7 +57,7 @@ def get_groups_of_tournament_db(nomination_event_db: type(NominationEvent)):
             GroupSchema(
                 id=group_db.id,
                 teams=[
-                    TeamSchema(
+                    TeamGetSchema(
                         id=team_db.id,
                         name=team_db.name,
                     ) for team_db in group_db.teams

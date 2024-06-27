@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 
-from db.schemas.match.set_match_result_schema import SetMatchResultSchema
+from db.schemas.match.set_group_match_result_schema import SetGroupMatchResultSchema
 from db.schemas.nomination_event.olympyc_nomination_event import OlympycNominationEventSchema
 from managers.event import EventManager
 from managers.match import MatchManager
@@ -33,7 +33,7 @@ class MatchService:
 
         self.__match_result_set_message = "match result set"
 
-    def set_group_match_result(self, response: Response, token: str, data: SetMatchResultSchema):
+    def set_group_match_result(self, response: Response, token: str, data: SetGroupMatchResultSchema):
         decoded_token, user_db, event_db, nomination_db, nomination_event_db = \
             self.__retriever.get_decoded_token_user_nomination_event_nomination_event(
                 response,
@@ -43,16 +43,10 @@ class MatchService:
         match_db = self.__match_manager.get_group_match_or_raise_if_not_found(data.match_id)
         self.__match_manager.raise_exception_if_match_not_related_to_nomination_event(nomination_event_db, match_db)
         self.__tournament_manger.raise_exception_if_group_stage_finished(nomination_event_db)
-        if data.winner_team_name:
-            team_name = self.__team_manager.get_team_name_from_team_name_or_participant_email(data.winner_team_name)
-            team_db = self.__team_manager.get_by_name_or_raise_if_not_found(team_name)
-            self.__match_manager.raise_exception_if_winner_not_in_match(match_db, team_db)
-        else:
-            team_db = None
-        self.__match_manager.set_group_match_result(user_db, match_db, team_db)
+        self.__match_manager.set_group_match_result(user_db, match_db, data)
         return {"message": self.__match_result_set_message}
 
-    def set_bracket_match_result(self, response: Response, token: str, data: SetMatchResultSchema):
+    def set_bracket_match_result(self, response: Response, token: str, data: SetGroupMatchResultSchema):
         decoded_token, user_db, event_db, nomination_db, nomination_event_db = \
             self.__retriever.get_decoded_token_user_nomination_event_nomination_event(
                 response,

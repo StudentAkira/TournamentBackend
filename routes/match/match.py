@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from starlette.responses import Response
 from sqlalchemy.orm import Session
 
-from db.schemas.match.set_match_result_schema import SetMatchResultSchema
+from db.schemas.match.set_group_match_result_schema import SetGroupMatchResultSchema
 from db.schemas.nomination_event.olympyc_nomination_event import OlympycNominationEventSchema
 from dependencies.dependencies import authorized_only, get_db
 from routes.match.match_service import MatchService
@@ -36,7 +36,7 @@ async def get_bracket_matches_of_tournament(
 @match.post(URLs.set_group_match_result.value)
 async def set_group_match_result(
         response: Response,
-        data: SetMatchResultSchema,
+        data: SetGroupMatchResultSchema,
         token: str = Depends(authorized_only),
         db: Session = Depends(get_db)
 ):
@@ -47,7 +47,7 @@ async def set_group_match_result(
 @match.post(URLs.set_bracket_match_result.value)
 async def set_bracket_match_result(
         response: Response,
-        data: SetMatchResultSchema,
+        data: SetBracketMatchResultSchema,
         token: str = Depends(authorized_only),
         db: Session = Depends(get_db)
 ):

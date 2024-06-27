@@ -2,7 +2,7 @@ import json
 
 import httpx
 from httpx import Cookies
-from sqlalchemy import func, and_
+from sqlalchemy import func
 
 from .config import *
 
@@ -16,8 +16,8 @@ class MacrosHandler:
         self.nomination_data = {"name": "string", "type": "olympic"}
 
         self.participant_id = 0
-        self.__participant_count = 12
-        self.__group_count = 4
+        self.__participant_count = 4
+        self.__group_count = 2
 
     def __get_participant_data(self, participant_id):
         return {
